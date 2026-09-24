@@ -62,3 +62,13 @@ Worked through the full design for the first-useful-version tool (README §3), p
 - The user mentioned a possible future direction of using this tool as a data-collection instrument for a master's thesis in Survey Statistics and Data Analytics (e.g. survival-analysis-style research on repo activity/abandonment patterns). Noted as context for why raw fetched data is kept rather than only computed summaries, but this is not part of the current build scope.
 
 **Next step:** run `/opsx:propose` to turn this decision record into buildable OpenSpec artifacts (proposal, design, specs, tasks).
+
+## 2026-09-24 (later) — Proposal generated, then updated to include a user manual
+
+Ran `/opsx:propose`, which created the OpenSpec change `reposcout-first-version` (`openspec/changes/reposcout-first-version/`) with `proposal.md`, three spec deltas (`repo-search`, `search-cache`, `github-auth`), `design.md`, and `tasks.md` — all validated (`openspec validate --strict` passes). Committed as `62c1442`.
+
+Decided not to push to `origin/main` yet — will push once the first working version exists, rather than syncing partial/planning-only state.
+
+The user then asked for a user manual to be built alongside the code, which had been deliberately deferred during the explore session (see the previous entry's "Noted but deliberately out of scope" note). Ran `/opsx:update` to fold this back in before implementation starts: added task group 9 (`docs/USER_MANUAL.md`, covering install/token setup/search command/`--refresh`/output/cache-config locations, plus linking it from `README.md`) to `tasks.md`, a matching bullet to `proposal.md`'s "What Changes", and corrected a now-stale line in `design.md`'s Migration Plan that had said the manual was tracked separately. Re-validated successfully after the edit.
+
+**Next step:** run `/opsx:apply` to start implementation.

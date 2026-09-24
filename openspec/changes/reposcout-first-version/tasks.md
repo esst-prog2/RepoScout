@@ -54,3 +54,8 @@
 - [ ] 8.2 Automated test: a repo with no commits in the last 3 months is bucketed as `slowing` or `stale`, never `active`
 - [ ] 8.3 Automated test: running the same keyword twice within 24 hours makes zero GitHub API calls on the second run, verified via the `responses` mock's logged call count
 - [ ] 8.4 Manual smoke test: run `reposcout search "<some real keyword>"` against the live GitHub API with a real token and confirm the terminal table, verdict line, and CSV all look correct
+
+## 9. User manual
+
+- [ ] 9.1 Write a user manual (`docs/USER_MANUAL.md`) covering: installation (`pip install .`), how to provide a GitHub token (via `GITHUB_TOKEN` or the interactive prompt), the `search "<keyword>"` command and `--refresh` flag, what the terminal table/verdict and CSV export look like, and where the cache and token config files are stored — verify each of these six topics is present as its own section in the file
+- [ ] 9.2 Link the user manual from the project's `README.md` — verify `README.md` contains a reference to `docs/USER_MANUAL.md`

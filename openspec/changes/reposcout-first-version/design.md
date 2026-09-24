@@ -69,4 +69,4 @@ tests/
 
 ## Migration Plan
 
-Greenfield project — no existing users, data, or deployed version to migrate from. "Install" is simply `pip install .` (documented in the eventual user manual, tracked separately in `AGENTS.md`). "Rollback" is `pip uninstall reposcout`, optionally followed by manually deleting the `reposcout` cache/config directories `platformdirs` resolved — no data migration is needed either way.
+Greenfield project — no existing users, data, or deployed version to migrate from. "Install" is simply `pip install .`, documented in the user manual (`docs/USER_MANUAL.md`) delivered as part of this change (see tasks.md §9). "Rollback" is `pip uninstall reposcout`, optionally followed by manually deleting the `reposcout` cache/config directories `platformdirs` resolved — no data migration is needed either way.

@@ -16,6 +16,7 @@ Manually browsing GitHub's search results and eyeballing "updated X ago" across 
 - Add GitHub token handling: read from the `GITHUB_TOKEN` environment variable, fall back to a token saved from a prior run, and otherwise prompt interactively (masked, skippable, skip remembered) and persist the entered token to a local config file.
 - Handle GitHub rate-limit and auth-error responses gracefully with clear, actionable messages instead of crashing.
 - Package the project with `pyproject.toml` and a console-script entry point so `reposcout` works as a real command after `pip install .`.
+- Add a user manual (`docs/USER_MANUAL.md`) covering installation, GitHub token setup, the `search` command and its `--refresh` flag, output format, and where cache/config files are stored.
 
 ## Capabilities
 
