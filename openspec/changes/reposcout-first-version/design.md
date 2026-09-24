@@ -2,7 +2,7 @@
 
 ## Context
 
-Greenfield project — no existing code, only `README.md` (the original spec) and `AGENTS.md` (a planning log recording the decisions this design formalizes). See `proposal.md` for motivation. This document exists because the change touches several cross-cutting concerns (a new external API integration, a new local data store, and a new local secret store) and pulls in five new runtime dependencies, all of which benefit from being decided explicitly before coding starts.
+Greenfield project — no existing code, only `README.md` (the original spec) and `AGENTS.md` (a planning log recording the decisions this design formalizes). See `proposal.md` for motivation. This document exists because the change touches several cross-cutting concerns (a new external API integration, a new local data store, and a new local secret store) and pulls in several new runtime dependencies, all of which benefit from being decided explicitly before coding starts.
 
 ## Goals / Non-Goals
 
@@ -40,7 +40,9 @@ Greenfield project — no existing code, only `README.md` (the original spec) an
 
 **Cache key normalization:** casefold, trim, collapse internal whitespace to one space. Deliberately does *not* normalize hyphens to/from spaces, so `"expense tracker"` and `"expense-tracker"` remain distinct cache entries (see `search-cache` spec).
 
-**Token storage:** a small JSON file in `platformdirs.user_config_dir("reposcout")`, written after an interactive `getpass`-masked prompt. File permissions are set to `0600` via `os.chmod` where the OS supports it (POSIX); Windows has no direct stdlib equivalent, so it relies on normal per-account file protection there, consistent with how most cross-platform CLI tools handle this. Plaintext-with-restricted-permissions is the same baseline approach used by `gh`, `aws`, and `docker` CLIs.
+**Token storage:** a small JSON file in `platformdirs.user_config_dir("reposcout")`, written after an interactive masked prompt. File permissions are set to `0600` via `os.chmod` where the OS supports it (POSIX); Windows has no direct stdlib equivalent, so it relies on normal per-account file protection there, consistent with how most cross-platform CLI tools handle this. Plaintext-with-restricted-permissions is the same baseline approach used by `gh`, `aws`, and `docker` CLIs.
+
+**Token prompt library: `pwinput` (asterisk-masked input) rather than stdlib `getpass` (fully silent input).** Originally built with `getpass`, matching the explore session's "masked, not echoed" requirement literally. Revised after the manual smoke test (tasks.md §8.4) surfaced a real usability problem: pasting a token into a fully silent prompt gives no feedback that anything was received, which made a genuine paste-truncation issue hard to diagnose. `pwinput` is a drop-in equivalent that echoes `*` per character instead of nothing — still never reveals the token itself, satisfies the same "masked" requirement in `specs/github-auth/spec.md`, but confirms input length was received. Trade-off: one additional small dependency, accepted given the demonstrated real-world usability cost of the fully-silent alternative.
 
 **Error handling for GitHub API responses:** HTTP client code inspects response status codes and headers directly (401/403, rate-limit headers) and raises typed exceptions that the CLI layer catches and translates into short, friendly `typer` error output — never letting a raw `requests` exception or stack trace reach the user.
 

@@ -1,6 +1,8 @@
 # RepoScout
 For Advanced Programming class
 
+See [docs/USER_MANUAL.md](docs/USER_MANUAL.md) for installation, GitHub token setup, and usage instructions.
+
 ## 1. The demo
 
 I open a terminal and run `reposcout search "expense tracker"`. It queries GitHub and prints a table of 40 repositories sorted by stars, with columns for stars, last commit date, and primary language. Below the table it prints a one-line verdict: `42 repos found, 6 active in the last 3 months — most recent entrant pushed 2 weeks ago`. It also writes `expense-tracker-report.csv` next to it, and opening that file shows the same 40 rows with the same columns, ready to sort or filter in a spreadsheet. Running the same search again a minute later returns instantly from cache instead of re-querying GitHub.

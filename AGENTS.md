@@ -72,3 +72,17 @@ Decided not to push to `origin/main` yet — will push once the first working ve
 The user then asked for a user manual to be built alongside the code, which had been deliberately deferred during the explore session (see the previous entry's "Noted but deliberately out of scope" note). Ran `/opsx:update` to fold this back in before implementation starts: added task group 9 (`docs/USER_MANUAL.md`, covering install/token setup/search command/`--refresh`/output/cache-config locations, plus linking it from `README.md`) to `tasks.md`, a matching bullet to `proposal.md`'s "What Changes", and corrected a now-stale line in `design.md`'s Migration Plan that had said the manual was tracked separately. Re-validated successfully after the edit.
 
 **Next step:** run `/opsx:apply` to start implementation.
+
+## 2026-09-24 (later) — First version implemented (33/33 tasks)
+
+Ran `/opsx:apply`. Built the full `reposcout` package (`cli.py`, `github.py`, `cache.py`, `auth.py`, `bucketing.py`, `output.py`), `pyproject.toml` with a console-script entry point, and a 43-test `pytest` suite (including explicit acceptance tests mapping to README §4). Set up a local `.venv` for development and added `.gitignore`. Wrote `docs/USER_MANUAL.md` and linked it from `README.md`.
+
+One real implementation finding along the way: Typer collapses a single-command app so it drops the subcommand name — fixed by adding an empty `@app.callback()`, which is Typer's documented way to keep `search` as an explicit subcommand (matching `reposcout search "<keyword>"` from the spec) instead of letting it collapse to `reposcout "<keyword>"`.
+
+All 33 tasks passed except 8.4 (the manual live-API smoke test), which needed a real GitHub token I didn't have. The user generated a fine-grained personal access token (Public Repositories: read-only, no other permissions needed) and ran the smoke test themselves in their own terminal — using the interactive token prompt so the token was never typed into this conversation. It worked: a real search for "expense tracker" correctly returned "Showing top 50 of 234450 matching repos, 10 active among them — most recent entrant pushed 40 minutes ago", confirming the "top 50 of N" honesty wording works against live data. Task 8.4 marked done.
+
+That live test also surfaced a genuine usability problem: the token prompt used stdlib `getpass`, which shows nothing at all while typing/pasting — giving no feedback on whether a paste worked. This directly caused a real paste-truncation issue during testing (the user's first two token attempts were silently corrupted and got rejected by GitHub as invalid). Fixed by switching to `pwinput`, a small drop-in replacement that echoes `*` per character (still never reveals the token) — updated `design.md`'s token-prompt decision, `proposal.md`'s dependency list, `docs/USER_MANUAL.md`'s wording, `auth.py`, and the corresponding tests. Full suite re-verified at 43/43 passing after the change.
+
+Change `openspec validate --strict` still passes. Nothing pushed to `origin/main` yet (still deliberately deferred, per the earlier decision to push once a working version exists) — worth revisiting now that the tool is actually working end-to-end.
+
+**Next step:** commit the implementation, consider pushing, and whenever ready, `/opsx:archive` to close out the change.

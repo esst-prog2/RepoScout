@@ -31,7 +31,7 @@ None — this is a new project with no existing specs.
 ## Impact
 
 - New Python project; no existing code is affected (repo currently contains only `README.md`, `AGENTS.md`, and OpenSpec/Claude scaffolding).
-- New runtime dependencies: `requests`, `typer`, `tabulate`, `humanize`, `platformdirs`.
+- New runtime dependencies: `requests`, `typer`, `tabulate`, `humanize`, `platformdirs`, `pwinput`.
 - New dev/test dependencies: `pytest`, `responses`.
 - New files: `pyproject.toml`, a `reposcout` source package, and a test suite.
 - Requires a GitHub personal access token (or accepting reduced unauthenticated rate limits) to be useful in practice.
