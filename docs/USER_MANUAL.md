@@ -2,6 +2,17 @@
 
 RepoScout searches GitHub for repositories matching a keyword, ranks them by stars, classifies each by recent activity, and gives you both a quick terminal summary and a CSV you can open in a spreadsheet.
 
+## Quick Start
+
+```
+pip install .
+reposcout search "expense tracker"
+```
+
+First run with no token set up will prompt you to paste one in (leave blank to skip — it'll still work, just with a lower rate limit). Results print in your terminal, and a `expense-tracker-report.csv` file appears in your current folder.
+
+That's it. Read on below for details on tokens, `--refresh`, and where files are stored.
+
 ## Installation
 
 RepoScout requires Python 3.10 or newer.
