@@ -122,3 +122,33 @@ A new assignment (HW4) followed: a "spike" — a time-boxed investigation produc
 **The actual spike** (separate from the above): "is `pushed_at` the last commit?" — `github.py` reads a repo's `pushed_at` from the Search API response and `output.py` prints it as "Last Commit," but these aren't guaranteed to be the same thing (the issue cites `twbs/bootstrap`, where `pushed_at` was 5 days newer than the actual last default-branch commit). Since the entire active/slowing/stale verdict rests on this field, the spike asks: across 50 repos from one live search, how often does `pushed_at` disagree with the real last-commit date (fetched via `/commits?per_page=1` per repo), and how many of those 50 change activity bucket as a result? Answer format: median drift in days + count of bucket flips. Evidence type: commit the script and the 50 rows of data.
 
 **Next step:** fix committed, then start the formal spike workflow — `git switch -c hw4-spike`, log the question/answer-criteria, run the real experiment.
+
+## 2026-10-03 (later) — HW4 spike: question and answer criteria (before running it)
+
+On branch `hw4-spike`, created from `main` after the rate-limit fix above. Recording the question and what counts as an answer before doing the work, per the assignment's own instruction.
+
+**Question:** How often does `pushed_at` (what `github.py` fetches and `output.py` labels "Last Commit") disagree with a repository's real last commit on its default branch, and how many repositories change activity bucket (active/slowing/stale, using the existing 90/365-day thresholds in `bucketing.py`) as a result of that disagreement?
+
+**Method:** Take 50 repositories from one live GitHub search (reusing `reposcout`'s own search call). For each, fetch the real last commit via `GET /repos/{owner}/{repo}/commits?per_page=1` and record its commit date (using the committer date, i.e. `commit.committer.date` — the date the commit entered the branch — as the "real last commit" reference, rather than the author date, which can differ for rebased/amended commits). Record both `pushed_at` and the real last-commit date for every repo.
+
+**What counts as an answer:** the median drift in days across the 50 repos (|pushed_at − real last commit|), and the count of repos (out of 50) whose activity bucket differs depending on which date is used.
+
+**Evidence type (per the issue):** measured over data — commit the script and the 50 rows it produces.
+
+This is not run yet. The actual numbers will be logged as a separate decision once the script has been run against live data.
+
+## 2026-10-03 (later) — HW4 spike: the answer
+
+Ran `spike/pushed_at_drift.py --fetch` against a live search for `"expense tracker"` (50 repos, `total_count=237753`), then analyzed the committed `spike/pushed_at_drift.csv`.
+
+**Answer: median drift = 0.00 days. Bucket flips = 5/50.**
+
+The distribution is bimodal, not smooth: 29/50 repos have `pushed_at` within seconds of the real default-branch last commit (a normal direct push), while 20/50 diverge by more than a day — and every one of those 20 diverges by more than 5 days, several by hundreds or thousands of days (worst case: `shamahoque/mern-expense-tracker`, 2,057 days ≈ 5.6 years). Nothing sits in between. The median lands at 0 because the near-zero cluster is the larger of the two, but that doesn't mean the field is reliable — it means a slim majority happen to push straight to their default branch, while a substantial minority have `pushed_at` reflecting push activity elsewhere in the repo (another branch, a bot, a tag) that has nothing to do with the default branch's real state.
+
+This confirms the concern: `pushed_at` is not the same thing as "last commit," and for 10% of this sample the difference is large enough to flip the activity-bucket verdict RepoScout prints.
+
+**Decision on what changes:** not the fetch strategy (switching to a real per-repo commit call would reintroduce the N+1-call cost the project deliberately avoided, and the drift pattern being bimodal — near-zero or huge — means no bucket-threshold tuning would catch the 5 flipped repos anyway). Instead, the measured number was added to README.md's existing "Activity is a proxy, not a fact" caveat, turning a previously vague acknowledgment into an evidenced one.
+
+**Next step:** push `hw4-spike` and open the PR (merge commit, keep the branch).
+
+**Follow-up considered and deferred:** whether to switch from `pushed_at` to a real per-repo commit-date fetch outright, now that it's clear the commits endpoint is a *core* API call (60/hour unauthenticated, 5,000/hour authenticated) rather than governed by the tight *search* API limits (10-30/minute). For authenticated users the extra 50 calls/search would be trivial (~1% of budget); for unauthenticated users it would consume ~83% of their hourly core budget in a single search, and every search would get noticeably slower (51 sequential calls vs. 1) regardless of auth. Decided this is a real architecture trade-off deserving its own separate, properly-weighed decision later — not something a single 50-repo sample should settle on its own — so it's noted as an open question in the PR rather than acted on now.
