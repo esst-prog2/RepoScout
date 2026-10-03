@@ -86,3 +86,22 @@ That live test also surfaced a genuine usability problem: the token prompt used 
 Change `openspec validate --strict` still passes. Nothing pushed to `origin/main` yet (still deliberately deferred, per the earlier decision to push once a working version exists) — worth revisiting now that the tool is actually working end-to-end.
 
 **Next step:** commit the implementation, consider pushing, and whenever ready, `/opsx:archive` to close out the change.
+
+## 2026-10-03 — Housekeeping: first change archived (via a separate session)
+
+A separate Claude Code session (running Claude Opus 5.5, outside this conversation) made two commits while this session was open: `8c3f964` ("Update user manual" — picked up this session's uncommitted Quick Start addition to `docs/USER_MANUAL.md` and committed it) and `a5dab7f` ("Archive reposcout-first-version and sync its specs" — ran `/opsx:archive`, moved the change to `openspec/changes/archive/2026-10-03-reposcout-first-version/`, and synced its three delta specs into `openspec/specs/github-auth/spec.md`, `openspec/specs/repo-search/spec.md`, and `openspec/specs/search-cache/spec.md`). Both commits are local only (not yet pushed to `origin/main`) as of this note.
+
+This reverses the earlier decision (recorded above) to skip archiving since the assignment didn't require it — apparently decided otherwise in that other session. Noted here so this session's own record stays accurate; no action taken on it from here, just documented for continuity.
+
+## 2026-10-03 (later) — Proposed: graceful API failure handling
+
+The course instructor reviewed the project and suggested hardening it before the December demo: right now a GitHub rate-limit response or a network failure (no internet, DNS failure, timeout) hits code that expects a successful result, risking a crash with a raw traceback during a live, uncontrolled-network demo.
+
+Ran `/opsx:propose` for a new, separate change `graceful-api-failure-handling` (deliberately not reopening the already-archived `reposcout-first-version`). Since the main specs now exist (per the housekeeping note above), this proposal correctly targets them as **Modified Capabilities** rather than writing fresh delta specs from scratch:
+- MODIFIED the existing `github-auth` "Graceful rate-limit-exceeded handling" requirement to add a dedicated exit code (`2`), replacing the generic `1` it shared with other errors.
+- ADDED a new `github-auth` requirement for network-failure handling (connection error or timeout, both explicitly — `requests.exceptions.Timeout` is not a subclass of `ConnectionError`, a real pitfall flagged in `design.md`), with its own exit code (`3`).
+- Decided (user-approved) exit code scheme: `1` = generic error (e.g. invalid token), `2` = rate limit, `3` = network failure.
+
+All 4 artifacts (`proposal.md`, `specs/github-auth/spec.md`, `design.md`, `tasks.md`) created and validated (`openspec validate --strict` passes). Nothing implemented yet.
+
+**Next step:** run `/opsx:apply` to implement.
