@@ -136,3 +136,17 @@ On branch `hw4-spike`, created from `main` after the rate-limit fix above. Recor
 **Evidence type (per the issue):** measured over data — commit the script and the 50 rows it produces.
 
 This is not run yet. The actual numbers will be logged as a separate decision once the script has been run against live data.
+
+## 2026-10-03 (later) — HW4 spike: the answer
+
+Ran `spike/pushed_at_drift.py --fetch` against a live search for `"expense tracker"` (50 repos, `total_count=237753`), then analyzed the committed `spike/pushed_at_drift.csv`.
+
+**Answer: median drift = 0.00 days. Bucket flips = 5/50.**
+
+The distribution is bimodal, not smooth: 29/50 repos have `pushed_at` within seconds of the real default-branch last commit (a normal direct push), while 20/50 diverge by more than a day — and every one of those 20 diverges by more than 5 days, several by hundreds or thousands of days (worst case: `shamahoque/mern-expense-tracker`, 2,057 days ≈ 5.6 years). Nothing sits in between. The median lands at 0 because the near-zero cluster is the larger of the two, but that doesn't mean the field is reliable — it means a slim majority happen to push straight to their default branch, while a substantial minority have `pushed_at` reflecting push activity elsewhere in the repo (another branch, a bot, a tag) that has nothing to do with the default branch's real state.
+
+This confirms the concern: `pushed_at` is not the same thing as "last commit," and for 10% of this sample the difference is large enough to flip the activity-bucket verdict RepoScout prints.
+
+**Decision on what changes:** not the fetch strategy (switching to a real per-repo commit call would reintroduce the N+1-call cost the project deliberately avoided, and the drift pattern being bimodal — near-zero or huge — means no bucket-threshold tuning would catch the 5 flipped repos anyway). Instead, the measured number was added to README.md's existing "Activity is a proxy, not a fact" caveat, turning a previously vague acknowledgment into an evidenced one.
+
+**Next step:** push `hw4-spike` and open the PR (merge commit, keep the branch).
