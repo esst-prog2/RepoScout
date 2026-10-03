@@ -122,3 +122,17 @@ A new assignment (HW4) followed: a "spike" — a time-boxed investigation produc
 **The actual spike** (separate from the above): "is `pushed_at` the last commit?" — `github.py` reads a repo's `pushed_at` from the Search API response and `output.py` prints it as "Last Commit," but these aren't guaranteed to be the same thing (the issue cites `twbs/bootstrap`, where `pushed_at` was 5 days newer than the actual last default-branch commit). Since the entire active/slowing/stale verdict rests on this field, the spike asks: across 50 repos from one live search, how often does `pushed_at` disagree with the real last-commit date (fetched via `/commits?per_page=1` per repo), and how many of those 50 change activity bucket as a result? Answer format: median drift in days + count of bucket flips. Evidence type: commit the script and the 50 rows of data.
 
 **Next step:** fix committed, then start the formal spike workflow — `git switch -c hw4-spike`, log the question/answer-criteria, run the real experiment.
+
+## 2026-10-03 (later) — HW4 spike: question and answer criteria (before running it)
+
+On branch `hw4-spike`, created from `main` after the rate-limit fix above. Recording the question and what counts as an answer before doing the work, per the assignment's own instruction.
+
+**Question:** How often does `pushed_at` (what `github.py` fetches and `output.py` labels "Last Commit") disagree with a repository's real last commit on its default branch, and how many repositories change activity bucket (active/slowing/stale, using the existing 90/365-day thresholds in `bucketing.py`) as a result of that disagreement?
+
+**Method:** Take 50 repositories from one live GitHub search (reusing `reposcout`'s own search call). For each, fetch the real last commit via `GET /repos/{owner}/{repo}/commits?per_page=1` and record its commit date (using the committer date, i.e. `commit.committer.date` — the date the commit entered the branch — as the "real last commit" reference, rather than the author date, which can differ for rebased/amended commits). Record both `pushed_at` and the real last-commit date for every repo.
+
+**What counts as an answer:** the median drift in days across the 50 repos (|pushed_at − real last commit|), and the count of repos (out of 50) whose activity bucket differs depending on which date is used.
+
+**Evidence type (per the issue):** measured over data — commit the script and the 50 rows it produces.
+
+This is not run yet. The actual numbers will be logged as a separate decision once the script has been run against live data.
