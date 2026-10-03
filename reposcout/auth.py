@@ -100,9 +100,10 @@ def rate_limit_message(error: RateLimitExceeded) -> str:
     reset_str = error.reset_at.strftime("%Y-%m-%d %H:%M UTC")
     if not error.authenticated:
         return (
-            "GitHub's unauthenticated rate limit was reached. Provide a GitHub "
-            "personal access token to raise this limit to 5,000 requests/hour — "
-            f"run reposcout again to be prompted, or set {ENV_VAR}. "
+            "GitHub's unauthenticated search rate limit (10 requests/minute) was "
+            "reached. This resets within a minute, so waiting briefly often works — "
+            "or provide a GitHub personal access token to raise it to 30 requests/"
+            f"minute (run reposcout again to be prompted, or set {ENV_VAR}). "
             f"(Resets at {reset_str}.)"
         )
     return f"GitHub API rate limit reached, try again after {reset_str}."

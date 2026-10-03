@@ -33,7 +33,7 @@ pip uninstall reposcout
 
 ## Providing a GitHub token
 
-GitHub limits how many requests an hour you can make. Without any credentials, that limit is quite low (60/hour); with a free personal access token, it rises to 5,000/hour. RepoScout works either way, but a token makes it much more usable if you search often.
+GitHub's search endpoint — the one RepoScout uses — limits how many requests per *minute* you can make: 10/minute without credentials, 30/minute with a free personal access token. This limit resets every minute, so if you hit it, waiting briefly is often enough on its own — but a token still makes repeated searching more comfortable if you're searching a lot in a short span.
 
 There are two ways to provide one:
 

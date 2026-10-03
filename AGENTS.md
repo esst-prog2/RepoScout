@@ -105,3 +105,20 @@ Ran `/opsx:propose` for a new, separate change `graceful-api-failure-handling` (
 All 4 artifacts (`proposal.md`, `specs/github-auth/spec.md`, `design.md`, `tasks.md`) created and validated (`openspec validate --strict` passes). Nothing implemented yet.
 
 **Next step:** run `/opsx:apply` to implement.
+
+## 2026-10-03 (later, after apply) — Implemented, and HW4 begins
+
+`/opsx:apply` completed all 8 tasks for `graceful-api-failure-handling`: added `NetworkError`, named exit codes (`2` rate-limit, `3` network failure, `1` generic), `network_error_message()`, wired both into `search`, and added CLI-level tests asserting the exact exit code for each. 47/47 tests passing. Committed (`e8fec34`) and pushed to `origin/main`.
+
+A new assignment (HW4) followed: a "spike" — a time-boxed investigation producing an answer, not a feature — defined in a GitHub Issue titled "Your spike" in this repo. Before starting the formal spike work, the issue also flagged a real, separate bug worth a quick fix first:
+
+**Rate-limit numbers were wrong in three places.** RepoScout only ever calls GitHub's *Search* endpoint, which has its own stricter, per-minute limits (10/minute unauthenticated, 30/minute authenticated) — distinct from the general "core" API's 60/hour and 5,000/hour limits, which RepoScout never actually hits. The code and docs had been using the core-API figures by mistake, meaning the unauthenticated rate-limit error message was telling users to go get a token when, since the real limit resets every minute, often just waiting briefly would have fixed it faster. Corrected in:
+- `reposcout/auth.py`'s `rate_limit_message()` — unauthenticated branch now states 10/30 requests-per-minute correctly, and mentions that waiting briefly often resolves it, alongside the token option.
+- `docs/USER_MANUAL.md`'s token section — same correction.
+- `README.md` §5's "Rate limits" risk note — numbers corrected to the per-minute search-endpoint figures; left the rest of that paragraph (including the already-superseded "one follow-up call per repo" framing) untouched, since that reflects what was anticipated at the time the original spec was written, not a claim about the final build.
+
+47/47 tests still passing after the fix.
+
+**The actual spike** (separate from the above): "is `pushed_at` the last commit?" — `github.py` reads a repo's `pushed_at` from the Search API response and `output.py` prints it as "Last Commit," but these aren't guaranteed to be the same thing (the issue cites `twbs/bootstrap`, where `pushed_at` was 5 days newer than the actual last default-branch commit). Since the entire active/slowing/stale verdict rests on this field, the spike asks: across 50 repos from one live search, how often does `pushed_at` disagree with the real last-commit date (fetched via `/commits?per_page=1` per repo), and how many of those 50 change activity bucket as a result? Answer format: median drift in days + count of bucket flips. Evidence type: commit the script and the 50 rows of data.
+
+**Next step:** fix committed, then start the formal spike workflow — `git switch -c hw4-spike`, log the question/answer-criteria, run the real experiment.
