@@ -27,6 +27,11 @@ class InvalidTokenError(GitHubAPIError):
         super().__init__("GitHub rejected the provided token as invalid or expired")
 
 
+class NetworkError(GitHubAPIError):
+    def __init__(self):
+        super().__init__("Could not reach GitHub (connection error or timeout)")
+
+
 @dataclass(frozen=True)
 class RepoData:
     name: str
@@ -75,7 +80,10 @@ def search_repositories(keyword: str, token: str | None = None) -> SearchResult:
         "order": "desc",
         "per_page": PER_PAGE,
     }
-    response = requests.get(SEARCH_URL, headers=headers, params=params, timeout=30)
+    try:
+        response = requests.get(SEARCH_URL, headers=headers, params=params, timeout=30)
+    except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as exc:
+        raise NetworkError() from exc
 
     if not response.ok:
         _handle_error_response(response, authenticated=bool(token))

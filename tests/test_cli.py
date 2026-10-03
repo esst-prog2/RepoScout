@@ -1,5 +1,6 @@
 import csv
 
+import requests
 import responses
 from typer.testing import CliRunner
 
@@ -89,9 +90,30 @@ def test_rate_limit_error_is_reported_cleanly(isolated_dirs, monkeypatch, tmp_pa
 
     result = runner.invoke(app, ["search", "expense tracker"])
 
-    assert result.exit_code != 0
+    assert result.exit_code == 2
     assert result.exception is None or isinstance(result.exception, SystemExit)
     assert "rate limit" in result.stdout.lower()
+    # 1800000000 unix -> 2027-01-15 08:00 UTC
+    assert "2027-01-15 08:00" in result.stdout
+    assert "Traceback" not in result.stdout
+
+
+@responses.activate
+def test_network_error_is_reported_cleanly(isolated_dirs, monkeypatch, tmp_path):
+    monkeypatch.setattr("reposcout.cli.auth.resolve_token", lambda: "test-token")
+    monkeypatch.chdir(tmp_path)
+    responses.add(
+        responses.GET,
+        SEARCH_URL,
+        body=requests.exceptions.ConnectionError("no route to host"),
+    )
+
+    result = runner.invoke(app, ["search", "expense tracker"])
+
+    assert result.exit_code == 3
+    assert result.exception is None or isinstance(result.exception, SystemExit)
+    assert "github" in result.stdout.lower()
+    assert "connection" in result.stdout.lower() or "internet" in result.stdout.lower()
     assert "Traceback" not in result.stdout
 
 

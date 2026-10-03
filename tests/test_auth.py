@@ -71,6 +71,13 @@ def test_unauthenticated_rate_limit_message_mentions_token():
     assert "GITHUB_TOKEN" in message
 
 
+def test_network_error_message_mentions_github_and_connection():
+    message = auth.network_error_message()
+
+    assert "github" in message.lower()
+    assert "internet" in message.lower() or "connection" in message.lower()
+
+
 def test_authenticated_rate_limit_message_states_reset_time():
     from datetime import datetime, timezone
 

@@ -1,11 +1,13 @@
 from datetime import datetime, timezone
 
 import pytest
+import requests
 import responses
 
 from reposcout.github import (
     SEARCH_URL,
     InvalidTokenError,
+    NetworkError,
     RateLimitExceeded,
     search_repositories,
 )
@@ -83,6 +85,30 @@ def test_rate_limit_exceeded_authenticated_flag():
         search_repositories("expense tracker", token="tok")
 
     assert exc_info.value.authenticated is True
+
+
+@responses.activate
+def test_connection_error_raises_network_error():
+    responses.add(
+        responses.GET,
+        SEARCH_URL,
+        body=requests.exceptions.ConnectionError("no route to host"),
+    )
+
+    with pytest.raises(NetworkError):
+        search_repositories("expense tracker")
+
+
+@responses.activate
+def test_timeout_raises_network_error():
+    responses.add(
+        responses.GET,
+        SEARCH_URL,
+        body=requests.exceptions.Timeout("timed out"),
+    )
+
+    with pytest.raises(NetworkError):
+        search_repositories("expense tracker")
 
 
 @responses.activate

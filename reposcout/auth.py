@@ -105,4 +105,8 @@ def rate_limit_message(error: RateLimitExceeded) -> str:
             f"run reposcout again to be prompted, or set {ENV_VAR}. "
             f"(Resets at {reset_str}.)"
         )
-    return f"GitHub's rate limit was reached. It resets at {reset_str}."
+    return f"GitHub API rate limit reached, try again after {reset_str}."
+
+
+def network_error_message() -> str:
+    return "Could not reach GitHub, check your internet connection."
