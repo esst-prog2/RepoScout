@@ -162,3 +162,17 @@ Renamed the column from "Last Commit" to "Last Push" in `output.py` (flows into 
 Committed directly to `main` (no branch/PR) per the user's choice, matching how the earlier rate-limit fix was handled — the grading feedback didn't call for a formal branch workflow the way the original spike assignment did.
 
 Final step per the feedback ("check one repo you know well against it"): verifying the displayed "Last Push" date for `EnhancedJax/Bagels` (a repo from the spike's own sample) against GitHub's own UI.
+
+## 2026-10-09 — HW5: the sentence and the expected value (before the test)
+
+On branch `hw5-usable`. Per the session-5 slide for this project ("What you found in Homework 4... 5 of 50 landed in the wrong group... A few projects it calls active may not really have changed lately. A test would go red if...").
+
+**Finished sentence:** A test would go red if RepoScout labels a repo "active" while its real last commit is actually more than 90 days old.
+
+**Expected value, decided before any test runs:** `wisnukurniawan/Compose-Expense`, one of the 50 repos from the HW4 spike sample.
+- `pushed_at` (what RepoScout actually displays/uses) = `2026-09-23T23:48:39+00:00` — under 90 days before the spike's `fetched_at` reference (`2026-10-03T10:42:05.733837+00:00`), so RepoScout currently buckets it **active**.
+- Real last commit (what's actually true) = `2026-05-05T04:09:48+00:00` — about 151 days before that same reference, so the correct bucket is **slowing**.
+
+**Where this came from:** both dates are recorded verbatim in `spike/pushed_at_drift.csv`, fetched live from GitHub's API during the HW4 spike (`pushed_at` from the search response, the real commit date from `/commits?per_page=1`) — not computed or guessed from RepoScout's own code. The day counts (~10 and ~151) and resulting buckets (active, slowing) were worked out by hand from those two recorded dates, not by running `classify_bucket()` and reading off its answer.
+
+**Next step:** write a test asserting that classifying this repo's real last-commit date (not its `pushed_at`) correctly returns "slowing" — this is the test that currently doesn't exist anywhere in the suite.
