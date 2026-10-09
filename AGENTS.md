@@ -176,3 +176,24 @@ On branch `hw5-usable`. Per the session-5 slide for this project ("What you foun
 **Where this came from:** both dates are recorded verbatim in `spike/pushed_at_drift.csv`, fetched live from GitHub's API during the HW4 spike (`pushed_at` from the search response, the real commit date from `/commits?per_page=1`) — not computed or guessed from RepoScout's own code. The day counts (~10 and ~151) and resulting buckets (active, slowing) were worked out by hand from those two recorded dates, not by running `classify_bucket()` and reading off its answer.
 
 **Next step:** write a test asserting that classifying this repo's real last-commit date (not its `pushed_at`) correctly returns "slowing" — this is the test that currently doesn't exist anywhere in the suite.
+
+## 2026-10-09 (later) — HW5: red, then green
+
+Added `test_real_repo_compose_expense_is_slowing_not_active` to `tests/test_bucketing.py`, encoding the expected value logged above. Ran it once as written first — passed cleanly (8/8 in `test_bucketing.py`), confirming the test is correctly written against today's code.
+
+**Red:** changed one line in `reposcout/bucketing.py` — `ACTIVE_THRESHOLD_DAYS = 90` → `ACTIVE_THRESHOLD_DAYS = 200` — then ran `pytest tests/test_bucketing.py -v`:
+```
+FAILED tests/test_bucketing.py::test_classify_bucket_boundaries[90-slowing]
+FAILED tests/test_bucketing.py::test_real_repo_compose_expense_is_slowing_not_active
+  AssertionError: assert 'active' == 'slowing'
+2 failed, 6 passed in 0.22s
+```
+The new test failed exactly as expected (real last commit, at ~151 days, now falls under the widened 200-day "active" window). One existing boundary test failed too as expected collateral, since it shares the same constant.
+
+**Green:** reverted the line back to `ACTIVE_THRESHOLD_DAYS = 90`, ran the full suite:
+```
+48 passed in 0.34s
+```
+The broken value was never committed — only the before/after test runs are recorded here, per this step's instruction.
+
+**Next step:** step 6 — use the program once for real, on a keyword the user actually cares about; write the expectation before running, then what actually happened.
