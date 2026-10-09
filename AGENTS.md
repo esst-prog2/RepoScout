@@ -197,3 +197,18 @@ The new test failed exactly as expected (real last commit, at ~151 days, now fal
 The broken value was never committed — only the before/after test runs are recorded here, per this step's instruction.
 
 **Next step:** step 6 — use the program once for real, on a keyword the user actually cares about; write the expectation before running, then what actually happened.
+
+**Ideas noted for later (not acted on now):**
+- GitHub's search matches keywords loosely (space-separated words, not an exact phrase), so multi-word searches can return loosely-related repos rather than close matches — worth tightening later.
+- Interest in a more user-friendly interface eventually, possibly accessible as a web page rather than CLI-only.
+
+## 2026-10-09 (later still) — HW5 step 6: expectation, before running
+
+About to run `reposcout search "repo activity research"` for real, on a topic the user actually cares about (tied to the research direction noted in the 2026-09-24 explore-session entry).
+
+**Expectation, written before running:**
+- Total matches: likely under 50 — a niche, academic-sounding phrase, not a common project category.
+- Activity mix: likely mostly **stale or slowing**, not active — phrases like this tend to match one-off research/thesis/course projects rather than actively maintained tools, unlike "expense tracker," which matched many actively-developed apps.
+- Top result: probably not a polished, high-star mainstream tool — more likely something academic or experimental.
+
+**Next step:** run it for real, then log what actually came out.
