@@ -162,3 +162,66 @@ Renamed the column from "Last Commit" to "Last Push" in `output.py` (flows into 
 Committed directly to `main` (no branch/PR) per the user's choice, matching how the earlier rate-limit fix was handled — the grading feedback didn't call for a formal branch workflow the way the original spike assignment did.
 
 Final step per the feedback ("check one repo you know well against it"): verifying the displayed "Last Push" date for `EnhancedJax/Bagels` (a repo from the spike's own sample) against GitHub's own UI.
+
+## 2026-10-09 — HW5: the sentence and the expected value (before the test)
+
+On branch `hw5-usable`. Per the session-5 slide for this project ("What you found in Homework 4... 5 of 50 landed in the wrong group... A few projects it calls active may not really have changed lately. A test would go red if...").
+
+**Finished sentence:** A test would go red if RepoScout labels a repo "active" while its real last commit is actually more than 90 days old.
+
+**Expected value, decided before any test runs:** `wisnukurniawan/Compose-Expense`, one of the 50 repos from the HW4 spike sample.
+- `pushed_at` (what RepoScout actually displays/uses) = `2026-09-23T23:48:39+00:00` — under 90 days before the spike's `fetched_at` reference (`2026-10-03T10:42:05.733837+00:00`), so RepoScout currently buckets it **active**.
+- Real last commit (what's actually true) = `2026-05-05T04:09:48+00:00` — about 151 days before that same reference, so the correct bucket is **slowing**.
+
+**Where this came from:** both dates are recorded verbatim in `spike/pushed_at_drift.csv`, fetched live from GitHub's API during the HW4 spike (`pushed_at` from the search response, the real commit date from `/commits?per_page=1`) — not computed or guessed from RepoScout's own code. The day counts (~10 and ~151) and resulting buckets (active, slowing) were worked out by hand from those two recorded dates, not by running `classify_bucket()` and reading off its answer.
+
+**Next step:** write a test asserting that classifying this repo's real last-commit date (not its `pushed_at`) correctly returns "slowing" — this is the test that currently doesn't exist anywhere in the suite.
+
+## 2026-10-09 (later) — HW5: red, then green
+
+Added `test_real_repo_compose_expense_is_slowing_not_active` to `tests/test_bucketing.py`, encoding the expected value logged above. Ran it once as written first — passed cleanly (8/8 in `test_bucketing.py`), confirming the test is correctly written against today's code.
+
+**Red:** changed one line in `reposcout/bucketing.py` — `ACTIVE_THRESHOLD_DAYS = 90` → `ACTIVE_THRESHOLD_DAYS = 200` — then ran `pytest tests/test_bucketing.py -v`:
+```
+FAILED tests/test_bucketing.py::test_classify_bucket_boundaries[90-slowing]
+FAILED tests/test_bucketing.py::test_real_repo_compose_expense_is_slowing_not_active
+  AssertionError: assert 'active' == 'slowing'
+2 failed, 6 passed in 0.22s
+```
+The new test failed exactly as expected (real last commit, at ~151 days, now falls under the widened 200-day "active" window). One existing boundary test failed too as expected collateral, since it shares the same constant.
+
+**Green:** reverted the line back to `ACTIVE_THRESHOLD_DAYS = 90`, ran the full suite:
+```
+48 passed in 0.34s
+```
+The broken value was never committed — only the before/after test runs are recorded here, per this step's instruction.
+
+**Next step:** step 6 — use the program once for real, on a keyword the user actually cares about; write the expectation before running, then what actually happened.
+
+**Ideas noted for later (not acted on now):**
+- GitHub's search matches keywords loosely (space-separated words, not an exact phrase), so multi-word searches can return loosely-related repos rather than close matches — worth tightening later.
+- Interest in a more user-friendly interface eventually, possibly accessible as a web page rather than CLI-only.
+
+## 2026-10-09 (later still) — HW5 step 6: expectation, before running
+
+About to run `reposcout search "repo activity research"` for real, on a topic the user actually cares about (tied to the research direction noted in the 2026-09-24 explore-session entry).
+
+**Expectation, written before running:**
+- Total matches: likely under 50 — a niche, academic-sounding phrase, not a common project category.
+- Activity mix: likely mostly **stale or slowing**, not active — phrases like this tend to match one-off research/thesis/course projects rather than actively maintained tools, unlike "expense tracker," which matched many actively-developed apps.
+- Top result: probably not a polished, high-star mainstream tool — more likely something academic or experimental.
+
+**Next step:** run it for real, then log what actually came out.
+
+## 2026-10-09 (later still) — HW5 step 6: what actually happened
+
+Ran `reposcout search "repo activity research"` for real (no `--refresh`, fresh query). Result: `total_count=76`, 50 repos fetched and shown, bucketed **9 active / 5 slowing / 36 stale**. Top result: `molyswu/hand_detection` (282 stars, stale).
+
+**Comparison against the expectation logged above:**
+- Total matches (expected under 50): **wrong** — actual was 76. Not a code bug — several of the 50 results (`hand_detection`, the `fluxion` wifi-cracking tools, etc.) are clearly unrelated to "repo activity research" as a topic, matching only on stray individual words. This is the exact "GitHub matches loosely" issue already noted above as deferred work, now with concrete real-world evidence behind it.
+- Activity mix (expected mostly stale/slowing): **correct** — 82% of results (41/50) were stale or slowing, only 9/50 active.
+- Top result (expected not polished/mainstream): **correct** — 282 stars, stale, a research-adjacent tool, not a popular actively-maintained project.
+
+Two of three predictions held; the one miss reinforces an already-known, already-deferred issue rather than surfacing a new one. Nothing about this run suggested a RepoScout bug — the tool behaved exactly as designed, the mismatch is in GitHub's search semantics vs. a strict phrase match, which this project doesn't currently try to fix.
+
+**HW5 is now functionally complete** (steps 2-6 all done and logged in order). Remaining: push `hw5-usable` and open the PR.
