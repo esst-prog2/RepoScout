@@ -12,7 +12,7 @@ from tabulate import tabulate
 
 from reposcout.bucketing import ACTIVE, BucketedRepo
 
-TABLE_HEADERS = ["#", "Repository", "Stars", "Last Commit", "Language", "Bucket"]
+TABLE_HEADERS = ["#", "Repository", "Stars", "Last Push", "Language", "Bucket"]
 CSV_HEADERS = TABLE_HEADERS + ["URL"]
 
 _SLUG_WHITESPACE_RE = re.compile(r"\s+")

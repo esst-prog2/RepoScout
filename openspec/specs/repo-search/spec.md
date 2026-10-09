@@ -28,11 +28,11 @@ The system SHALL classify each fetched repository into exactly one activity buck
 - **THEN** the system labels it `stale`, not `active`
 
 ### Requirement: Terminal results table
-The system SHALL print a terminal table of the fetched, ranked repositories with columns for rank, repository name, stars, last commit date, primary language, and activity bucket, sorted by stars descending. The repository URL SHALL NOT appear in the terminal table.
+The system SHALL print a terminal table of the fetched, ranked repositories with columns for rank, repository name, stars, last push date (labeled "Last Push" — this is `pushed_at`, not a verified last-commit date), primary language, and activity bucket, sorted by stars descending. The repository URL SHALL NOT appear in the terminal table.
 
 #### Scenario: Table reflects fetched results
 - **WHEN** a search completes with at least one matching repository
-- **THEN** the terminal table lists each fetched repository with its rank, name, stars, last commit date, language, and activity bucket, ordered by stars descending
+- **THEN** the terminal table lists each fetched repository with its rank, name, stars, last push date, language, and activity bucket, ordered by stars descending
 
 ### Requirement: One-line verdict summary
 The system SHALL print a one-line verdict after the table, stating how many repositories were found, how many fall in the `active` bucket, and the most recently pushed repository among the fetched results, phrased as a relative time (e.g. "2 weeks ago"). Bucket counts in the verdict SHALL only ever reflect the repositories actually fetched, never an estimate of the full match population.

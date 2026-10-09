@@ -64,7 +64,7 @@ def test_write_csv_populated(tmp_path):
 
     with path.open(newline="", encoding="utf-8") as f:
         reader = list(csv.reader(f))
-    assert reader[0] == ["#", "Repository", "Stars", "Last Commit", "Language", "Bucket", "URL"]
+    assert reader[0] == ["#", "Repository", "Stars", "Last Push", "Language", "Bucket", "URL"]
     assert reader[1][1] == "a/one"
     assert reader[1][-1] == "https://github.com/a/one"
 

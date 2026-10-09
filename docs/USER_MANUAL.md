@@ -82,7 +82,7 @@ You'll almost never need `--refresh` in everyday use — it's just there for the
 **Terminal table** — one row per matching repository, ranked by stars:
 
 ```
-#  Repository        Stars  Last Commit  Language  Bucket
+#  Repository        Stars  Last Push    Language  Bucket
 1  someuser/repo-a    1204  2026-08-30   Python    active
 2  someuser/repo-b     980  2025-11-02   JS        stale
 ```
