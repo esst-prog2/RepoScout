@@ -212,3 +212,16 @@ About to run `reposcout search "repo activity research"` for real, on a topic th
 - Top result: probably not a polished, high-star mainstream tool — more likely something academic or experimental.
 
 **Next step:** run it for real, then log what actually came out.
+
+## 2026-10-09 (later still) — HW5 step 6: what actually happened
+
+Ran `reposcout search "repo activity research"` for real (no `--refresh`, fresh query). Result: `total_count=76`, 50 repos fetched and shown, bucketed **9 active / 5 slowing / 36 stale**. Top result: `molyswu/hand_detection` (282 stars, stale).
+
+**Comparison against the expectation logged above:**
+- Total matches (expected under 50): **wrong** — actual was 76. Not a code bug — several of the 50 results (`hand_detection`, the `fluxion` wifi-cracking tools, etc.) are clearly unrelated to "repo activity research" as a topic, matching only on stray individual words. This is the exact "GitHub matches loosely" issue already noted above as deferred work, now with concrete real-world evidence behind it.
+- Activity mix (expected mostly stale/slowing): **correct** — 82% of results (41/50) were stale or slowing, only 9/50 active.
+- Top result (expected not polished/mainstream): **correct** — 282 stars, stale, a research-adjacent tool, not a popular actively-maintained project.
+
+Two of three predictions held; the one miss reinforces an already-known, already-deferred issue rather than surfacing a new one. Nothing about this run suggested a RepoScout bug — the tool behaved exactly as designed, the mismatch is in GitHub's search semantics vs. a strict phrase match, which this project doesn't currently try to fix.
+
+**HW5 is now functionally complete** (steps 2-6 all done and logged in order). Remaining: push `hw5-usable` and open the PR.
