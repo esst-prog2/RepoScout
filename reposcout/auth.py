@@ -10,19 +10,16 @@ from pathlib import Path
 import platformdirs
 import pwinput
 
+from reposcout import APP_NAME
 from reposcout.github import RateLimitExceeded
 
-APP_NAME = "reposcout"
 ENV_VAR = "GITHUB_TOKEN"
 
 PROMPT_TEXT = (
     "No GitHub token found. Enter a GitHub personal access token to raise your "
     "rate limit (leave blank to skip): "
 )
-INVALID_TOKEN_TEXT = (
-    "Your saved GitHub token appears invalid or expired. Enter a replacement "
-    "(leave blank to skip): "
-)
+INVALID_TOKEN_TEXT = "Enter a replacement token (leave blank to skip): "
 
 
 def config_path() -> Path:
@@ -66,15 +63,7 @@ def resolve_token() -> str | None:
     if config.get("skipped"):
         return None
 
-    token = prompt_for_token()
-    if token:
-        config["token"] = token
-        _save_config(config)
-        return token
-
-    config["skipped"] = True
-    _save_config(config)
-    return None
+    return _remember_choice(config, prompt_for_token())
 
 
 def handle_invalid_token() -> str | None:
@@ -82,18 +71,19 @@ def handle_invalid_token() -> str | None:
     print(
         "Your saved GitHub token appears invalid or expired.", flush=True
     )
-    token = prompt_for_token(INVALID_TOKEN_TEXT)
-    config = _load_config()
+    return _remember_choice(_load_config(), prompt_for_token(INVALID_TOKEN_TEXT))
+
+
+def _remember_choice(config: dict, token: str | None) -> str | None:
+    """Save an entered token, or remember that the user chose to skip."""
     if token:
         config["token"] = token
         config.pop("skipped", None)
-        _save_config(config)
-        return token
-
-    config.pop("token", None)
-    config["skipped"] = True
+    else:
+        config.pop("token", None)
+        config["skipped"] = True
     _save_config(config)
-    return None
+    return token
 
 
 def rate_limit_message(error: RateLimitExceeded) -> str:

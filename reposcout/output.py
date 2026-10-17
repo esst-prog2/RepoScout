@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import csv
-import re
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -11,35 +10,36 @@ import humanize
 from tabulate import tabulate
 
 from reposcout.bucketing import ACTIVE, BucketedRepo
+from reposcout.cache import normalize_query
 
 TABLE_HEADERS = ["#", "Repository", "Stars", "Last Push", "Language", "Bucket"]
 CSV_HEADERS = TABLE_HEADERS + ["URL"]
 
-_SLUG_WHITESPACE_RE = re.compile(r"\s+")
-
 
 def slugify_keyword(keyword: str) -> str:
-    """Lowercase, whitespace collapsed to single hyphens (matches the README demo)."""
-    return _SLUG_WHITESPACE_RE.sub("-", keyword.strip().lower())
+    """The normalized query with spaces turned into hyphens (matches the README demo)."""
+    return normalize_query(keyword).replace(" ", "-")
 
 
 def csv_filename(keyword: str) -> str:
     return f"{slugify_keyword(keyword)}-report.csv"
 
 
+def _row(rank: int, b: BucketedRepo, missing_language: str) -> list:
+    """One table/CSV row, in TABLE_HEADERS order."""
+    return [
+        rank,
+        b.repo.name,
+        b.repo.stars,
+        b.repo.pushed_at.date().isoformat(),
+        b.repo.language or missing_language,
+        b.bucket,
+    ]
+
+
 def render_table(bucketed: list[BucketedRepo]) -> str:
     """Render the terminal table (no URL column), ranked as given (assumed pre-sorted)."""
-    rows = [
-        [
-            i,
-            b.repo.name,
-            b.repo.stars,
-            b.repo.pushed_at.date().isoformat(),
-            b.repo.language or "-",
-            b.bucket,
-        ]
-        for i, b in enumerate(bucketed, start=1)
-    ]
+    rows = [_row(i, b, missing_language="-") for i, b in enumerate(bucketed, start=1)]
     return tabulate(rows, headers=TABLE_HEADERS)
 
 
@@ -70,14 +70,4 @@ def write_csv(path: Path, bucketed: list[BucketedRepo]) -> None:
         writer = csv.writer(f)
         writer.writerow(CSV_HEADERS)
         for i, b in enumerate(bucketed, start=1):
-            writer.writerow(
-                [
-                    i,
-                    b.repo.name,
-                    b.repo.stars,
-                    b.repo.pushed_at.date().isoformat(),
-                    b.repo.language or "",
-                    b.bucket,
-                    b.repo.url,
-                ]
-            )
+            writer.writerow(_row(i, b, missing_language="") + [b.repo.url])

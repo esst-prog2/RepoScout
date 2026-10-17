@@ -11,9 +11,9 @@ from pathlib import Path
 
 import platformdirs
 
+from reposcout import APP_NAME
 from reposcout.github import RepoData
 
-APP_NAME = "reposcout"
 TTL = timedelta(hours=24)
 
 _WHITESPACE_RE = re.compile(r"\s+")

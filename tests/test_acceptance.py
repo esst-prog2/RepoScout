@@ -10,21 +10,9 @@ from reposcout.bucketing import STALE, classify_bucket
 from reposcout.cli import app
 from reposcout.github import SEARCH_URL
 
+from helpers import repo_item, search_payload
+
 runner = CliRunner()
-
-
-def _payload(total_count: int, items: list[dict]) -> dict:
-    return {"total_count": total_count, "incomplete_results": False, "items": items}
-
-
-def _item(name: str, stars: int, pushed_at: str) -> dict:
-    return {
-        "full_name": name,
-        "html_url": f"https://github.com/{name}",
-        "stargazers_count": stars,
-        "language": "Python",
-        "pushed_at": pushed_at,
-    }
 
 
 @responses.activate
@@ -35,7 +23,7 @@ def test_zero_matching_repos_prints_0_found_and_headers_only_csv_not_an_error(
     found' and writes a CSV with headers only, not an error."""
     monkeypatch.setattr("reposcout.cli.auth.resolve_token", lambda: "test-token")
     monkeypatch.chdir(tmp_path)
-    responses.add(responses.GET, SEARCH_URL, json=_payload(0, []), status=200)
+    responses.add(responses.GET, SEARCH_URL, json=search_payload(0, []), status=200)
 
     result = runner.invoke(app, ["search", "totally nonexistent keyword"])
 
@@ -70,7 +58,7 @@ def test_same_keyword_twice_within_24h_makes_zero_api_calls_on_second_run(
     responses.add(
         responses.GET,
         SEARCH_URL,
-        json=_payload(1, [_item("a/one", 100, "2026-08-01T00:00:00Z")]),
+        json=search_payload(1, [repo_item("a/one", 100, "2026-08-01T00:00:00Z")]),
         status=200,
     )
 

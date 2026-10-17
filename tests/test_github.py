@@ -13,24 +13,12 @@ from reposcout.github import (
     search_repositories,
 )
 
-
-def _search_payload(total_count: int, items: list[dict]) -> dict:
-    return {"total_count": total_count, "incomplete_results": False, "items": items}
-
-
-def _item(name: str, stars: int, pushed_at: str = "2026-08-01T00:00:00Z", language: str = "Python") -> dict:
-    return {
-        "full_name": name,
-        "html_url": f"https://github.com/{name}",
-        "stargazers_count": stars,
-        "language": language,
-        "pushed_at": pushed_at,
-    }
+from helpers import repo_item, search_payload
 
 
 @responses.activate
 def test_search_returns_repos_from_single_call():
-    payload = _search_payload(2, [_item("a/one", 100), _item("a/two", 50)])
+    payload = search_payload(2, [repo_item("a/one", 100), repo_item("a/two", 50)])
     responses.add(responses.GET, SEARCH_URL, json=payload, status=200)
 
     result = search_repositories("expense tracker")
@@ -45,7 +33,7 @@ def test_search_returns_repos_from_single_call():
 
 @responses.activate
 def test_total_count_distinct_from_fetched_items():
-    payload = _search_payload(3241, [_item("a/one", 100)])
+    payload = search_payload(3241, [repo_item("a/one", 100)])
     responses.add(responses.GET, SEARCH_URL, json=payload, status=200)
 
     result = search_repositories("popular keyword")

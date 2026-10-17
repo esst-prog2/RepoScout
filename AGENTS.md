@@ -262,3 +262,20 @@ Specs validate (`openspec validate --specs --strict`), 48/48 tests passing. No c
 Tests: +7 (secondary limit; 422/500/403/502 → `GitHubAPIError`; non-JSON body; CLI-level 422 → clean message, exit 1). 55/55 passing. Probe re-run: all four cases now end cleanly (secondary limit → exit 2, others → exit 1).
 
 Note: the fix added a second copy of the `GitHubAPIError` handler to `cli.py`'s nested retry block, which already duplicated the rate-limit/network handlers — that duplication is for review 3 ("a copy instead of a change").
+
+## 2026-10-17 — HW6 review 3: "a copy instead of a change"
+
+**Looked for:** units that do almost the same job under different names, across all of `reposcout/`, `tests/`, and `spike/`.
+
+**Found and merged (one kept, the copy removed):**
+- **The CLI's error handling, twice.** `cli.py` handled `RateLimitExceeded` and `NetworkError` once for the first search and again, copied, in a nested `try` for the retry after a rejected token (and review 2 had just added a second copy of the `GitHubAPIError` handler there too). Moved the "search, and on a rejected token offer re-entry once and retry" logic into `_fetch_with_token_recovery()`, which turns both token failures into a `GitHubAPIError` with the same messages as before. `search` now has one set of handlers.
+- **`APP_NAME = "reposcout"`** was defined separately in `auth.py` and `cache.py` (if one ever changed, the cache and config would land in differently named directories). Now defined once in `reposcout/__init__.py` and imported.
+- **Keyword normalization, twice.** `output.slugify_keyword()` had its own regex for strip + collapse whitespace + `lower()`, next to `cache.normalize_query()` doing the same with `casefold()`. The `repo-search` spec says the CSV filename comes from the *normalized* keyword, so `slugify_keyword()` is now `normalize_query(keyword).replace(" ", "-")`. Only visible difference is casefold vs. lower for a few non-ASCII letters (e.g. `ß` → `ss`), which now matches the cache key's rule.
+- **Table row vs. CSV row.** `render_table()` and `write_csv()` built the same six-field row separately (only the missing-language placeholder `-` vs. empty differs, plus the CSV's extra URL). Both now use one `_row()` helper, so a column change can't land in only one of them, which would have mattered for the "Last Commit" → "Last Push" rename.
+- **Saving the token choice, twice.** `resolve_token()` and `handle_invalid_token()` each had their own "save the token, or remember the skip" code. Now one `_remember_choice()` does it.
+- **The "invalid or expired" sentence, twice.** `handle_invalid_token()` printed it and then the prompt text repeated it, so users saw it twice in a row. The prompt now just says "Enter a replacement token (leave blank to skip): ".
+- **Test fixtures, three copies.** `_search_payload`/`_payload` and `_item` were defined separately in `test_cli.py`, `test_github.py`, and `test_acceptance.py`. Now one copy in `tests/helpers.py`.
+
+**Checked and deliberately left:** `spike/pushed_at_drift.py`'s `_fetch_real_last_commit()` builds its own auth headers and parses dates like `github.py` does. Left alone because it's the frozen HW4 evidence script that produced the committed CSV, and it already reuses `search_repositories()` and `classify_bucket()` for everything that touches RepoScout's own logic.
+
+The rejected-token retry path in `cli.py` had no CLI-level test, so before refactoring it I ran a probe and then added 2 tests: replacement accepted (retried with the new token, message shown once) and replacement rejected (clean exit 1). 57/57 passing.
