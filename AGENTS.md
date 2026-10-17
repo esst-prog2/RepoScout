@@ -298,3 +298,16 @@ The rejected-token retry path in `cli.py` had no CLI-level test, so before refac
 Specs updated: `github-auth` (config warning; unknown reset time; malformed response counts as an API error) and `repo-search` (new "Incomplete search results are flagged" requirement). Tests: +9, 66/66 passing.
 
 **Seen while probing, for a later review:** `humanize.naturaltime` rounds 16 days to "a month ago" in the verdict line.
+
+## 2026-10-17 — HW6 review 5: "things nobody chose" — dependencies
+
+The three questions from the slide, asked of every package in `pyproject.toml` (6 runtime, 2 dev, plus the `setuptools` build backend).
+
+**1. Does it exist, and is it the real package?** Checked each name against PyPI's JSON API (`https://pypi.org/pypi/<name>/json`): all 9 exist and are the long-established projects their names suggest. Each has years of releases and a source repo under the expected owner: `psf/requests`, `fastapi/typer`, `astanin/python-tabulate`, `python-humanize/humanize`, `tox-dev/platformdirs`, `asweigart/pwinput`, `pytest-dev/pytest`, `getsentry/responses`, `pypa/setuptools`. None is a look-alike name.
+- `pwinput` got a closer look: it's the smallest (4 releases), it was added by the agent mid-project (the `getpass` → `pwinput` switch), and it handles the GitHub token. Its author, Al Sweigart (*Automate the Boring Stuff*), is well known. Read the installed source (one 154-line file): it imports only `sys`, `msvcrt` / `tty` + `termios`, and `getpass`, and writes only to `sys.stdout`. No network, files, or subprocesses, so the token goes nowhere but back to RepoScout.
+
+**2. Is it used?** Yes, all 8 non-build packages are imported by our code (`requests` in `github.py` and the spike, `typer` in `cli.py`, `tabulate` + `humanize` in `output.py`, `platformdirs` in `auth.py` + `cache.py`, `pwinput` in `auth.py`, `pytest` + `responses` in `tests/`). Nothing imported is undeclared: every other import is stdlib, `reposcout` itself, or the local `tests/helpers.py`.
+
+**3. Is it pinned to one exact version?** **No** — every entry was `>=` (a minimum only), so a fresh `pip install .` would take whatever was newest that day: an untested version, or a compromised new release. **Fix:** pinned each with `==` to the exact version in the dev `.venv` that the 66 tests pass on: `requests==2.34.2`, `typer==0.27.2`, `tabulate==0.10.0`, `humanize==4.16.0`, `platformdirs==4.11.12`, `pwinput==1.0.3`, `pytest==9.1.1`, `responses==0.26.3`, and the build backend `setuptools==84.0.0`. Verified in a brand-new, throwaway venv: `pip install ".[dev]"` installed exactly those versions, 66/66 tests passed there, and the installed `reposcout --help` command ran.
+
+**Not done, noted:** the packages *our* dependencies pull in (`urllib3`, `certifi`, `idna`, `charset-normalizer`, `rich`, `shellingham`, `colorama`, `markdown-it-py`, `mdurl`, `Pygments`, `annotated-doc`, …) are still chosen by those packages' own version ranges, not by us. Pinning those too means a lock file (ideally with hashes, e.g. via `pip-tools`' `pip-compile --generate-hashes`), which would add a new tool and a new install step. Left as a decision for later rather than slipped in here.
