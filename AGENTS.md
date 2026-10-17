@@ -225,3 +225,170 @@ Ran `reposcout search "repo activity research"` for real (no `--refresh`, fresh 
 Two of three predictions held; the one miss reinforces an already-known, already-deferred issue rather than surfacing a new one. Nothing about this run suggested a RepoScout bug — the tool behaved exactly as designed, the mismatch is in GitHub's search semantics vs. a strict phrase match, which this project doesn't currently try to fix.
 
 **HW5 is now functionally complete** (steps 2-6 all done and logged in order). Remaining: push `hw5-usable` and open the PR.
+
+## 2026-10-17 — HW6: whole-repo review, review 1 of N ("names that aren't in the spec")
+
+On branch `hw6-review`. HW6 asks for specialised reviews of the whole repository (not a diff), one kind of problem per review, each review plus its fix in its own commit. Starting list = the session-6 slides.
+
+**Review 1 — names that aren't in the spec.** Went through every module-level name, constant, exception, and user-visible behaviour in `reposcout/*.py` and checked each against `openspec/specs/*/spec.md` (then the archived `design.md` where the spec was silent).
+
+Findings and what was done:
+- **`NetworkError`, `RATE_LIMIT_EXIT_CODE = 2`, `NETWORK_ERROR_EXIT_CODE = 3`** were in the code but not in the main specs. Cause: the `graceful-api-failure-handling` change was fully implemented (8/8 tasks) but never archived, so its delta spec never reached `openspec/specs/github-auth/spec.md`. Fixed by archiving it (`openspec archive graceful-api-failure-handling -y` → `openspec/changes/archive/2026-10-17-graceful-api-failure-handling/`), which synced the exit-code-2 rate-limit requirement and the new network-failure requirement into the main spec.
+- **SHA-256-hashed cache filenames** (`cache.py` `cache_path()`) — an agent-invented detail that's in neither the spec nor the design ("one JSON file per normalized query" said nothing about naming). Kept it, since using the raw keyword as the filename would break for keywords with `/`, `:`, `?` etc. (especially on Windows). Written into the `search-cache` spec's "Cache storage isolation per query" requirement so the behaviour is now specified instead of implicit.
+- Checked and fine (already covered by spec or design): `PER_PAGE`, the thresholds, `BucketedRepo`/`CacheEntry`/`SearchResult`, `GitHubAPIError`, the `"skipped"` config key, `slugify_keyword`, 429 treated as rate limit.
+- Left as-is (minor, not worth spec text): `timeout=30` in `github.py`, and the "GitHub rejected the request as unauthorized" branch for a 401 with no token.
+
+**Noticed during this review but belonging to later reviews (not fixed here):**
+- An invalid `GITHUB_TOKEN` *env var* goes through the "saved token" recovery path: the message says "Your saved GitHub token…", the replacement is saved to config, but the env var still wins on the next run, so the user is re-prompted every time. The spec only covers recovery for a *saved* token.
+- `handle_invalid_token()` prints "Your saved GitHub token appears invalid or expired." and then the prompt repeats the same sentence.
+- `slugify_keyword()` doesn't strip filename-unsafe characters, so e.g. `reposcout search "c++/qt"` would try to write `c++/qt-report.csv` into a non-existent subdirectory and crash.
+
+Specs validate (`openspec validate --specs --strict`), 48/48 tests passing. No code changed in this review.
+
+## 2026-10-17 — HW6 review 2: "patched where it broke, not where it's wrong"
+
+**Looked at:** the git history first — no fix-on-fix chains (only five code commits, and each earlier fix, e.g. the rate-limit numbers and the "Last Push" rename, was made at the root and everywhere at once). The pattern was in the code instead: `github.py`'s error handling enumerated exactly the failure cases that had come up so far (401; 403 with `X-RateLimit-Remaining: 0`; 429; then `ConnectionError` and `Timeout` added by the graceful-failure change), and anything else fell through to `response.raise_for_status()` / `response.json()`. The actual rule, written in the first-version `design.md`, is "never let a raw `requests` exception or stack trace reach the user" — the code never implemented that rule, only its known instances.
+
+**Evidence (probe run through the real CLI, HTTP mocked):** HTTP 422, HTTP 500, a 403 *secondary* rate limit (`Retry-After` header, remaining ≠ 0 — a real GitHub behaviour, plausible during a live demo), and a 200 with a non-JSON body (e.g. a captive-portal page) — all four crashed with a raw `HTTPError` / `JSONDecodeError` traceback.
+
+**Fix (at the rule, not a fifth special case):**
+- `_handle_error_response()` now translates *every* non-OK response into a typed error: 401 → `InvalidTokenError`, rate limit → `RateLimitExceeded`, anything else → base `GitHubAPIError("GitHub returned an error (HTTP <status>): <message>")`. No more `raise_for_status()`.
+- Rate-limit detection moved into `_is_rate_limited()`, which states GitHub's actual rule: primary (remaining = 0) or secondary (403/429 with `Retry-After`). `_parse_reset_time()` uses `Retry-After` when present.
+- A non-JSON success body raises `GitHubAPIError` too.
+- `cli.py` catches `GitHubAPIError` (after the specific subclasses) → prints the message, exit code `1`.
+- Network-error catching left as `ConnectionError` + `Timeout` (not broadened to `RequestException`) — that was a deliberate, documented decision in the graceful-failure design, not a symptom patch.
+- Added the rule to `openspec/specs/github-auth/spec.md` as a new requirement.
+
+Tests: +7 (secondary limit; 422/500/403/502 → `GitHubAPIError`; non-JSON body; CLI-level 422 → clean message, exit 1). 55/55 passing. Probe re-run: all four cases now end cleanly (secondary limit → exit 2, others → exit 1).
+
+Note: the fix added a second copy of the `GitHubAPIError` handler to `cli.py`'s nested retry block, which already duplicated the rate-limit/network handlers — that duplication is for review 3 ("a copy instead of a change").
+
+## 2026-10-17 — HW6 review 3: "a copy instead of a change"
+
+**Looked for:** units that do almost the same job under different names, across all of `reposcout/`, `tests/`, and `spike/`.
+
+**Found and merged (one kept, the copy removed):**
+- **The CLI's error handling, twice.** `cli.py` handled `RateLimitExceeded` and `NetworkError` once for the first search and again, copied, in a nested `try` for the retry after a rejected token (and review 2 had just added a second copy of the `GitHubAPIError` handler there too). Moved the "search, and on a rejected token offer re-entry once and retry" logic into `_fetch_with_token_recovery()`, which turns both token failures into a `GitHubAPIError` with the same messages as before. `search` now has one set of handlers.
+- **`APP_NAME = "reposcout"`** was defined separately in `auth.py` and `cache.py` (if one ever changed, the cache and config would land in differently named directories). Now defined once in `reposcout/__init__.py` and imported.
+- **Keyword normalization, twice.** `output.slugify_keyword()` had its own regex for strip + collapse whitespace + `lower()`, next to `cache.normalize_query()` doing the same with `casefold()`. The `repo-search` spec says the CSV filename comes from the *normalized* keyword, so `slugify_keyword()` is now `normalize_query(keyword).replace(" ", "-")`. Only visible difference is casefold vs. lower for a few non-ASCII letters (e.g. `ß` → `ss`), which now matches the cache key's rule.
+- **Table row vs. CSV row.** `render_table()` and `write_csv()` built the same six-field row separately (only the missing-language placeholder `-` vs. empty differs, plus the CSV's extra URL). Both now use one `_row()` helper, so a column change can't land in only one of them, which would have mattered for the "Last Commit" → "Last Push" rename.
+- **Saving the token choice, twice.** `resolve_token()` and `handle_invalid_token()` each had their own "save the token, or remember the skip" code. Now one `_remember_choice()` does it.
+- **The "invalid or expired" sentence, twice.** `handle_invalid_token()` printed it and then the prompt text repeated it, so users saw it twice in a row. The prompt now just says "Enter a replacement token (leave blank to skip): ".
+- **Test fixtures, three copies.** `_search_payload`/`_payload` and `_item` were defined separately in `test_cli.py`, `test_github.py`, and `test_acceptance.py`. Now one copy in `tests/helpers.py`.
+
+**Checked and deliberately left:** `spike/pushed_at_drift.py`'s `_fetch_real_last_commit()` builds its own auth headers and parses dates like `github.py` does. Left alone because it's the frozen HW4 evidence script that produced the committed CSV, and it already reuses `search_repositories()` and `classify_bucket()` for everything that touches RepoScout's own logic.
+
+The rejected-token retry path in `cli.py` had no CLI-level test, so before refactoring it I ran a probe and then added 2 tests: replacement accepted (retried with the new token, message shown once) and replacement rejected (clean exit 1). 57/57 passing.
+
+## 2026-10-17 — HW6 review 4: "errors that disappear"
+
+**Looked for:** `except Exception`, bare `except: pass`, and code that returns `None` or `{}`, or falls back to a default, after something went wrong, across `reposcout/` and `spike/`. There's no `except Exception` or bare `except` anywhere. Every `except` names specific exception types, so the search turned to *fallbacks*: places where a failure quietly becomes a normal-looking value.
+
+**Confirmed by probe through the real CLI (HTTP mocked) before fixing:**
+1. **Corrupted config file → the saved token silently disappears.** `auth._load_config()` returned `{}` on any parse or read error. The user was then told "No GitHub token found", and if they pressed Enter, `{"skipped": true}` permanently overwrote the token they thought was saved. A config file holding valid JSON that isn't an object (e.g. `["x"]`) crashed on `.get`. **Fix:** still continue with an empty config, but print a warning to stderr naming the file and the reason. Non-object JSON is treated the same way.
+2. **A 200 response without `items` → "0 repos found".** `github.py` read `payload.get("items", [])` and `payload.get("total_count", len(repos))`, so any unexpected success body looked like a real empty search (plus a header-only CSV). This is the slide's example almost exactly. **Fix:** the required fields are read with `[...]`, and a missing or wrong-typed field raises `GitHubAPIError("...response RepoScout doesn't understand...")`, which exits with 1. `item.get("language")` stays, because `null` is GitHub's normal value for "no language detected".
+3. **GitHub's `incomplete_results: true` was dropped.** GitHub sets it when its search times out partway through. RepoScout showed the partial results as if complete. **Fix:** `SearchResult.incomplete` → a warning line after the verdict. The flag is stored in the cache entry (old entries without it read as complete), so the warning also appears on cache hits.
+4. **A rate limit with no reset headers invented a reset time.** `_parse_reset_time()` fell back to `now`, so the message said "Resets at <right now>". **Fix:** `reset_at` is `None` when unknown, and the message says GitHub didn't say when it resets.
+
+**Checked and deliberately kept:**
+- `cache.read_cache()` returning `None` on a corrupted cache file. The `search-cache` spec *requires* this to be silent ("self-heals"). It loses nothing, since the data is just refetched.
+- `_handle_error_response()` falling back to an empty detail when an error body isn't JSON. The error is still raised, with the HTTP status.
+- The spike script crashes loudly on any error (`raise_for_status()`, `[0]`), which is correct for a one-off measurement.
+
+Specs updated: `github-auth` (config warning; unknown reset time; malformed response counts as an API error) and `repo-search` (new "Incomplete search results are flagged" requirement). Tests: +9, 66/66 passing.
+
+**Seen while probing, for a later review:** `humanize.naturaltime` rounds 16 days to "a month ago" in the verdict line.
+
+## 2026-10-17 — HW6 review 5: "things nobody chose" — dependencies
+
+The three questions from the slide, asked of every package in `pyproject.toml` (6 runtime, 2 dev, plus the `setuptools` build backend).
+
+**1. Does it exist, and is it the real package?** Checked each name against PyPI's JSON API (`https://pypi.org/pypi/<name>/json`): all 9 exist and are the long-established projects their names suggest. Each has years of releases and a source repo under the expected owner: `psf/requests`, `fastapi/typer`, `astanin/python-tabulate`, `python-humanize/humanize`, `tox-dev/platformdirs`, `asweigart/pwinput`, `pytest-dev/pytest`, `getsentry/responses`, `pypa/setuptools`. None is a look-alike name.
+- `pwinput` got a closer look: it's the smallest (4 releases), it was added by the agent mid-project (the `getpass` → `pwinput` switch), and it handles the GitHub token. Its author, Al Sweigart (*Automate the Boring Stuff*), is well known. Read the installed source (one 154-line file): it imports only `sys`, `msvcrt` / `tty` + `termios`, and `getpass`, and writes only to `sys.stdout`. No network, files, or subprocesses, so the token goes nowhere but back to RepoScout.
+
+**2. Is it used?** Yes, all 8 non-build packages are imported by our code (`requests` in `github.py` and the spike, `typer` in `cli.py`, `tabulate` + `humanize` in `output.py`, `platformdirs` in `auth.py` + `cache.py`, `pwinput` in `auth.py`, `pytest` + `responses` in `tests/`). Nothing imported is undeclared: every other import is stdlib, `reposcout` itself, or the local `tests/helpers.py`.
+
+**3. Is it pinned to one exact version?** **No** — every entry was `>=` (a minimum only), so a fresh `pip install .` would take whatever was newest that day: an untested version, or a compromised new release. **Fix:** pinned each with `==` to the exact version in the dev `.venv` that the 66 tests pass on: `requests==2.34.2`, `typer==0.27.2`, `tabulate==0.10.0`, `humanize==4.16.0`, `platformdirs==4.11.12`, `pwinput==1.0.3`, `pytest==9.1.1`, `responses==0.26.3`, and the build backend `setuptools==84.0.0`. Verified in a brand-new, throwaway venv: `pip install ".[dev]"` installed exactly those versions, 66/66 tests passed there, and the installed `reposcout --help` command ran.
+
+**Not done, noted:** the packages *our* dependencies pull in (`urllib3`, `certifi`, `idna`, `charset-normalizer`, `rich`, `shellingham`, `colorama`, `markdown-it-py`, `mdurl`, `Pygments`, `annotated-doc`, …) are still chosen by those packages' own version ranges, not by us. Pinning those too means a lock file (ideally with hashes, e.g. via `pip-tools`' `pip-compile --generate-hashes`), which would add a new tool and a new install step. Left as a decision for later rather than slipped in here.
+
+## 2026-10-17 — HW6 review 6: dead code
+
+**Method:** listed every function, class, method, and module-level constant in `reposcout/`, `spike/`, and `tests/helpers.py`, and counted references to each name in app code and in tests separately. Since dead code also hides in fields nobody reads, parameters nobody passes, and files that no longer do anything, those were checked too.
+
+**Only name with zero callers: `cli._main`. Not dead.** It's the empty `@app.callback()` that Typer calls itself. It keeps `search` an explicit subcommand (see the 2026-09-24 implementation entry). Every other name is used by app code, or by tests only where the name is itself a test helper.
+
+**Removed:**
+- **`__version__ = "0.1.0"`** in `reposcout/__init__.py`: read by nothing (no `--version` flag, `pyproject.toml` hardcodes its own `version = "0.1.0"`). Worse than unused, because it was a second copy of the version that would silently drift on the next release.
+- **`CacheEntry.fetched_at`**: set on every cache read, never read by anyone. The `fetched_at` stored in the cache *file* is still used (the 24h expiry check inside `read_cache()`); only the dataclass field that passed it outward was dead.
+- **`bucket_repos(..., now=...)` parameter**: never passed, by app or tests. (`classify_bucket`, `read_cache`, `write_cache`, and `format_verdict` keep their `now` parameters, because tests use them to pin the clock.)
+- **`repo_item(..., language=...)` parameter** in `tests/helpers.py`: introduced in review 3 when merging the three copies, but no test passes it, so a dead option I'd just created.
+- **`openspec/specs/.gitkeep` and `openspec/changes/archive/.gitkeep`**: placeholders `openspec init` creates so git keeps empty directories. Both directories now hold real content, so the files did nothing. (`openspec validate` / `openspec list` still work.)
+
+**Checked and kept:**
+- `if __name__ == "__main__": app()` in `cli.py`: nothing documents `python -m reposcout.cli` (the installed `reposcout` command is the entry point), but it's the standard two lines that make the module runnable directly. Harmless.
+- The `token is None` branch in `_fetch_with_token_recovery()` (a 401 with no token sent): GitHub's search shouldn't return that, but it's a 2-line guard on an external API we don't control, and it produces a clean message instead of a confusing re-prompt.
+- Exception message strings on `RateLimitExceeded` / `InvalidTokenError` / `NetworkError`: the CLI prints its own messages for these, so the strings aren't shown to users. They still appear in a traceback or a debugger, which is what exception messages are for.
+
+66/66 tests passing, specs validate.
+
+## 2026-10-17 — HW6 review 7: the same feature, built twice under different names
+
+Review 3 merged *copied code* (near-identical functions). This review looked one level up: the same *behaviour or rule* implemented in two places, even where the code doesn't look alike.
+
+**Found and fixed:**
+- **The "active" rule, stated twice.** `bucketing.py` defines it as `ACTIVE_THRESHOLD_DAYS = 90`. `output.py` restated it in words, hardcoded, in the verdict: "active in the last 3 months". Evidence: re-ran the HW5 red experiment (threshold → 200) and the verdict read "1 repos found, 1 active in the last 3 months — most recent entrant pushed 5 months ago", contradicting itself. **Fix:** `bucketing.active_window_text()` derives the wording from the threshold ("3 months" for 90, "6 months" for 180, "200 days" when it isn't a whole number of 30-day months), and the verdict uses it. The README/spec demo wording ("active in the last 3 months") is unchanged at today's value. +3 tests.
+- **Two README §4 acceptance criteria tested twice.** `tests/test_cli.py` had `test_second_search_within_cache_window_makes_zero_api_calls` and `test_zero_match_search_prints_message_and_writes_headers_only_csv`, which test exactly what `tests/test_acceptance.py` already tests (same CLI invocation, same mocks, same assertions) under different names. Kept the `test_acceptance.py` versions, because they quote the README criterion they encode, and removed the `test_cli.py` copies.
+
+**Two implementations, deliberately both kept (now documented):**
+- **Sorting by stars happens twice:** GitHub's `sort=stars&order=desc` in `github.py`, and `rank_by_stars()` locally. They aren't the same job. GitHub's sort decides *which* 50 repos are fetched (it can't be dropped). The local sort owns the *display* order, so the ranks shown always agree with the star counts shown, whatever order the API or an old cache entry returned. Added that explanation to `rank_by_stars()`'s docstring so the next reader doesn't "fix" it.
+- **Two error texts per API error** (each exception's own message vs. `auth.rate_limit_message()` / `auth.network_error_message()`): one is for debugging/tracebacks, the other for users. Reviewed in review 6, not repeated here.
+- **The spike's own commit fetch** (`spike/pushed_at_drift.py`): calls a different endpoint (`/commits`), and it's frozen HW4 evidence (see review 3).
+
+Test count: 66 − 2 duplicates + 3 new = 67, all passing.
+
+## 2026-10-17 — HW6 review 8: the quiet default
+
+**Looked for:** every `.get(key, default)`, `x or default`, default parameter value, and `os.environ` lookup in `reposcout/`. For each one, asked: is a missing value really allowed here, or is it a bug that the default turns into a decision nobody made?
+
+**Fixed (default → required, so a mistake becomes an error):**
+- **`search_repositories(keyword, token=None)`**: a caller that forgot the token silently ran *unauthenticated*, at GitHub's 10-requests-per-minute limit instead of 30, with no sign of why. All app callers passed it, but 5 tests relied on the default without saying so. Now `token` must be passed (still `str | None`: `None` means "deliberately unauthenticated", stated by the caller). The tests now say `token=None` explicitly, and a test checks that omitting it is a `TypeError`.
+- **`payload.get("incomplete_results", False)`** and **`item.get("language")`**: GitHub's search schema always sends both keys (`language` is *null* when no language is detected, which stays allowed). A missing key means the response isn't what we think it is, so both are now read with `[...]` and fall into review 4's "response RepoScout doesn't understand" error. Tests: missing key → `GitHubAPIError`; `language: null` → still fine.
+- **`incomplete` defaulting to `False` in four places**, all added by me in review 4: `SearchResult.incomplete`, `CacheEntry.incomplete`, `write_cache(..., incomplete=False)`, `_emit_results(..., incomplete=False)`. Each default meant a future caller that forgot the flag would silently report partial results as complete, the exact silence review 4 removed. All four are now required. Also `raw.get("incomplete", False)` when reading the cache: an entry missing the key was *assumed* complete. Now that's a cache miss, so the entry is refetched instead of guessed (costs at most one API call per pre-today entry, and those expire within 24h anyway). +1 test.
+- While in the error path: `response.json().get("message", "")` would crash with `AttributeError` if an error body was JSON but not an object (e.g. a list). Now guarded. The message stays optional, since the HTTP status is the actual error. +1 test.
+
+**Checked and kept, because the value really is optional:**
+- `os.environ.get("GITHUB_TOKEN")`, `config.get("token")`, `config.get("skipped")`: the spec defines "not set" as a normal state for each.
+- `response.headers.get("Retry-After" / "X-RateLimit-Reset" / "X-RateLimit-Remaining")`: GitHub sends these only sometimes. Missing → reset time reported as unknown (review 4), never invented.
+- `now = now or datetime.now(timezone.utc)` (4 places): `None` explicitly means "the real clock". Tests pass a fixed time.
+- `b.repo.language or missing_language`: a display placeholder for a legitimately null value, and the placeholder is a required keyword argument.
+- `prompt_for_token(prompt_text=PROMPT_TEXT)`, `--refresh` defaulting to off: ordinary, intended defaults.
+- `timeout=30` in `requests.get`: an explicit value, not a fallback (the opposite of the slide's `timeout=0` example).
+
+73/73 tests passing.
+
+## 2026-10-17 — HW6 review 9: what should not be in git
+
+Checked the **whole history** (all branches, every commit), not just the current tree, because a `git rm` leaves a file in every earlier commit and getting it out means rewriting history (e.g. `git filter-repo`).
+
+**Findings: nothing that shouldn't be there was ever committed, so no history rewrite was needed.**
+- **Large / raw data files:** listed every path ever added and the size of every blob in history. The biggest object is `AGENTS.md` itself (~52 KB). Never committed: `.venv/`, `__pycache__/`, `*.egg-info/`, `build/`, the generated `*-report.csv` files (all were already in `.gitignore`), and RepoScout's cache and token config (which by design live outside the repo, in the OS user cache/config dirs via `platformdirs`).
+- **Keys / tokens:** searched every diff in history for GitHub token formats (`ghp_`, `gho_`, `ghu_`, `ghs_`, `ghr_`, `github_pat_`), other common key shapes (`sk-…`, AWS `AKIA…`, `BEGIN … PRIVATE KEY`), and any `token`/`password`/`secret`/`api_key` assigned a literal. No match for a real key. The only literals are test fakes (`"bad-token"`, `"ghp_abc"`, `"saved-token"`) and the placeholder `ghp_your_token_here` in the manual. The real token the user created for the HW1 smoke test was entered only through the interactive prompt, never typed into a file or this conversation (see the 2026-09-24 entry), and it isn't in history.
+- **Real people's data:** no email addresses in any file content. Commit authors use GitHub `noreply` addresses. No personal file paths (`C:\Users\…`, `/home/…`). `spike/pushed_at_drift.csv` contains 50 public GitHub repo names (`owner/repo`) and their public push/commit dates. Kept: it's public metadata, it's the HW4 evidence the grader re-runs, and it holds nothing beyond what github.com shows anyone. `AGENTS.md` mentions the user's possible master's-thesis direction, which is project context the user chose to record, not personal data.
+
+**Fixed, as prevention:** `.gitignore` only covered build output and reports. A `.env`, a private key, or Claude Code's per-user `.claude/settings.local.json` (created when permissions are approved locally) would have been picked up by an ordinary `git add -A`, as used throughout this project. Added `.env`, `.env.*`, `*.pem`, `*.key`, `id_rsa*`, `id_ed25519*`, `.claude/settings.local.json`. Verified with `git check-ignore` that these are now ignored, that files which belong in git (`spike/pushed_at_drift.csv`, `openspec/config.yaml`, the shared `.claude/skills/…`) are not, and (`git ls-files -ci --exclude-standard` → empty) that no already-tracked file is newly matched.
+
+## 2026-10-17 (later) — HW6: pushed, PR opened by the user
+
+All 9 reviews done (one commit each, `23a34d4` … `4180892`). Final state: 73/73 tests passing (up from 48), `openspec validate --specs --strict` passes, no active OpenSpec changes.
+
+Pushed `hw6-review` to `origin`. The PR couldn't be opened from this session because the GitHub CLI (`gh`) isn't installed on this machine. The user opens it in the browser (title "HW6: whole-repo review", with a description table summarising the 9 reviews) and merges it themselves with **"Create a merge commit"**, keeping the branch, as with HW4/HW5. (Optional for next time: `winget install GitHub.cli` + `gh auth login` would let the agent open PRs directly.)
+
+**Open issues carried forward (found during the reviews, outside their scope, not fixed):**
+- An invalid `GITHUB_TOKEN` env var goes through the *saved*-token recovery: the message says "saved", the replacement is saved to config, but the env var still wins next run, so the user is re-prompted every time.
+- `slugify_keyword()` doesn't strip filename-unsafe characters: `reposcout search "c++/qt"` tries to write into a non-existent `c++/` directory and crashes.
+- `humanize.naturaltime` rounds 16 days to "a month ago" in the verdict.
+- Transitive dependencies (`urllib3`, `rich`, `certifi`, …) aren't locked. That would need a lock file, e.g. `pip-compile --generate-hashes`.
+- Still open from HW5: GitHub's loose (non-phrase) keyword matching, and the idea of a friendlier/web interface.
+
+**Next step:** user opens and merges the PR. Then pick from the open issues above.

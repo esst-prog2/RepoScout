@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import requests
 
@@ -16,10 +16,11 @@ class GitHubAPIError(Exception):
 
 
 class RateLimitExceeded(GitHubAPIError):
-    def __init__(self, reset_at: datetime, authenticated: bool):
-        self.reset_at = reset_at
+    def __init__(self, reset_at: datetime | None, authenticated: bool):
+        self.reset_at = reset_at  # None when GitHub didn't say
         self.authenticated = authenticated
-        super().__init__(f"GitHub rate limit exceeded, resets at {reset_at.isoformat()}")
+        when = reset_at.isoformat() if reset_at else "an unknown time"
+        super().__init__(f"GitHub rate limit exceeded, resets at {when}")
 
 
 class InvalidTokenError(GitHubAPIError):
@@ -45,26 +46,49 @@ class RepoData:
 class SearchResult:
     total_count: int
     repos: list[RepoData]
+    # GitHub sets incomplete_results when its search timed out partway through.
+    incomplete: bool
 
 
-def _parse_reset_time(response: requests.Response) -> datetime:
+def _parse_reset_time(response: requests.Response) -> datetime | None:
+    retry_after = response.headers.get("Retry-After")
+    if retry_after is not None and retry_after.isdigit():
+        return datetime.now(timezone.utc) + timedelta(seconds=int(retry_after))
     reset_header = response.headers.get("X-RateLimit-Reset")
     if reset_header is not None:
         return datetime.fromtimestamp(int(reset_header), tz=timezone.utc)
-    return datetime.now(timezone.utc)
+    return None
+
+
+def _is_rate_limited(response: requests.Response) -> bool:
+    """Primary limit: remaining hits 0. Secondary limit: 403/429 with Retry-After."""
+    if response.status_code == 429:
+        return True
+    if response.status_code == 403:
+        return (
+            response.headers.get("X-RateLimit-Remaining") == "0"
+            or "Retry-After" in response.headers
+        )
+    return False
 
 
 def _handle_error_response(response: requests.Response, authenticated: bool) -> None:
+    """Translate every non-OK response into a typed error - never a raw requests one."""
     if response.status_code == 401:
         raise InvalidTokenError()
-    if response.status_code in (403, 429):
-        remaining = response.headers.get("X-RateLimit-Remaining")
-        if remaining == "0" or response.status_code == 429:
-            raise RateLimitExceeded(_parse_reset_time(response), authenticated)
-    response.raise_for_status()
+    if _is_rate_limited(response):
+        raise RateLimitExceeded(_parse_reset_time(response), authenticated)
+    try:
+        body = response.json()
+    except ValueError:
+        body = None
+    # the message is optional decoration - the status code is the actual error
+    detail = body.get("message", "") if isinstance(body, dict) else ""
+    message = f"GitHub returned an error (HTTP {response.status_code})"
+    raise GitHubAPIError(f"{message}: {detail}" if detail else f"{message}.")
 
 
-def search_repositories(keyword: str, token: str | None = None) -> SearchResult:
+def search_repositories(keyword: str, token: str | None) -> SearchResult:
     """Search GitHub for repos matching keyword, top PER_PAGE results by stars.
 
     Uses only fields already present in the search response (stars, pushed_at,
@@ -88,17 +112,33 @@ def search_repositories(keyword: str, token: str | None = None) -> SearchResult:
     if not response.ok:
         _handle_error_response(response, authenticated=bool(token))
 
-    payload = response.json()
-    repos = [
-        RepoData(
-            name=item["full_name"],
-            url=item["html_url"],
-            stars=item["stargazers_count"],
-            pushed_at=datetime.strptime(item["pushed_at"], "%Y-%m-%dT%H:%M:%SZ").replace(
-                tzinfo=timezone.utc
-            ),
-            language=item.get("language"),
-        )
-        for item in payload.get("items", [])
-    ]
-    return SearchResult(total_count=payload.get("total_count", len(repos)), repos=repos)
+    try:
+        payload = response.json()
+    except ValueError as exc:
+        raise GitHubAPIError("GitHub returned a response that isn't valid JSON.") from exc
+    # Missing fields mean this isn't a search response we understand - say so,
+    # rather than treating it as "0 repos found".
+    try:
+        repos = [
+            RepoData(
+                name=item["full_name"],
+                url=item["html_url"],
+                stars=item["stargazers_count"],
+                pushed_at=datetime.strptime(item["pushed_at"], "%Y-%m-%dT%H:%M:%SZ").replace(
+                    tzinfo=timezone.utc
+                ),
+                language=item["language"],  # always present; null means no detected language
+            )
+            for item in payload["items"]
+        ]
+        total_count = payload["total_count"]
+        incomplete = bool(payload["incomplete_results"])
+    except (KeyError, TypeError, ValueError) as exc:
+        raise GitHubAPIError(
+            f"GitHub returned a search response RepoScout doesn't understand (problem: {exc!r})."
+        ) from exc
+    return SearchResult(
+        total_count=total_count,
+        repos=repos,
+        incomplete=incomplete,
+    )

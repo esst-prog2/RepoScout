@@ -59,3 +59,14 @@ The system SHALL export the full ranked, bucketed result set to a CSV file in th
 #### Scenario: Filename collision between distinct keywords
 - **WHEN** two distinct searches (e.g. `"expense tracker"` and `"expense-tracker"`) normalize to the same CSV filename
 - **THEN** the later export silently overwrites the earlier file, without prompting or erroring
+
+### Requirement: Incomplete search results are flagged
+When GitHub's search response reports `incomplete_results: true` (its search timed out before finishing), the system SHALL print a warning after the verdict that the results may be incomplete. The flag SHALL be stored with the cache entry so the warning also appears when the same results are later served from the cache.
+
+#### Scenario: GitHub reports incomplete results
+- **WHEN** a search response has `incomplete_results: true`
+- **THEN** the system prints the table and verdict as usual, followed by a warning that the results may be incomplete
+
+#### Scenario: Incomplete results served from cache
+- **WHEN** a search whose fetched results were flagged incomplete is repeated within the cache window
+- **THEN** the cached results are shown with the same incomplete-results warning

@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from reposcout.bucketing import ACTIVE, SLOWING, STALE, classify_bucket, rank_by_stars
+from reposcout.bucketing import ACTIVE, SLOWING, STALE, active_window_text, classify_bucket, rank_by_stars
 from reposcout.github import RepoData
 
 NOW = datetime(2026, 9, 24, tzinfo=timezone.utc)
@@ -55,3 +55,9 @@ def test_rank_by_stars_sorts_descending():
     ranked = rank_by_stars(repos)
 
     assert [r.name for r in ranked] == ["high", "mid", "low"]
+
+
+@pytest.mark.parametrize("days, text", [(90, "3 months"), (180, "6 months"), (200, "200 days")])
+def test_active_window_text_follows_the_threshold(monkeypatch, days, text):
+    monkeypatch.setattr("reposcout.bucketing.ACTIVE_THRESHOLD_DAYS", days)
+    assert active_window_text() == text

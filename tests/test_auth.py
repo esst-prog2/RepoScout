@@ -113,3 +113,36 @@ def test_handle_invalid_token_blank_response_skips(isolated_dirs, monkeypatch):
     saved = json.loads(auth.config_path().read_text(encoding="utf-8"))
     assert "token" not in saved
     assert saved["skipped"] is True
+
+
+def test_corrupted_config_is_reported_not_silently_ignored(isolated_dirs, monkeypatch, capsys):
+    _, config_dir = isolated_dirs
+    config_dir.mkdir(parents=True)
+    (config_dir / "config.json").write_text('{"token": "ghp_abc"', encoding="utf-8")
+    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
+    monkeypatch.setattr("reposcout.auth.prompt_for_token", lambda *a, **k: None)
+
+    auth.resolve_token()
+
+    err = capsys.readouterr().err
+    assert "could not read saved settings" in err.lower()
+    assert "config.json" in err
+
+
+def test_config_that_is_not_a_json_object_is_reported(isolated_dirs, monkeypatch, capsys):
+    _, config_dir = isolated_dirs
+    config_dir.mkdir(parents=True)
+    (config_dir / "config.json").write_text('["ghp_abc"]', encoding="utf-8")
+    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
+    monkeypatch.setattr("reposcout.auth.prompt_for_token", lambda *a, **k: None)
+
+    auth.resolve_token()  # must not crash with AttributeError on list.get
+
+    assert "could not read saved settings" in capsys.readouterr().err.lower()
+
+
+def test_rate_limit_message_without_known_reset_time_does_not_invent_one():
+    for authenticated in (True, False):
+        message = auth.rate_limit_message(RateLimitExceeded(None, authenticated=authenticated))
+        assert "did not say when" in message
+        assert "UTC" not in message
