@@ -366,3 +366,14 @@ Test count: 66 − 2 duplicates + 3 new = 67, all passing.
 - `timeout=30` in `requests.get`: an explicit value, not a fallback (the opposite of the slide's `timeout=0` example).
 
 73/73 tests passing.
+
+## 2026-10-17 — HW6 review 9: what should not be in git
+
+Checked the **whole history** (all branches, every commit), not just the current tree, because a `git rm` leaves a file in every earlier commit and getting it out means rewriting history (e.g. `git filter-repo`).
+
+**Findings: nothing that shouldn't be there was ever committed, so no history rewrite was needed.**
+- **Large / raw data files:** listed every path ever added and the size of every blob in history. The biggest object is `AGENTS.md` itself (~52 KB). Never committed: `.venv/`, `__pycache__/`, `*.egg-info/`, `build/`, the generated `*-report.csv` files (all were already in `.gitignore`), and RepoScout's cache and token config (which by design live outside the repo, in the OS user cache/config dirs via `platformdirs`).
+- **Keys / tokens:** searched every diff in history for GitHub token formats (`ghp_`, `gho_`, `ghu_`, `ghs_`, `ghr_`, `github_pat_`), other common key shapes (`sk-…`, AWS `AKIA…`, `BEGIN … PRIVATE KEY`), and any `token`/`password`/`secret`/`api_key` assigned a literal. No match for a real key. The only literals are test fakes (`"bad-token"`, `"ghp_abc"`, `"saved-token"`) and the placeholder `ghp_your_token_here` in the manual. The real token the user created for the HW1 smoke test was entered only through the interactive prompt, never typed into a file or this conversation (see the 2026-09-24 entry), and it isn't in history.
+- **Real people's data:** no email addresses in any file content. Commit authors use GitHub `noreply` addresses. No personal file paths (`C:\Users\…`, `/home/…`). `spike/pushed_at_drift.csv` contains 50 public GitHub repo names (`owner/repo`) and their public push/commit dates. Kept: it's public metadata, it's the HW4 evidence the grader re-runs, and it holds nothing beyond what github.com shows anyone. `AGENTS.md` mentions the user's possible master's-thesis direction, which is project context the user chose to record, not personal data.
+
+**Fixed, as prevention:** `.gitignore` only covered build output and reports. A `.env`, a private key, or Claude Code's per-user `.claude/settings.local.json` (created when permissions are approved locally) would have been picked up by an ordinary `git add -A`, as used throughout this project. Added `.env`, `.env.*`, `*.pem`, `*.key`, `id_rsa*`, `id_ed25519*`, `.claude/settings.local.json`. Verified with `git check-ignore` that these are now ignored, that files which belong in git (`spike/pushed_at_drift.csv`, `openspec/config.yaml`, the shared `.claude/skills/…`) are not, and (`git ls-files -ci --exclude-standard` → empty) that no already-tracked file is newly matched.
