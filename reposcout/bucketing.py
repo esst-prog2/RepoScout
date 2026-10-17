@@ -32,9 +32,9 @@ def classify_bucket(pushed_at: datetime, now: datetime | None = None) -> str:
     return STALE
 
 
-def bucket_repos(repos: list[RepoData], now: datetime | None = None) -> list[BucketedRepo]:
+def bucket_repos(repos: list[RepoData]) -> list[BucketedRepo]:
     """Classify a list of repos into activity buckets."""
-    return [BucketedRepo(repo=r, bucket=classify_bucket(r.pushed_at, now)) for r in repos]
+    return [BucketedRepo(repo=r, bucket=classify_bucket(r.pushed_at)) for r in repos]
 
 
 def rank_by_stars(repos: list[RepoData]) -> list[RepoData]:

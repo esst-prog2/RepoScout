@@ -5,11 +5,11 @@ def search_payload(total_count: int, items: list[dict]) -> dict:
     return {"total_count": total_count, "incomplete_results": False, "items": items}
 
 
-def repo_item(name: str, stars: int, pushed_at: str = "2026-08-01T00:00:00Z", language: str = "Python") -> dict:
+def repo_item(name: str, stars: int, pushed_at: str = "2026-08-01T00:00:00Z") -> dict:
     return {
         "full_name": name,
         "html_url": f"https://github.com/{name}",
         "stargazers_count": stars,
-        "language": language,
+        "language": "Python",
         "pushed_at": pushed_at,
     }

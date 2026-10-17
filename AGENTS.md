@@ -311,3 +311,23 @@ The three questions from the slide, asked of every package in `pyproject.toml` (
 **3. Is it pinned to one exact version?** **No** — every entry was `>=` (a minimum only), so a fresh `pip install .` would take whatever was newest that day: an untested version, or a compromised new release. **Fix:** pinned each with `==` to the exact version in the dev `.venv` that the 66 tests pass on: `requests==2.34.2`, `typer==0.27.2`, `tabulate==0.10.0`, `humanize==4.16.0`, `platformdirs==4.11.12`, `pwinput==1.0.3`, `pytest==9.1.1`, `responses==0.26.3`, and the build backend `setuptools==84.0.0`. Verified in a brand-new, throwaway venv: `pip install ".[dev]"` installed exactly those versions, 66/66 tests passed there, and the installed `reposcout --help` command ran.
 
 **Not done, noted:** the packages *our* dependencies pull in (`urllib3`, `certifi`, `idna`, `charset-normalizer`, `rich`, `shellingham`, `colorama`, `markdown-it-py`, `mdurl`, `Pygments`, `annotated-doc`, …) are still chosen by those packages' own version ranges, not by us. Pinning those too means a lock file (ideally with hashes, e.g. via `pip-tools`' `pip-compile --generate-hashes`), which would add a new tool and a new install step. Left as a decision for later rather than slipped in here.
+
+## 2026-10-17 — HW6 review 6: dead code
+
+**Method:** listed every function, class, method, and module-level constant in `reposcout/`, `spike/`, and `tests/helpers.py`, and counted references to each name in app code and in tests separately. Since dead code also hides in fields nobody reads, parameters nobody passes, and files that no longer do anything, those were checked too.
+
+**Only name with zero callers: `cli._main`. Not dead.** It's the empty `@app.callback()` that Typer calls itself. It keeps `search` an explicit subcommand (see the 2026-09-24 implementation entry). Every other name is used by app code, or by tests only where the name is itself a test helper.
+
+**Removed:**
+- **`__version__ = "0.1.0"`** in `reposcout/__init__.py`: read by nothing (no `--version` flag, `pyproject.toml` hardcodes its own `version = "0.1.0"`). Worse than unused, because it was a second copy of the version that would silently drift on the next release.
+- **`CacheEntry.fetched_at`**: set on every cache read, never read by anyone. The `fetched_at` stored in the cache *file* is still used (the 24h expiry check inside `read_cache()`); only the dataclass field that passed it outward was dead.
+- **`bucket_repos(..., now=...)` parameter**: never passed, by app or tests. (`classify_bucket`, `read_cache`, `write_cache`, and `format_verdict` keep their `now` parameters, because tests use them to pin the clock.)
+- **`repo_item(..., language=...)` parameter** in `tests/helpers.py`: introduced in review 3 when merging the three copies, but no test passes it, so a dead option I'd just created.
+- **`openspec/specs/.gitkeep` and `openspec/changes/archive/.gitkeep`**: placeholders `openspec init` creates so git keeps empty directories. Both directories now hold real content, so the files did nothing. (`openspec validate` / `openspec list` still work.)
+
+**Checked and kept:**
+- `if __name__ == "__main__": app()` in `cli.py`: nothing documents `python -m reposcout.cli` (the installed `reposcout` command is the entry point), but it's the standard two lines that make the module runnable directly. Harmless.
+- The `token is None` branch in `_fetch_with_token_recovery()` (a 401 with no token sent): GitHub's search shouldn't return that, but it's a 2-line guard on an external API we don't control, and it produces a clean message instead of a confusing re-prompt.
+- Exception message strings on `RateLimitExceeded` / `InvalidTokenError` / `NetworkError`: the CLI prints its own messages for these, so the strings aren't shown to users. They still appear in a traceback or a debugger, which is what exception messages are for.
+
+66/66 tests passing, specs validate.

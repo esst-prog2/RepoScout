@@ -23,7 +23,6 @@ _WHITESPACE_RE = re.compile(r"\s+")
 class CacheEntry:
     total_count: int
     repos: list[RepoData]
-    fetched_at: datetime
     incomplete: bool = False
 
 
@@ -72,7 +71,7 @@ def read_cache(keyword: str, now: datetime | None = None) -> CacheEntry | None:
     if now - fetched_at > TTL:
         return None
 
-    return CacheEntry(total_count=total_count, repos=repos, fetched_at=fetched_at, incomplete=incomplete)
+    return CacheEntry(total_count=total_count, repos=repos, incomplete=incomplete)
 
 
 def write_cache(
