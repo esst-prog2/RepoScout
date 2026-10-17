@@ -24,6 +24,7 @@ class CacheEntry:
     total_count: int
     repos: list[RepoData]
     fetched_at: datetime
+    incomplete: bool = False
 
 
 def normalize_query(keyword: str) -> str:
@@ -63,16 +64,25 @@ def read_cache(keyword: str, now: datetime | None = None) -> CacheEntry | None:
             for r in raw["repos"]
         ]
         total_count = raw["total_count"]
+        # entries written before this field existed have no flag: they were complete
+        incomplete = bool(raw.get("incomplete", False))
     except (json.JSONDecodeError, KeyError, ValueError, TypeError):
         return None
 
     if now - fetched_at > TTL:
         return None
 
-    return CacheEntry(total_count=total_count, repos=repos, fetched_at=fetched_at)
+    return CacheEntry(total_count=total_count, repos=repos, fetched_at=fetched_at, incomplete=incomplete)
 
 
-def write_cache(keyword: str, total_count: int, repos: list[RepoData], now: datetime | None = None) -> None:
+def write_cache(
+    keyword: str,
+    total_count: int,
+    repos: list[RepoData],
+    now: datetime | None = None,
+    *,
+    incomplete: bool = False,
+) -> None:
     """Write raw fetched fields + fetched_at timestamp for the normalized keyword."""
     now = now or datetime.now(timezone.utc)
     path = cache_path(keyword)
@@ -81,6 +91,7 @@ def write_cache(keyword: str, total_count: int, repos: list[RepoData], now: date
     payload = {
         "fetched_at": now.isoformat(),
         "total_count": total_count,
+        "incomplete": incomplete,
         "repos": [
             {
                 "name": r.name,

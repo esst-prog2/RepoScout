@@ -279,3 +279,22 @@ Note: the fix added a second copy of the `GitHubAPIError` handler to `cli.py`'s 
 **Checked and deliberately left:** `spike/pushed_at_drift.py`'s `_fetch_real_last_commit()` builds its own auth headers and parses dates like `github.py` does. Left alone because it's the frozen HW4 evidence script that produced the committed CSV, and it already reuses `search_repositories()` and `classify_bucket()` for everything that touches RepoScout's own logic.
 
 The rejected-token retry path in `cli.py` had no CLI-level test, so before refactoring it I ran a probe and then added 2 tests: replacement accepted (retried with the new token, message shown once) and replacement rejected (clean exit 1). 57/57 passing.
+
+## 2026-10-17 — HW6 review 4: "errors that disappear"
+
+**Looked for:** `except Exception`, bare `except: pass`, and code that returns `None` or `{}`, or falls back to a default, after something went wrong, across `reposcout/` and `spike/`. There's no `except Exception` or bare `except` anywhere. Every `except` names specific exception types, so the search turned to *fallbacks*: places where a failure quietly becomes a normal-looking value.
+
+**Confirmed by probe through the real CLI (HTTP mocked) before fixing:**
+1. **Corrupted config file → the saved token silently disappears.** `auth._load_config()` returned `{}` on any parse or read error. The user was then told "No GitHub token found", and if they pressed Enter, `{"skipped": true}` permanently overwrote the token they thought was saved. A config file holding valid JSON that isn't an object (e.g. `["x"]`) crashed on `.get`. **Fix:** still continue with an empty config, but print a warning to stderr naming the file and the reason. Non-object JSON is treated the same way.
+2. **A 200 response without `items` → "0 repos found".** `github.py` read `payload.get("items", [])` and `payload.get("total_count", len(repos))`, so any unexpected success body looked like a real empty search (plus a header-only CSV). This is the slide's example almost exactly. **Fix:** the required fields are read with `[...]`, and a missing or wrong-typed field raises `GitHubAPIError("...response RepoScout doesn't understand...")`, which exits with 1. `item.get("language")` stays, because `null` is GitHub's normal value for "no language detected".
+3. **GitHub's `incomplete_results: true` was dropped.** GitHub sets it when its search times out partway through. RepoScout showed the partial results as if complete. **Fix:** `SearchResult.incomplete` → a warning line after the verdict. The flag is stored in the cache entry (old entries without it read as complete), so the warning also appears on cache hits.
+4. **A rate limit with no reset headers invented a reset time.** `_parse_reset_time()` fell back to `now`, so the message said "Resets at <right now>". **Fix:** `reset_at` is `None` when unknown, and the message says GitHub didn't say when it resets.
+
+**Checked and deliberately kept:**
+- `cache.read_cache()` returning `None` on a corrupted cache file. The `search-cache` spec *requires* this to be silent ("self-heals"). It loses nothing, since the data is just refetched.
+- `_handle_error_response()` falling back to an empty detail when an error body isn't JSON. The error is still raised, with the HTTP status.
+- The spike script crashes loudly on any error (`raise_for_status()`, `[0]`), which is correct for a one-off measurement.
+
+Specs updated: `github-auth` (config warning; unknown reset time; malformed response counts as an API error) and `repo-search` (new "Incomplete search results are flagged" requirement). Tests: +9, 66/66 passing.
+
+**Seen while probing, for a later review:** `humanize.naturaltime` rounds 16 days to "a month ago" in the verdict line.

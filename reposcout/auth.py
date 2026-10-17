@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import stat
+import sys
 from pathlib import Path
 
 import platformdirs
@@ -31,8 +32,18 @@ def _load_config() -> dict:
     if not path.exists():
         return {}
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError):
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(data, dict):
+            raise ValueError("not a JSON object")
+        return data
+    except (ValueError, OSError) as exc:
+        # Say so instead of acting as if no token was ever saved: the user may
+        # otherwise skip the prompt and overwrite a token they thought was kept.
+        print(
+            f"Warning: could not read saved settings at {path} ({exc}); ignoring them.",
+            file=sys.stderr,
+            flush=True,
+        )
         return {}
 
 
@@ -87,16 +98,19 @@ def _remember_choice(config: dict, token: str | None) -> str | None:
 
 
 def rate_limit_message(error: RateLimitExceeded) -> str:
-    reset_str = error.reset_at.strftime("%Y-%m-%d %H:%M UTC")
+    if error.reset_at is not None:
+        when = f"after {error.reset_at.strftime('%Y-%m-%d %H:%M UTC')}"
+    else:
+        when = "in a minute or two; GitHub did not say when it resets"
     if not error.authenticated:
         return (
             "GitHub's unauthenticated search rate limit (10 requests/minute) was "
             "reached. This resets within a minute, so waiting briefly often works — "
             "or provide a GitHub personal access token to raise it to 30 requests/"
             f"minute (run reposcout again to be prompted, or set {ENV_VAR}). "
-            f"(Resets at {reset_str}.)"
+            f"(Try again {when}.)"
         )
-    return f"GitHub API rate limit reached, try again after {reset_str}."
+    return f"GitHub API rate limit reached, try again {when}."
 
 
 def network_error_message() -> str:

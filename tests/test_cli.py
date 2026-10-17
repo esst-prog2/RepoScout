@@ -166,3 +166,19 @@ def test_rejected_replacement_token_exits_cleanly(isolated_dirs, monkeypatch, tm
     assert result.exit_code == 1
     assert result.exception is None or isinstance(result.exception, SystemExit)
     assert "rejected the new token as well" in result.stdout
+
+
+@responses.activate
+def test_incomplete_results_warning_is_shown_and_survives_the_cache(isolated_dirs, monkeypatch, tmp_path):
+    monkeypatch.setattr("reposcout.cli.auth.resolve_token", lambda: "test-token")
+    monkeypatch.chdir(tmp_path)
+    body = search_payload(1, [repo_item("a/one", 100)]) | {"incomplete_results": True}
+    responses.add(responses.GET, SEARCH_URL, json=body, status=200)
+
+    first = runner.invoke(app, ["search", "expense tracker"])
+    second = runner.invoke(app, ["search", "expense tracker"])  # served from cache
+
+    assert len(responses.calls) == 1
+    for result in (first, second):
+        assert result.exit_code == 0
+        assert "may be incomplete" in result.stdout

@@ -153,3 +153,37 @@ def test_non_json_success_body_raises_github_api_error():
 
     with pytest.raises(GitHubAPIError):
         search_repositories("expense tracker", token="t")
+
+
+@responses.activate
+def test_rate_limit_without_reset_headers_has_unknown_reset_time():
+    responses.add(responses.GET, SEARCH_URL, json={}, status=429)
+
+    with pytest.raises(RateLimitExceeded) as excinfo:
+        search_repositories("expense tracker", token="t")
+
+    assert excinfo.value.reset_at is None
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        {"message": "something unexpected"},
+        {"total_count": 1, "items": [{"full_name": "a/b"}]},
+        {"total_count": 1, "items": None},
+    ],
+)
+@responses.activate
+def test_success_response_without_expected_fields_raises_instead_of_zero_results(body):
+    responses.add(responses.GET, SEARCH_URL, json=body, status=200)
+
+    with pytest.raises(GitHubAPIError):
+        search_repositories("expense tracker", token="t")
+
+
+@responses.activate
+def test_incomplete_results_flag_is_kept():
+    body = search_payload(1, [repo_item("a/one", 100)]) | {"incomplete_results": True}
+    responses.add(responses.GET, SEARCH_URL, json=body, status=200)
+
+    assert search_repositories("expense tracker", token="t").incomplete is True

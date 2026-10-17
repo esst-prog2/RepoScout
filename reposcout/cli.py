@@ -13,6 +13,11 @@ app = typer.Typer(help="Search GitHub for repos by keyword, ranked and classifie
 RATE_LIMIT_EXIT_CODE = 2
 NETWORK_ERROR_EXIT_CODE = 3
 
+INCOMPLETE_WARNING = (
+    "Warning: GitHub's search timed out before it finished, so these results may be "
+    "incomplete. Try again later with --refresh."
+)
+
 
 @app.callback()
 def _main() -> None:
@@ -32,7 +37,7 @@ def search(
     if not refresh:
         cached = cache.read_cache(keyword)
         if cached is not None:
-            _emit_results(keyword, cached.total_count, cached.repos)
+            _emit_results(keyword, cached.total_count, cached.repos, cached.incomplete)
             return
 
     try:
@@ -47,8 +52,8 @@ def search(
         typer.echo(str(exc))
         raise typer.Exit(code=1)
 
-    cache.write_cache(keyword, result.total_count, result.repos)
-    _emit_results(keyword, result.total_count, result.repos)
+    cache.write_cache(keyword, result.total_count, result.repos, incomplete=result.incomplete)
+    _emit_results(keyword, result.total_count, result.repos, result.incomplete)
 
 
 def _fetch_with_token_recovery(keyword: str, token: str | None) -> github.SearchResult:
@@ -67,13 +72,17 @@ def _fetch_with_token_recovery(keyword: str, token: str | None) -> github.Search
             ) from None
 
 
-def _emit_results(keyword: str, total_count: int, repos: list[github.RepoData]) -> None:
+def _emit_results(
+    keyword: str, total_count: int, repos: list[github.RepoData], incomplete: bool = False
+) -> None:
     ranked = bucketing.rank_by_stars(repos)
     bucketed = bucketing.bucket_repos(ranked)
 
     if bucketed:
         typer.echo(output.render_table(bucketed))
     typer.echo(output.format_verdict(total_count, bucketed))
+    if incomplete:
+        typer.echo(INCOMPLETE_WARNING)
 
     csv_path = Path.cwd() / output.csv_filename(keyword)
     output.write_csv(csv_path, bucketed)
