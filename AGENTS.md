@@ -377,3 +377,18 @@ Checked the **whole history** (all branches, every commit), not just the current
 - **Real people's data:** no email addresses in any file content. Commit authors use GitHub `noreply` addresses. No personal file paths (`C:\Users\…`, `/home/…`). `spike/pushed_at_drift.csv` contains 50 public GitHub repo names (`owner/repo`) and their public push/commit dates. Kept: it's public metadata, it's the HW4 evidence the grader re-runs, and it holds nothing beyond what github.com shows anyone. `AGENTS.md` mentions the user's possible master's-thesis direction, which is project context the user chose to record, not personal data.
 
 **Fixed, as prevention:** `.gitignore` only covered build output and reports. A `.env`, a private key, or Claude Code's per-user `.claude/settings.local.json` (created when permissions are approved locally) would have been picked up by an ordinary `git add -A`, as used throughout this project. Added `.env`, `.env.*`, `*.pem`, `*.key`, `id_rsa*`, `id_ed25519*`, `.claude/settings.local.json`. Verified with `git check-ignore` that these are now ignored, that files which belong in git (`spike/pushed_at_drift.csv`, `openspec/config.yaml`, the shared `.claude/skills/…`) are not, and (`git ls-files -ci --exclude-standard` → empty) that no already-tracked file is newly matched.
+
+## 2026-10-17 (later) — HW6: pushed, PR opened by the user
+
+All 9 reviews done (one commit each, `23a34d4` … `4180892`). Final state: 73/73 tests passing (up from 48), `openspec validate --specs --strict` passes, no active OpenSpec changes.
+
+Pushed `hw6-review` to `origin`. The PR couldn't be opened from this session because the GitHub CLI (`gh`) isn't installed on this machine. The user opens it in the browser (title "HW6: whole-repo review", with a description table summarising the 9 reviews) and merges it themselves with **"Create a merge commit"**, keeping the branch, as with HW4/HW5. (Optional for next time: `winget install GitHub.cli` + `gh auth login` would let the agent open PRs directly.)
+
+**Open issues carried forward (found during the reviews, outside their scope, not fixed):**
+- An invalid `GITHUB_TOKEN` env var goes through the *saved*-token recovery: the message says "saved", the replacement is saved to config, but the env var still wins next run, so the user is re-prompted every time.
+- `slugify_keyword()` doesn't strip filename-unsafe characters: `reposcout search "c++/qt"` tries to write into a non-existent `c++/` directory and crashes.
+- `humanize.naturaltime` rounds 16 days to "a month ago" in the verdict.
+- Transitive dependencies (`urllib3`, `rich`, `certifi`, …) aren't locked. That would need a lock file, e.g. `pip-compile --generate-hashes`.
+- Still open from HW5: GitHub's loose (non-phrase) keyword matching, and the idea of a friendlier/web interface.
+
+**Next step:** user opens and merges the PR. Then pick from the open issues above.
