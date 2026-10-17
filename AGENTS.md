@@ -346,3 +346,23 @@ Review 3 merged *copied code* (near-identical functions). This review looked one
 - **The spike's own commit fetch** (`spike/pushed_at_drift.py`): calls a different endpoint (`/commits`), and it's frozen HW4 evidence (see review 3).
 
 Test count: 66 − 2 duplicates + 3 new = 67, all passing.
+
+## 2026-10-17 — HW6 review 8: the quiet default
+
+**Looked for:** every `.get(key, default)`, `x or default`, default parameter value, and `os.environ` lookup in `reposcout/`. For each one, asked: is a missing value really allowed here, or is it a bug that the default turns into a decision nobody made?
+
+**Fixed (default → required, so a mistake becomes an error):**
+- **`search_repositories(keyword, token=None)`**: a caller that forgot the token silently ran *unauthenticated*, at GitHub's 10-requests-per-minute limit instead of 30, with no sign of why. All app callers passed it, but 5 tests relied on the default without saying so. Now `token` must be passed (still `str | None`: `None` means "deliberately unauthenticated", stated by the caller). The tests now say `token=None` explicitly, and a test checks that omitting it is a `TypeError`.
+- **`payload.get("incomplete_results", False)`** and **`item.get("language")`**: GitHub's search schema always sends both keys (`language` is *null* when no language is detected, which stays allowed). A missing key means the response isn't what we think it is, so both are now read with `[...]` and fall into review 4's "response RepoScout doesn't understand" error. Tests: missing key → `GitHubAPIError`; `language: null` → still fine.
+- **`incomplete` defaulting to `False` in four places**, all added by me in review 4: `SearchResult.incomplete`, `CacheEntry.incomplete`, `write_cache(..., incomplete=False)`, `_emit_results(..., incomplete=False)`. Each default meant a future caller that forgot the flag would silently report partial results as complete, the exact silence review 4 removed. All four are now required. Also `raw.get("incomplete", False)` when reading the cache: an entry missing the key was *assumed* complete. Now that's a cache miss, so the entry is refetched instead of guessed (costs at most one API call per pre-today entry, and those expire within 24h anyway). +1 test.
+- While in the error path: `response.json().get("message", "")` would crash with `AttributeError` if an error body was JSON but not an object (e.g. a list). Now guarded. The message stays optional, since the HTTP status is the actual error. +1 test.
+
+**Checked and kept, because the value really is optional:**
+- `os.environ.get("GITHUB_TOKEN")`, `config.get("token")`, `config.get("skipped")`: the spec defines "not set" as a normal state for each.
+- `response.headers.get("Retry-After" / "X-RateLimit-Reset" / "X-RateLimit-Remaining")`: GitHub sends these only sometimes. Missing → reset time reported as unknown (review 4), never invented.
+- `now = now or datetime.now(timezone.utc)` (4 places): `None` explicitly means "the real clock". Tests pass a fixed time.
+- `b.repo.language or missing_language`: a display placeholder for a legitimately null value, and the placeholder is a required keyword argument.
+- `prompt_for_token(prompt_text=PROMPT_TEXT)`, `--refresh` defaulting to off: ordinary, intended defaults.
+- `timeout=30` in `requests.get`: an explicit value, not a fallback (the opposite of the slide's `timeout=0` example).
+
+73/73 tests passing.

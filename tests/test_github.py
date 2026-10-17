@@ -21,7 +21,7 @@ def test_search_returns_repos_from_single_call():
     payload = search_payload(2, [repo_item("a/one", 100), repo_item("a/two", 50)])
     responses.add(responses.GET, SEARCH_URL, json=payload, status=200)
 
-    result = search_repositories("expense tracker")
+    result = search_repositories("expense tracker", token=None)
 
     assert len(responses.calls) == 1
     assert result.total_count == 2
@@ -36,7 +36,7 @@ def test_total_count_distinct_from_fetched_items():
     payload = search_payload(3241, [repo_item("a/one", 100)])
     responses.add(responses.GET, SEARCH_URL, json=payload, status=200)
 
-    result = search_repositories("popular keyword")
+    result = search_repositories("popular keyword", token=None)
 
     assert result.total_count == 3241
     assert len(result.repos) == 1
@@ -54,7 +54,7 @@ def test_rate_limit_exceeded_parses_reset_time():
     )
 
     with pytest.raises(RateLimitExceeded) as exc_info:
-        search_repositories("expense tracker")
+        search_repositories("expense tracker", token=None)
 
     assert exc_info.value.reset_at == datetime.fromtimestamp(reset_ts, tz=timezone.utc)
     assert exc_info.value.authenticated is False
@@ -85,7 +85,7 @@ def test_connection_error_raises_network_error():
     )
 
     with pytest.raises(NetworkError):
-        search_repositories("expense tracker")
+        search_repositories("expense tracker", token=None)
 
 
 @responses.activate
@@ -97,7 +97,7 @@ def test_timeout_raises_network_error():
     )
 
     with pytest.raises(NetworkError):
-        search_repositories("expense tracker")
+        search_repositories("expense tracker", token=None)
 
 
 @responses.activate
@@ -187,3 +187,38 @@ def test_incomplete_results_flag_is_kept():
     responses.add(responses.GET, SEARCH_URL, json=body, status=200)
 
     assert search_repositories("expense tracker", token="t").incomplete is True
+
+
+@pytest.mark.parametrize("missing", ["incomplete_results", "language"])
+@responses.activate
+def test_missing_always_present_field_is_an_error_not_a_default(missing):
+    body = search_payload(1, [repo_item("a/one", 100)])
+    if missing == "language":
+        del body["items"][0]["language"]
+    else:
+        del body[missing]
+    responses.add(responses.GET, SEARCH_URL, json=body, status=200)
+
+    with pytest.raises(GitHubAPIError):
+        search_repositories("expense tracker", token=None)
+
+
+@responses.activate
+def test_null_language_is_normal_not_an_error():
+    item = repo_item("a/one", 100) | {"language": None}
+    responses.add(responses.GET, SEARCH_URL, json=search_payload(1, [item]), status=200)
+
+    assert search_repositories("expense tracker", token=None).repos[0].language is None
+
+
+@responses.activate
+def test_error_body_that_is_not_an_object_still_reports_the_status():
+    responses.add(responses.GET, SEARCH_URL, json=["unexpected"], status=500)
+
+    with pytest.raises(GitHubAPIError, match="HTTP 500"):
+        search_repositories("expense tracker", token=None)
+
+
+def test_token_must_be_passed_explicitly():
+    with pytest.raises(TypeError):
+        search_repositories("expense tracker")

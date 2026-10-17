@@ -23,7 +23,7 @@ _WHITESPACE_RE = re.compile(r"\s+")
 class CacheEntry:
     total_count: int
     repos: list[RepoData]
-    incomplete: bool = False
+    incomplete: bool
 
 
 def normalize_query(keyword: str) -> str:
@@ -63,8 +63,7 @@ def read_cache(keyword: str, now: datetime | None = None) -> CacheEntry | None:
             for r in raw["repos"]
         ]
         total_count = raw["total_count"]
-        # entries written before this field existed have no flag: they were complete
-        incomplete = bool(raw.get("incomplete", False))
+        incomplete = bool(raw["incomplete"])  # missing = older format: refetch, don't guess
     except (json.JSONDecodeError, KeyError, ValueError, TypeError):
         return None
 
@@ -80,7 +79,7 @@ def write_cache(
     repos: list[RepoData],
     now: datetime | None = None,
     *,
-    incomplete: bool = False,
+    incomplete: bool,
 ) -> None:
     """Write raw fetched fields + fetched_at timestamp for the normalized keyword."""
     now = now or datetime.now(timezone.utc)

@@ -73,7 +73,7 @@ def _fetch_with_token_recovery(keyword: str, token: str | None) -> github.Search
 
 
 def _emit_results(
-    keyword: str, total_count: int, repos: list[github.RepoData], incomplete: bool = False
+    keyword: str, total_count: int, repos: list[github.RepoData], incomplete: bool
 ) -> None:
     ranked = bucketing.rank_by_stars(repos)
     bucketed = bucketing.bucket_repos(ranked)

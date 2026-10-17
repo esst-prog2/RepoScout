@@ -1,3 +1,4 @@
+import json
 from datetime import datetime, timedelta, timezone
 
 from reposcout.cache import cache_path, normalize_query, read_cache, write_cache
@@ -25,7 +26,7 @@ def _repo(name: str = "a/one") -> RepoData:
 
 def test_write_then_read_round_trips_raw_fields(isolated_dirs):
     repos = [_repo()]
-    write_cache("expense tracker", total_count=1, repos=repos, now=NOW)
+    write_cache("expense tracker", total_count=1, repos=repos, now=NOW, incomplete=False)
 
     entry = read_cache("expense tracker", now=NOW)
 
@@ -37,7 +38,7 @@ def test_write_then_read_round_trips_raw_fields(isolated_dirs):
 
 
 def test_cache_hit_within_24_hours(isolated_dirs):
-    write_cache("expense tracker", total_count=1, repos=[_repo()], now=NOW)
+    write_cache("expense tracker", total_count=1, repos=[_repo()], now=NOW, incomplete=False)
 
     entry = read_cache("expense tracker", now=NOW + timedelta(hours=23))
 
@@ -45,7 +46,7 @@ def test_cache_hit_within_24_hours(isolated_dirs):
 
 
 def test_cache_expired_after_24_hours(isolated_dirs):
-    write_cache("expense tracker", total_count=1, repos=[_repo()], now=NOW)
+    write_cache("expense tracker", total_count=1, repos=[_repo()], now=NOW, incomplete=False)
 
     entry = read_cache("expense tracker", now=NOW + timedelta(hours=25))
 
@@ -64,3 +65,13 @@ def test_corrupted_cache_file_is_treated_as_a_miss(isolated_dirs):
     entry = read_cache("expense tracker", now=NOW)
 
     assert entry is None
+
+
+def test_cache_entry_without_incomplete_flag_is_refetched_not_assumed_complete(isolated_dirs):
+    write_cache("expense tracker", total_count=1, repos=[_repo()], now=NOW, incomplete=True)
+    path = cache_path("expense tracker")
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    del raw["incomplete"]
+    path.write_text(json.dumps(raw), encoding="utf-8")
+
+    assert read_cache("expense tracker", now=NOW) is None

@@ -47,7 +47,7 @@ class SearchResult:
     total_count: int
     repos: list[RepoData]
     # GitHub sets incomplete_results when its search timed out partway through.
-    incomplete: bool = False
+    incomplete: bool
 
 
 def _parse_reset_time(response: requests.Response) -> datetime | None:
@@ -79,14 +79,16 @@ def _handle_error_response(response: requests.Response, authenticated: bool) -> 
     if _is_rate_limited(response):
         raise RateLimitExceeded(_parse_reset_time(response), authenticated)
     try:
-        detail = response.json().get("message", "")
+        body = response.json()
     except ValueError:
-        detail = ""
+        body = None
+    # the message is optional decoration - the status code is the actual error
+    detail = body.get("message", "") if isinstance(body, dict) else ""
     message = f"GitHub returned an error (HTTP {response.status_code})"
     raise GitHubAPIError(f"{message}: {detail}" if detail else f"{message}.")
 
 
-def search_repositories(keyword: str, token: str | None = None) -> SearchResult:
+def search_repositories(keyword: str, token: str | None) -> SearchResult:
     """Search GitHub for repos matching keyword, top PER_PAGE results by stars.
 
     Uses only fields already present in the search response (stars, pushed_at,
@@ -125,11 +127,12 @@ def search_repositories(keyword: str, token: str | None = None) -> SearchResult:
                 pushed_at=datetime.strptime(item["pushed_at"], "%Y-%m-%dT%H:%M:%SZ").replace(
                     tzinfo=timezone.utc
                 ),
-                language=item.get("language"),  # null is normal: no detected language
+                language=item["language"],  # always present; null means no detected language
             )
             for item in payload["items"]
         ]
         total_count = payload["total_count"]
+        incomplete = bool(payload["incomplete_results"])
     except (KeyError, TypeError, ValueError) as exc:
         raise GitHubAPIError(
             f"GitHub returned a search response RepoScout doesn't understand (problem: {exc!r})."
@@ -137,5 +140,5 @@ def search_repositories(keyword: str, token: str | None = None) -> SearchResult:
     return SearchResult(
         total_count=total_count,
         repos=repos,
-        incomplete=bool(payload.get("incomplete_results", False)),
+        incomplete=incomplete,
     )
