@@ -9,7 +9,7 @@ from pathlib import Path
 import humanize
 from tabulate import tabulate
 
-from reposcout.bucketing import ACTIVE, BucketedRepo
+from reposcout.bucketing import ACTIVE, BucketedRepo, active_window_text
 from reposcout.cache import normalize_query
 
 TABLE_HEADERS = ["#", "Repository", "Stars", "Last Push", "Language", "Bucket"]
@@ -55,7 +55,7 @@ def format_verdict(total_count: int, bucketed: list[BucketedRepo], now: datetime
 
     if total_count <= len(bucketed):
         return (
-            f"{total_count} repos found, {active_count} active in the last 3 months "
+            f"{total_count} repos found, {active_count} active in the last {active_window_text()} "
             f"— most recent entrant pushed {time_ago}"
         )
     return (

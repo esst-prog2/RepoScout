@@ -331,3 +331,18 @@ The three questions from the slide, asked of every package in `pyproject.toml` (
 - Exception message strings on `RateLimitExceeded` / `InvalidTokenError` / `NetworkError`: the CLI prints its own messages for these, so the strings aren't shown to users. They still appear in a traceback or a debugger, which is what exception messages are for.
 
 66/66 tests passing, specs validate.
+
+## 2026-10-17 — HW6 review 7: the same feature, built twice under different names
+
+Review 3 merged *copied code* (near-identical functions). This review looked one level up: the same *behaviour or rule* implemented in two places, even where the code doesn't look alike.
+
+**Found and fixed:**
+- **The "active" rule, stated twice.** `bucketing.py` defines it as `ACTIVE_THRESHOLD_DAYS = 90`. `output.py` restated it in words, hardcoded, in the verdict: "active in the last 3 months". Evidence: re-ran the HW5 red experiment (threshold → 200) and the verdict read "1 repos found, 1 active in the last 3 months — most recent entrant pushed 5 months ago", contradicting itself. **Fix:** `bucketing.active_window_text()` derives the wording from the threshold ("3 months" for 90, "6 months" for 180, "200 days" when it isn't a whole number of 30-day months), and the verdict uses it. The README/spec demo wording ("active in the last 3 months") is unchanged at today's value. +3 tests.
+- **Two README §4 acceptance criteria tested twice.** `tests/test_cli.py` had `test_second_search_within_cache_window_makes_zero_api_calls` and `test_zero_match_search_prints_message_and_writes_headers_only_csv`, which test exactly what `tests/test_acceptance.py` already tests (same CLI invocation, same mocks, same assertions) under different names. Kept the `test_acceptance.py` versions, because they quote the README criterion they encode, and removed the `test_cli.py` copies.
+
+**Two implementations, deliberately both kept (now documented):**
+- **Sorting by stars happens twice:** GitHub's `sort=stars&order=desc` in `github.py`, and `rank_by_stars()` locally. They aren't the same job. GitHub's sort decides *which* 50 repos are fetched (it can't be dropped). The local sort owns the *display* order, so the ranks shown always agree with the star counts shown, whatever order the API or an old cache entry returned. Added that explanation to `rank_by_stars()`'s docstring so the next reader doesn't "fix" it.
+- **Two error texts per API error** (each exception's own message vs. `auth.rate_limit_message()` / `auth.network_error_message()`): one is for debugging/tracebacks, the other for users. Reviewed in review 6, not repeated here.
+- **The spike's own commit fetch** (`spike/pushed_at_drift.py`): calls a different endpoint (`/commits`), and it's frozen HW4 evidence (see review 3).
+
+Test count: 66 − 2 duplicates + 3 new = 67, all passing.
