@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import requests
 
@@ -48,20 +48,39 @@ class SearchResult:
 
 
 def _parse_reset_time(response: requests.Response) -> datetime:
+    retry_after = response.headers.get("Retry-After")
+    if retry_after is not None and retry_after.isdigit():
+        return datetime.now(timezone.utc) + timedelta(seconds=int(retry_after))
     reset_header = response.headers.get("X-RateLimit-Reset")
     if reset_header is not None:
         return datetime.fromtimestamp(int(reset_header), tz=timezone.utc)
     return datetime.now(timezone.utc)
 
 
+def _is_rate_limited(response: requests.Response) -> bool:
+    """Primary limit: remaining hits 0. Secondary limit: 403/429 with Retry-After."""
+    if response.status_code == 429:
+        return True
+    if response.status_code == 403:
+        return (
+            response.headers.get("X-RateLimit-Remaining") == "0"
+            or "Retry-After" in response.headers
+        )
+    return False
+
+
 def _handle_error_response(response: requests.Response, authenticated: bool) -> None:
+    """Translate every non-OK response into a typed error - never a raw requests one."""
     if response.status_code == 401:
         raise InvalidTokenError()
-    if response.status_code in (403, 429):
-        remaining = response.headers.get("X-RateLimit-Remaining")
-        if remaining == "0" or response.status_code == 429:
-            raise RateLimitExceeded(_parse_reset_time(response), authenticated)
-    response.raise_for_status()
+    if _is_rate_limited(response):
+        raise RateLimitExceeded(_parse_reset_time(response), authenticated)
+    try:
+        detail = response.json().get("message", "")
+    except ValueError:
+        detail = ""
+    message = f"GitHub returned an error (HTTP {response.status_code})"
+    raise GitHubAPIError(f"{message}: {detail}" if detail else f"{message}.")
 
 
 def search_repositories(keyword: str, token: str | None = None) -> SearchResult:
@@ -88,7 +107,10 @@ def search_repositories(keyword: str, token: str | None = None) -> SearchResult:
     if not response.ok:
         _handle_error_response(response, authenticated=bool(token))
 
-    payload = response.json()
+    try:
+        payload = response.json()
+    except ValueError as exc:
+        raise GitHubAPIError("GitHub returned a response that isn't valid JSON.") from exc
     repos = [
         RepoData(
             name=item["full_name"],

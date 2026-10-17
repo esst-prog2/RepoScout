@@ -6,6 +6,7 @@ import responses
 
 from reposcout.github import (
     SEARCH_URL,
+    GitHubAPIError,
     InvalidTokenError,
     NetworkError,
     RateLimitExceeded,
@@ -122,3 +123,45 @@ def test_invalid_token_raises():
 
     with pytest.raises(InvalidTokenError):
         search_repositories("expense tracker", token="bad-token")
+
+
+@responses.activate
+def test_secondary_rate_limit_403_with_retry_after_raises_rate_limit():
+    responses.add(
+        responses.GET,
+        SEARCH_URL,
+        json={"message": "You have exceeded a secondary rate limit."},
+        status=403,
+        headers={"Retry-After": "60", "X-RateLimit-Remaining": "25"},
+    )
+
+    with pytest.raises(RateLimitExceeded):
+        search_repositories("expense tracker", token="t")
+
+
+@pytest.mark.parametrize(
+    "status,kwargs",
+    [
+        (422, {"json": {"message": "Validation Failed"}}),
+        (500, {"json": {"message": "Server Error"}}),
+        (403, {"json": {"message": "Forbidden"}}),
+        (502, {"body": "<html>Bad Gateway</html>"}),
+    ],
+)
+@responses.activate
+def test_any_other_error_status_raises_github_api_error(status, kwargs):
+    responses.add(responses.GET, SEARCH_URL, status=status, **kwargs)
+
+    with pytest.raises(GitHubAPIError) as excinfo:
+        search_repositories("expense tracker", token="t")
+
+    assert not isinstance(excinfo.value, (RateLimitExceeded, InvalidTokenError, NetworkError))
+    assert str(status) in str(excinfo.value)
+
+
+@responses.activate
+def test_non_json_success_body_raises_github_api_error():
+    responses.add(responses.GET, SEARCH_URL, status=200, body="<html>captive portal</html>")
+
+    with pytest.raises(GitHubAPIError):
+        search_repositories("expense tracker", token="t")

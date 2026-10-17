@@ -53,12 +53,18 @@ def search(
         except github.InvalidTokenError:
             typer.echo("GitHub rejected the new token as well. Please check your token and try again.")
             raise typer.Exit(code=1)
+        except github.GitHubAPIError as exc:
+            typer.echo(str(exc))
+            raise typer.Exit(code=1)
     except github.RateLimitExceeded as exc:
         typer.echo(auth.rate_limit_message(exc))
         raise typer.Exit(code=RATE_LIMIT_EXIT_CODE)
     except github.NetworkError:
         typer.echo(auth.network_error_message())
         raise typer.Exit(code=NETWORK_ERROR_EXIT_CODE)
+    except github.GitHubAPIError as exc:
+        typer.echo(str(exc))
+        raise typer.Exit(code=1)
 
     cache.write_cache(keyword, result.total_count, result.repos)
     _emit_results(keyword, result.total_count, result.repos)

@@ -244,3 +244,21 @@ Findings and what was done:
 - `slugify_keyword()` doesn't strip filename-unsafe characters, so e.g. `reposcout search "c++/qt"` would try to write `c++/qt-report.csv` into a non-existent subdirectory and crash.
 
 Specs validate (`openspec validate --specs --strict`), 48/48 tests passing. No code changed in this review.
+
+## 2026-10-17 — HW6 review 2: "patched where it broke, not where it's wrong"
+
+**Looked at:** the git history first — no fix-on-fix chains (only five code commits, and each earlier fix, e.g. the rate-limit numbers and the "Last Push" rename, was made at the root and everywhere at once). The pattern was in the code instead: `github.py`'s error handling enumerated exactly the failure cases that had come up so far (401; 403 with `X-RateLimit-Remaining: 0`; 429; then `ConnectionError` and `Timeout` added by the graceful-failure change), and anything else fell through to `response.raise_for_status()` / `response.json()`. The actual rule, written in the first-version `design.md`, is "never let a raw `requests` exception or stack trace reach the user" — the code never implemented that rule, only its known instances.
+
+**Evidence (probe run through the real CLI, HTTP mocked):** HTTP 422, HTTP 500, a 403 *secondary* rate limit (`Retry-After` header, remaining ≠ 0 — a real GitHub behaviour, plausible during a live demo), and a 200 with a non-JSON body (e.g. a captive-portal page) — all four crashed with a raw `HTTPError` / `JSONDecodeError` traceback.
+
+**Fix (at the rule, not a fifth special case):**
+- `_handle_error_response()` now translates *every* non-OK response into a typed error: 401 → `InvalidTokenError`, rate limit → `RateLimitExceeded`, anything else → base `GitHubAPIError("GitHub returned an error (HTTP <status>): <message>")`. No more `raise_for_status()`.
+- Rate-limit detection moved into `_is_rate_limited()`, which states GitHub's actual rule: primary (remaining = 0) or secondary (403/429 with `Retry-After`). `_parse_reset_time()` uses `Retry-After` when present.
+- A non-JSON success body raises `GitHubAPIError` too.
+- `cli.py` catches `GitHubAPIError` (after the specific subclasses) → prints the message, exit code `1`.
+- Network-error catching left as `ConnectionError` + `Timeout` (not broadened to `RequestException`) — that was a deliberate, documented decision in the graceful-failure design, not a symptom patch.
+- Added the rule to `openspec/specs/github-auth/spec.md` as a new requirement.
+
+Tests: +7 (secondary limit; 422/500/403/502 → `GitHubAPIError`; non-JSON body; CLI-level 422 → clean message, exit 1). 55/55 passing. Probe re-run: all four cases now end cleanly (secondary limit → exit 2, others → exit 1).
+
+Note: the fix added a second copy of the `GitHubAPIError` handler to `cli.py`'s nested retry block, which already duplicated the rate-limit/network handlers — that duplication is for review 3 ("a copy instead of a change").

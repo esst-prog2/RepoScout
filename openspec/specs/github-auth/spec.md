@@ -62,3 +62,14 @@ The system SHALL catch a network failure (connection error or timeout) while con
 #### Scenario: Request to GitHub times out
 - **WHEN** a request to GitHub's API fails due to a timeout
 - **THEN** the system reports a clear message that GitHub could not be reached, without a raw stack trace or crash, and the process exits with code `3`
+
+### Requirement: Graceful handling of any other GitHub API error
+Any GitHub response that is not a success and is not an invalid token or a rate limit (e.g. HTTP 422, 5xx, or a success response whose body is not valid JSON) SHALL be reported as a clear one-line message including the HTTP status, and the process SHALL exit with code `1`, instead of surfacing a raw `requests` exception or stack trace. A rate limit SHALL be recognised both as GitHub's primary limit (`X-RateLimit-Remaining: 0`) and its secondary limit (HTTP 403 or 429 with a `Retry-After` header).
+
+#### Scenario: GitHub returns an unexpected error status
+- **WHEN** a request to GitHub's API returns an error status other than 401 or a rate limit (e.g. 422 or 500)
+- **THEN** the system reports a message naming the HTTP status, without a raw stack trace, and the process exits with code `1`
+
+#### Scenario: Secondary rate limit
+- **WHEN** GitHub responds with HTTP 403 and a `Retry-After` header while `X-RateLimit-Remaining` is not `0`
+- **THEN** the system treats it as a rate limit and exits with code `2`
