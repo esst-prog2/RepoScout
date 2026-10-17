@@ -35,7 +35,7 @@ The system SHALL support a `--refresh` flag on the search command that skips rea
 - **THEN** the system fetches fresh results from GitHub and overwrites the existing cache entry
 
 ### Requirement: Cache storage isolation per query
-The system SHALL store each normalized query's cached results in its own file, located in the OS-appropriate user-level cache directory, independent of the directory the command is run from.
+The system SHALL store each normalized query's cached results in its own file, located in the OS-appropriate user-level cache directory, independent of the directory the command is run from. The file SHALL be named by the SHA-256 hex digest of the normalized query (`<digest>.json`), not by the query text itself, so that any keyword — including characters that are invalid in filenames on some OSes, such as `/`, `:` or `?` — maps to a valid, distinct filename.
 
 #### Scenario: Cache persists across working directories
 - **WHEN** a user runs the same search from two different working directories

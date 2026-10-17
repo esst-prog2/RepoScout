@@ -225,3 +225,22 @@ Ran `reposcout search "repo activity research"` for real (no `--refresh`, fresh 
 Two of three predictions held; the one miss reinforces an already-known, already-deferred issue rather than surfacing a new one. Nothing about this run suggested a RepoScout bug — the tool behaved exactly as designed, the mismatch is in GitHub's search semantics vs. a strict phrase match, which this project doesn't currently try to fix.
 
 **HW5 is now functionally complete** (steps 2-6 all done and logged in order). Remaining: push `hw5-usable` and open the PR.
+
+## 2026-10-17 — HW6: whole-repo review, review 1 of N ("names that aren't in the spec")
+
+On branch `hw6-review`. HW6 asks for specialised reviews of the whole repository (not a diff), one kind of problem per review, each review plus its fix in its own commit. Starting list = the session-6 slides.
+
+**Review 1 — names that aren't in the spec.** Went through every module-level name, constant, exception, and user-visible behaviour in `reposcout/*.py` and checked each against `openspec/specs/*/spec.md` (then the archived `design.md` where the spec was silent).
+
+Findings and what was done:
+- **`NetworkError`, `RATE_LIMIT_EXIT_CODE = 2`, `NETWORK_ERROR_EXIT_CODE = 3`** were in the code but not in the main specs. Cause: the `graceful-api-failure-handling` change was fully implemented (8/8 tasks) but never archived, so its delta spec never reached `openspec/specs/github-auth/spec.md`. Fixed by archiving it (`openspec archive graceful-api-failure-handling -y` → `openspec/changes/archive/2026-10-17-graceful-api-failure-handling/`), which synced the exit-code-2 rate-limit requirement and the new network-failure requirement into the main spec.
+- **SHA-256-hashed cache filenames** (`cache.py` `cache_path()`) — an agent-invented detail that's in neither the spec nor the design ("one JSON file per normalized query" said nothing about naming). Kept it, since using the raw keyword as the filename would break for keywords with `/`, `:`, `?` etc. (especially on Windows). Written into the `search-cache` spec's "Cache storage isolation per query" requirement so the behaviour is now specified instead of implicit.
+- Checked and fine (already covered by spec or design): `PER_PAGE`, the thresholds, `BucketedRepo`/`CacheEntry`/`SearchResult`, `GitHubAPIError`, the `"skipped"` config key, `slugify_keyword`, 429 treated as rate limit.
+- Left as-is (minor, not worth spec text): `timeout=30` in `github.py`, and the "GitHub rejected the request as unauthorized" branch for a 401 with no token.
+
+**Noticed during this review but belonging to later reviews (not fixed here):**
+- An invalid `GITHUB_TOKEN` *env var* goes through the "saved token" recovery path: the message says "Your saved GitHub token…", the replacement is saved to config, but the env var still wins on the next run, so the user is re-prompted every time. The spec only covers recovery for a *saved* token.
+- `handle_invalid_token()` prints "Your saved GitHub token appears invalid or expired." and then the prompt repeats the same sentence.
+- `slugify_keyword()` doesn't strip filename-unsafe characters, so e.g. `reposcout search "c++/qt"` would try to write `c++/qt-report.csv` into a non-existent subdirectory and crash.
+
+Specs validate (`openspec validate --specs --strict`), 48/48 tests passing. No code changed in this review.
