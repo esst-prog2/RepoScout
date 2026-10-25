@@ -416,3 +416,11 @@ Ran `/opsx:propose` → change `env-token-invalid-handling` with `proposal.md`, 
 76/76 tests passing (+3), `openspec validate --strict` passes.
 
 **Next step:** `/opsx:archive` (writes the new scenario into `openspec/specs/github-auth/spec.md`), then push and open a PR.
+
+## 2026-10-25 (later) — Archived: `env-token-invalid-handling`
+
+`/opsx:archive`: all 4 artifacts and 6/6 tasks done. Synced the delta into `openspec/specs/github-auth/spec.md` (the "Invalid or expired saved token recovery" requirement now covers the env-var case, with a new scenario). Verified the main spec's requirement matches the delta exactly, and `openspec validate --specs --strict` passes. Change moved to `openspec/changes/archive/2026-10-25-env-token-invalid-handling/`. No active changes left.
+
+Open issue #1 from the HW6 list is closed. Remaining: #2 `slugify_keyword()` unsafe filename characters, #3 `naturaltime` rounding, #4 transitive-dependency lock file, #5 loose keyword matching, #6 friendlier/web interface.
+
+**Next step:** push `fix-env-token-recovery` and open a PR.
