@@ -494,3 +494,13 @@ Side question from the user, answered in conversation: subagents can be used as 
 Open issue #3 closed. Remaining: #4 transitive-dependency lock file, #5 loose keyword matching, #6 friendlier/web interface, #7 dated/versioned report files.
 
 **Next step:** push `fix-verdict-time-rounding` and open a PR.
+
+## 2026-10-25 (later) — Decision: open issue #4 (lock file) deferred
+
+PR #9 (`fix-verdict-time-rounding`) merged by the user. New branch `fix-keyword-matching` from the updated `main`.
+
+Discussed #4 (indirect dependencies aren't locked) with the user. The direct dependencies are pinned with `==`, but they declare ranges for their own dependencies (e.g. `requests` → `urllib3>=1.26,<3`, `certifi>=2023.5.7`; `typer` → `rich>=13.8.0`), so a fresh install takes the newest allowed versions on that day (today's `.venv`: `urllib3 2.8.0`, `certifi 2026.7.22`, `rich 15.0.0`, not recorded anywhere). A lock file (`pip-compile --generate-hashes` from `pip-tools`) would pin every package with hashes. Only the developer needs `pip-tools`; users would run plain `pip install -r requirements.lock`. That makes the environment match the lock exactly (downgrading e.g. a newer `rich`), which is fine in a project-specific venv but intrusive in a system-wide Python.
+
+**Decision (user): deferred.** Benefit small for a project this size (direct deps pinned; indirect ones are large, well-maintained packages) vs. a new tool, an extra install step, and a file to regenerate on every update. Ranked below #5 and #7, which change what users actually see. Stays on the open-issues list. The user also asked whether an agent could help decide. Not needed here, since the answer was already clear; debate-style agents are better spent on #5/#7.
+
+Remaining open issues: #4 (deferred), #5 loose keyword matching (next, starting with `/opsx:explore`), #6 friendlier/web interface, #7 dated/versioned report files.
