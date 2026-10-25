@@ -392,3 +392,15 @@ Pushed `hw6-review` to `origin`. The PR couldn't be opened from this session bec
 - Still open from HW5: GitHub's loose (non-phrase) keyword matching, and the idea of a friendlier/web interface.
 
 **Next step:** user opens and merges the PR. Then pick from the open issues above.
+
+## 2026-10-25 — Proposed: invalid `GITHUB_TOKEN` env var handling (open issue #1 from HW6)
+
+HW6 PR merged into `main`. New branch `fix-env-token-recovery` from the updated `main`.
+
+Fixing the first carried-forward issue: a rejected token from the `GITHUB_TOKEN` env var went through the *saved*-token recovery (wrong "saved" message, replacement saved to config, env var still wins next run → re-prompted every run). The fix changes specified behaviour, so it goes through a full OpenSpec loop (propose → apply → archive), unlike the earlier no-behaviour-change corrections (rate-limit numbers, "Last Push" rename) that edited the spec directly. No explore step: the only open decision was settled in conversation.
+
+**Decision (user chose option A):** when the rejected token came from `GITHUB_TOKEN`, don't prompt and don't save anything. Print that the token in `GITHUB_TOKEN` is invalid or expired and to update or unset it, then exit `1`. Rejected: B (prompt for a one-run replacement, which would still ask every run until the variable is fixed) and C (make the saved token outrank the env var, which reverses the spec's resolution order, more than this bug needs). Saved-token recovery stays as is.
+
+Ran `/opsx:propose` → change `env-token-invalid-handling` with `proposal.md`, a MODIFIED `github-auth` delta (new scenario on the "Invalid or expired saved token recovery" requirement), `design.md` (`auth.token_from_env()` instead of changing `resolve_token()`'s return type; report via the existing `GitHubAPIError` → exit `1` path), and `tasks.md` (reproduce with a failing test first). `openspec validate --strict` passes. Nothing implemented yet.
+
+**Next step:** `/opsx:apply`.
