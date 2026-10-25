@@ -1,0 +1,648 @@
+{
+  "now": "2026-10-25T12:00:00Z",
+  "bucket": [
+    {
+      "pushed_at": "2026-07-28T12:00:00Z",
+      "expected": "active"
+    },
+    {
+      "pushed_at": "2026-07-27T12:00:00Z",
+      "expected": "slowing"
+    },
+    {
+      "pushed_at": "2025-10-26T12:00:00Z",
+      "expected": "slowing"
+    },
+    {
+      "pushed_at": "2025-10-25T12:00:00Z",
+      "expected": "stale"
+    }
+  ],
+  "time_ago": [
+    {
+      "seconds": 0,
+      "expected": "just now"
+    },
+    {
+      "seconds": -1,
+      "expected": "just now"
+    },
+    {
+      "seconds": 59,
+      "expected": "just now"
+    },
+    {
+      "seconds": 60,
+      "expected": "1 minute ago"
+    },
+    {
+      "seconds": 119,
+      "expected": "1 minute ago"
+    },
+    {
+      "seconds": 120,
+      "expected": "2 minutes ago"
+    },
+    {
+      "seconds": 3599,
+      "expected": "59 minutes ago"
+    },
+    {
+      "seconds": 3600,
+      "expected": "1 hour ago"
+    },
+    {
+      "seconds": 7140,
+      "expected": "1 hour ago"
+    },
+    {
+      "seconds": 86399,
+      "expected": "23 hours ago"
+    },
+    {
+      "seconds": 86400,
+      "expected": "1 day ago"
+    },
+    {
+      "seconds": 1123200,
+      "expected": "13 days ago"
+    },
+    {
+      "seconds": 1209600,
+      "expected": "2 weeks ago"
+    },
+    {
+      "seconds": 1382400,
+      "expected": "2 weeks ago"
+    },
+    {
+      "seconds": 7689600,
+      "expected": "12 weeks ago"
+    },
+    {
+      "seconds": 7776000,
+      "expected": "3 months ago"
+    },
+    {
+      "seconds": 8640000,
+      "expected": "3 months ago"
+    },
+    {
+      "seconds": 31449600,
+      "expected": "12 months ago"
+    },
+    {
+      "seconds": 31536000,
+      "expected": "1 year ago"
+    },
+    {
+      "seconds": 34128000,
+      "expected": "1 year, 1 month ago"
+    },
+    {
+      "seconds": 62985600,
+      "expected": "1 year, 11 months ago"
+    },
+    {
+      "seconds": 63072000,
+      "expected": "2 years ago"
+    },
+    {
+      "seconds": 177724800,
+      "expected": "5 years, 7 months ago"
+    }
+  ],
+  "verdict": [
+    {
+      "name": "total above fetched",
+      "total_count": 244832,
+      "repos": [
+        {
+          "name": "a/one",
+          "url": "https://github.com/a/one",
+          "stars": 10,
+          "pushed_at": "2026-10-23T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/two",
+          "url": "https://github.com/a/two",
+          "stars": 5,
+          "pushed_at": "2025-09-20T12:00:00Z",
+          "language": "Python"
+        }
+      ],
+      "expected": "Showing the 2 best-matching of 244832 repos, 1 active among them — most recent entrant pushed 2 days ago"
+    },
+    {
+      "name": "total equals fetched",
+      "total_count": 2,
+      "repos": [
+        {
+          "name": "a/one",
+          "url": "https://github.com/a/one",
+          "stars": 10,
+          "pushed_at": "2026-10-09T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/two",
+          "url": "https://github.com/a/two",
+          "stars": 5,
+          "pushed_at": "2026-07-17T12:00:00Z",
+          "language": "Python"
+        }
+      ],
+      "expected": "2 repos found, 1 active in the last 3 months — most recent entrant pushed 2 weeks ago"
+    },
+    {
+      "name": "zero",
+      "total_count": 0,
+      "repos": [],
+      "expected": "0 repos found"
+    },
+    {
+      "name": "incomplete 30 of 60",
+      "total_count": 60,
+      "repos": [
+        {
+          "name": "a/r0",
+          "url": "https://github.com/a/r0",
+          "stars": 0,
+          "pushed_at": "2026-10-15T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/r1",
+          "url": "https://github.com/a/r1",
+          "stars": 1,
+          "pushed_at": "2026-09-25T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/r2",
+          "url": "https://github.com/a/r2",
+          "stars": 2,
+          "pushed_at": "2026-09-05T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/r3",
+          "url": "https://github.com/a/r3",
+          "stars": 3,
+          "pushed_at": "2026-08-16T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/r4",
+          "url": "https://github.com/a/r4",
+          "stars": 4,
+          "pushed_at": "2026-07-27T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/r5",
+          "url": "https://github.com/a/r5",
+          "stars": 5,
+          "pushed_at": "2026-07-07T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/r6",
+          "url": "https://github.com/a/r6",
+          "stars": 6,
+          "pushed_at": "2026-06-17T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/r7",
+          "url": "https://github.com/a/r7",
+          "stars": 7,
+          "pushed_at": "2026-05-28T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/r8",
+          "url": "https://github.com/a/r8",
+          "stars": 8,
+          "pushed_at": "2026-05-08T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/r9",
+          "url": "https://github.com/a/r9",
+          "stars": 9,
+          "pushed_at": "2026-04-18T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/r10",
+          "url": "https://github.com/a/r10",
+          "stars": 10,
+          "pushed_at": "2026-03-29T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/r11",
+          "url": "https://github.com/a/r11",
+          "stars": 11,
+          "pushed_at": "2026-03-09T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/r12",
+          "url": "https://github.com/a/r12",
+          "stars": 12,
+          "pushed_at": "2026-02-17T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/r13",
+          "url": "https://github.com/a/r13",
+          "stars": 13,
+          "pushed_at": "2026-01-28T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/r14",
+          "url": "https://github.com/a/r14",
+          "stars": 14,
+          "pushed_at": "2026-01-08T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/r15",
+          "url": "https://github.com/a/r15",
+          "stars": 15,
+          "pushed_at": "2025-12-19T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/r16",
+          "url": "https://github.com/a/r16",
+          "stars": 16,
+          "pushed_at": "2025-11-29T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/r17",
+          "url": "https://github.com/a/r17",
+          "stars": 17,
+          "pushed_at": "2025-11-09T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/r18",
+          "url": "https://github.com/a/r18",
+          "stars": 18,
+          "pushed_at": "2025-10-20T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/r19",
+          "url": "https://github.com/a/r19",
+          "stars": 19,
+          "pushed_at": "2025-09-30T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/r20",
+          "url": "https://github.com/a/r20",
+          "stars": 20,
+          "pushed_at": "2025-09-10T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/r21",
+          "url": "https://github.com/a/r21",
+          "stars": 21,
+          "pushed_at": "2025-08-21T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/r22",
+          "url": "https://github.com/a/r22",
+          "stars": 22,
+          "pushed_at": "2025-08-01T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/r23",
+          "url": "https://github.com/a/r23",
+          "stars": 23,
+          "pushed_at": "2025-07-12T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/r24",
+          "url": "https://github.com/a/r24",
+          "stars": 24,
+          "pushed_at": "2025-06-22T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/r25",
+          "url": "https://github.com/a/r25",
+          "stars": 25,
+          "pushed_at": "2025-06-02T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/r26",
+          "url": "https://github.com/a/r26",
+          "stars": 26,
+          "pushed_at": "2025-05-13T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/r27",
+          "url": "https://github.com/a/r27",
+          "stars": 27,
+          "pushed_at": "2025-04-23T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/r28",
+          "url": "https://github.com/a/r28",
+          "stars": 28,
+          "pushed_at": "2025-04-03T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/r29",
+          "url": "https://github.com/a/r29",
+          "stars": 29,
+          "pushed_at": "2025-03-14T12:00:00Z",
+          "language": "Python"
+        }
+      ],
+      "expected": "Showing the 30 best-matching of 60 repos, 4 active among them — most recent entrant pushed 10 days ago"
+    }
+  ],
+  "normalize": [
+    {
+      "input": "  Expense   Tracker ",
+      "expected": "expense tracker"
+    },
+    {
+      "input": "költség követő",
+      "expected": "költség követő"
+    },
+    {
+      "input": "Straße",
+      "expected": "strasse"
+    }
+  ],
+  "filename": [
+    {
+      "input": "expense tracker",
+      "expected": "expense-tracker-report.csv"
+    },
+    {
+      "input": "c++/qt",
+      "expected": "c++-qt-report.csv"
+    },
+    {
+      "input": "c#: tools",
+      "expected": "c#-tools-report.csv"
+    },
+    {
+      "input": "???",
+      "expected": "search-report.csv"
+    },
+    {
+      "input": "költség követő",
+      "expected": "költség-követő-report.csv"
+    }
+  ],
+  "csv": {
+    "repos": [
+      {
+        "name": "acme/big, fancy",
+        "url": "https://github.com/acme/big, fancy",
+        "stars": 300,
+        "pushed_at": "2026-10-20T23:30:00Z",
+        "language": "Go"
+      },
+      {
+        "name": "acme/plain",
+        "url": "https://github.com/acme/plain",
+        "stars": 40,
+        "pushed_at": "2026-04-08T12:00:00Z",
+        "language": null
+      },
+      {
+        "name": "acme/quote\"d",
+        "url": "https://github.com/acme/quote\"d",
+        "stars": 5,
+        "pushed_at": "2024-05-08T12:00:00Z",
+        "language": "C++"
+      }
+    ],
+    "expected": "#,Repository,Stars,Last Push,Language,Bucket,URL\r\n1,\"acme/big, fancy\",300,2026-10-20,Go,active,\"https://github.com/acme/big, fancy\"\r\n2,acme/plain,40,2026-04-08,,slowing,https://github.com/acme/plain\r\n3,\"acme/quote\"\"d\",5,2024-05-08,C++,stale,\"https://github.com/acme/quote\"\"d\"\r\n"
+  },
+  "rate_limit": [
+    {
+      "name": "429 no headers",
+      "status": 429,
+      "headers": {},
+      "limited": true
+    },
+    {
+      "name": "403 remaining 0",
+      "status": 403,
+      "headers": {
+        "X-RateLimit-Remaining": "0"
+      },
+      "limited": true
+    },
+    {
+      "name": "403 retry-after",
+      "status": 403,
+      "headers": {
+        "Retry-After": "42",
+        "X-RateLimit-Remaining": "7"
+      },
+      "limited": true
+    },
+    {
+      "name": "403 plain",
+      "status": 403,
+      "headers": {
+        "X-RateLimit-Remaining": "7"
+      },
+      "limited": false
+    },
+    {
+      "name": "422 remaining 0",
+      "status": 422,
+      "headers": {
+        "X-RateLimit-Remaining": "0"
+      },
+      "limited": false
+    },
+    {
+      "name": "200 remaining 0",
+      "status": 200,
+      "headers": {
+        "X-RateLimit-Remaining": "0"
+      },
+      "limited": false
+    }
+  ],
+  "reset": [
+    {
+      "name": "numeric retry-after",
+      "headers": {
+        "Retry-After": "42",
+        "X-RateLimit-Reset": "1792960000"
+      },
+      "expected": {
+        "retry_after_seconds": 42
+      }
+    },
+    {
+      "name": "non-numeric retry-after falls back",
+      "headers": {
+        "Retry-After": "Wed, 21 Oct 2026 07:28:00 GMT",
+        "X-RateLimit-Reset": "1792960000"
+      },
+      "expected": {
+        "epoch": 1792960000
+      }
+    },
+    {
+      "name": "reset only",
+      "headers": {
+        "X-RateLimit-Reset": "1792960000"
+      },
+      "expected": {
+        "epoch": 1792960000
+      }
+    },
+    {
+      "name": "nothing",
+      "headers": {},
+      "expected": null
+    }
+  ],
+  "payload": [
+    {
+      "name": "valid",
+      "body": {
+        "total_count": 1,
+        "incomplete_results": false,
+        "items": [
+          {
+            "full_name": "a/one",
+            "html_url": "https://github.com/a/one",
+            "stargazers_count": 3,
+            "pushed_at": "2026-10-01T10:00:00Z",
+            "language": null
+          }
+        ]
+      },
+      "valid": true
+    },
+    {
+      "name": "missing items",
+      "body": {
+        "total_count": 1,
+        "incomplete_results": false
+      },
+      "valid": false
+    },
+    {
+      "name": "missing incomplete_results",
+      "body": {
+        "total_count": 1,
+        "items": [
+          {
+            "full_name": "a/one",
+            "html_url": "https://github.com/a/one",
+            "stargazers_count": 3,
+            "pushed_at": "2026-10-01T10:00:00Z",
+            "language": null
+          }
+        ]
+      },
+      "valid": false
+    },
+    {
+      "name": "item pushed_at null",
+      "body": {
+        "total_count": 1,
+        "incomplete_results": false,
+        "items": [
+          {
+            "full_name": "a/one",
+            "html_url": "https://github.com/a/one",
+            "stargazers_count": 3,
+            "pushed_at": null,
+            "language": null
+          }
+        ]
+      },
+      "valid": false
+    },
+    {
+      "name": "item missing language key",
+      "body": {
+        "total_count": 1,
+        "incomplete_results": false,
+        "items": [
+          {
+            "full_name": "a/one",
+            "html_url": "https://github.com/a/one",
+            "stargazers_count": 3,
+            "pushed_at": "2026-10-01T10:00:00Z"
+          }
+        ]
+      },
+      "valid": false
+    },
+    {
+      "name": "item bad pushed_at",
+      "body": {
+        "total_count": 1,
+        "incomplete_results": false,
+        "items": [
+          {
+            "full_name": "a/one",
+            "html_url": "https://github.com/a/one",
+            "stargazers_count": 3,
+            "pushed_at": "yesterday",
+            "language": null
+          }
+        ]
+      },
+      "valid": false
+    }
+  ],
+  "x_position": [
+    {
+      "days": 0,
+      "expected": 3
+    },
+    {
+      "days": 45,
+      "expected": 2.5
+    },
+    {
+      "days": 90,
+      "expected": 2
+    },
+    {
+      "days": 365,
+      "expected": 1
+    },
+    {
+      "days": 1825,
+      "expected": 0
+    },
+    {
+      "days": 3000,
+      "expected": 0
+    }
+  ]
+}

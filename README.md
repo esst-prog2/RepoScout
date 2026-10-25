@@ -5,7 +5,9 @@ See [docs/USER_MANUAL.md](docs/USER_MANUAL.md) for installation, GitHub token se
 
 ## 1. The demo
 
-I open a terminal and run `reposcout search "expense tracker"`. It queries GitHub and prints a table of 40 repositories sorted by stars, with columns for stars, last commit date, and primary language. Below the table it prints a one-line verdict: `42 repos found, 6 active in the last 3 months — most recent entrant pushed 2 weeks ago`. It also writes `expense-tracker-report.csv` next to it, and opening that file shows the same 40 rows with the same columns, ready to sort or filter in a spreadsheet. Running the same search again a minute later returns instantly from cache instead of re-querying GitHub.
+I open the RepoScout page in my browser (served locally from the `site/` folder, no sign-in or token needed) and type `expense tracker` into the search box. RepoScout asks GitHub for the 50 repositories that best match the topic and answers with one sentence: `Showing the 50 best-matching of 244,832 repos, 10 active among them — most recent entrant pushed 2 days ago`. Below it is the **heartbeat strip**: every repository is a dot, bigger for more stars, placed by how long ago it was last pushed to, across three zones (stale, slowing, active). One glance shows whether a topic is alive (a cluster on the right) or a graveyard (dots fading to the left); I show one of each. Under the strip, a table lists the same repositories ranked by stars, with last push date, language and activity bucket, and a **Download CSV** button saves `expense-tracker-report.csv` with the same rows, ready for a spreadsheet. The demo itself is a five-minute presentation with screenshots of these screens.
+
+Underneath, it's the same tool as before: the `reposcout search "expense tracker"` command-line program still prints the table and the verdict in a terminal and writes the CSV, and the page follows exactly its rules (a shared test fixture keeps the two in line).
 
 ## 2. The shape
 

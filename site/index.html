@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RepoScout</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <header>
+      <h1>RepoScout</h1>
+      <p class="promise">Is this corner of GitHub alive? Type a topic, see its heartbeat.</p>
+    </header>
+
+    <form id="search" class="search" autocomplete="off">
+      <label for="keyword" class="visually-hidden">Topic or keyword</label>
+      <input id="keyword" name="keyword" type="search" placeholder="e.g. expense tracker" required>
+      <button type="submit">Scout</button>
+    </form>
+
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+
+    <section id="results" class="results" hidden>
+      <p id="verdict" class="verdict"></p>
+      <p id="incomplete" class="warning" hidden>GitHub's search timed out before it finished, so these results may be incomplete.</p>
+
+      <figure class="heartbeat">
+        <figcaption>Heartbeat: each dot is a repo · bigger = more stars · further right = pushed more recently</figcaption>
+        <div id="chart" class="chart" role="img"></div>
+        <p id="chart-note" class="note" hidden>The chart is unavailable right now; the table below has every repo.</p>
+        <p class="note">"Last push" is GitHub's <code>pushed_at</code> time, which is not always the latest commit.</p>
+      </figure>
+
+      <div class="table-head">
+        <h2>The best-matching repos, ranked by stars</h2>
+        <button id="csv" type="button" class="secondary">Download CSV</button>
+      </div>
+      <div class="table-wrap">
+        <table id="table">
+          <thead><tr></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- Vendored, pinned chart libraries (no CDN): d3 7.9.0, Observable Plot 0.6.17 -->
+  <script src="vendor/d3.min.js"></script>
+  <script src="vendor/plot.umd.min.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

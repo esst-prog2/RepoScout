@@ -1,0 +1,91 @@
+<!doctype html>
+<!--
+  Test harness for site/: the real page code with GitHub replaced by recorded
+  answers, so every state can be checked without the network or the rate limit.
+  Serve the REPO ROOT:  python -m http.server 8000
+  Open:                 http://localhost:8000/tests/browser/harness.html?case=normal
+  Cases: normal, zero, incomplete, limited403, limited429none, error422, html200,
+         nullpushed, offline, race (search "react", then quickly "vue")
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RepoScout (test harness)</title>
+  <link rel="stylesheet" href="../../site/style.css">
+  <script>
+    (function () {
+      const now = Date.now();
+      const daysAgo = (d) => new Date(now - d * 86400000).toISOString().replace(/\.\d{3}Z$/, "Z");
+      const item = (name, stars, days, language = "Python") => ({
+        full_name: name, html_url: "https://github.com/" + name, stargazers_count: stars,
+        pushed_at: daysAgo(days), language: language,
+      });
+      const ok = (body, headers) => new Response(JSON.stringify(body), { status: 200, headers: headers || {} });
+      const normalItems = [
+        item("acme/five", 5, 1200),
+        item("acme/three-hundred", 300, 3),
+        item("acme/forty", 40, 150, null),
+        item("<img src=x onerror=alert(1)>", 12, 40),
+        item("acme/midnight", 80, 20),
+      ];
+      const cases = {
+        normal: () => ok({ total_count: 5, incomplete_results: false, items: normalItems }),
+        zero: () => ok({ total_count: 0, incomplete_results: false, items: [] }),
+        incomplete: () => ok({ total_count: 60, incomplete_results: true, items: normalItems }),
+        limited403: () => new Response("{}", { status: 403, headers: { "Retry-After": "42", "X-RateLimit-Remaining": "7" } }),
+        limited429none: () => new Response("{}", { status: 429 }),
+        error422: () => new Response(JSON.stringify({ message: "Validation Failed" }), { status: 422 }),
+        html200: () => new Response("<html><body>Please log in to the Wi-Fi</body></html>", { status: 200 }),
+        nullpushed: () => ok({ total_count: 1, incomplete_results: false, items: [Object.assign(item("a/b", 1, 1), { pushed_at: null })] }),
+        offline: () => Promise.reject(new TypeError("Failed to fetch")),
+        race: (url) => {
+          const q = new URL(url).searchParams.get("q");
+          const body = { total_count: 1, incomplete_results: false, items: [item("topic/" + q, 10, 5)] };
+          const delay = q === "react" ? 1500 : 100; // the older search answers last
+          return new Promise((resolve) => setTimeout(() => resolve(ok(body)), delay));
+        },
+      };
+      const name = new URLSearchParams(location.search).get("case") || "normal";
+      window.__harnessCalls = 0;
+      window.fetch = (url) => { window.__harnessCalls += 1; return Promise.resolve().then(() => cases[name](String(url))); };
+      try { localStorage.clear(); } catch (e) { /* storage blocked: fine */ }
+      window.alert = () => { window.__alerted = true; }; // the XSS check fails if this ever fires
+    })();
+  </script>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>RepoScout</h1>
+      <p class="promise">Is this corner of GitHub alive? Type a topic, see its heartbeat.</p>
+    </header>
+    <form id="search" class="search" autocomplete="off">
+      <label for="keyword" class="visually-hidden">Topic or keyword</label>
+      <input id="keyword" name="keyword" type="search" placeholder="e.g. expense tracker" required>
+      <button type="submit">Scout</button>
+    </form>
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+    <section id="results" class="results" hidden>
+      <p id="verdict" class="verdict"></p>
+      <p id="incomplete" class="warning" hidden>GitHub's search timed out before it finished, so these results may be incomplete.</p>
+      <figure class="heartbeat">
+        <figcaption>Heartbeat: each dot is a repo · bigger = more stars · further right = pushed more recently</figcaption>
+        <div id="chart" class="chart" role="img"></div>
+        <p id="chart-note" class="note" hidden>The chart is unavailable right now; the table below has every repo.</p>
+        <p class="note">"Last push" is GitHub's <code>pushed_at</code> time, which is not always the latest commit.</p>
+      </figure>
+      <div class="table-head">
+        <h2>The best-matching repos, ranked by stars</h2>
+        <button id="csv" type="button" class="secondary">Download CSV</button>
+      </div>
+      <div class="table-wrap">
+        <table id="table"><thead><tr></tr></thead><tbody></tbody></table>
+      </div>
+    </section>
+  </main>
+  <script src="../../site/vendor/d3.min.js"></script>
+  <script src="../../site/vendor/plot.umd.min.js"></script>
+  <script type="module" src="../../site/app.js"></script>
+</body>
+</html>
