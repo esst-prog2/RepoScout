@@ -494,3 +494,61 @@ Side question from the user, answered in conversation: subagents can be used as 
 Open issue #3 closed. Remaining: #4 transitive-dependency lock file, #5 loose keyword matching, #6 friendlier/web interface, #7 dated/versioned report files.
 
 **Next step:** push `fix-verdict-time-rounding` and open a PR.
+
+## 2026-10-25 (later) — Decision: open issue #4 (lock file) deferred
+
+PR #9 (`fix-verdict-time-rounding`) merged by the user. New branch `fix-keyword-matching` from the updated `main`.
+
+Discussed #4 (indirect dependencies aren't locked) with the user. The direct dependencies are pinned with `==`, but they declare ranges for their own dependencies (e.g. `requests` → `urllib3>=1.26,<3`, `certifi>=2023.5.7`; `typer` → `rich>=13.8.0`), so a fresh install takes the newest allowed versions on that day (today's `.venv`: `urllib3 2.8.0`, `certifi 2026.7.22`, `rich 15.0.0`, not recorded anywhere). A lock file (`pip-compile --generate-hashes` from `pip-tools`) would pin every package with hashes. Only the developer needs `pip-tools`; users would run plain `pip install -r requirements.lock`. That makes the environment match the lock exactly (downgrading e.g. a newer `rich`), which is fine in a project-specific venv but intrusive in a system-wide Python.
+
+**Decision (user): deferred.** Benefit small for a project this size (direct deps pinned; indirect ones are large, well-maintained packages) vs. a new tool, an extra install step, and a file to regenerate on every update. Ranked below #5 and #7, which change what users actually see. Stays on the open-issues list. The user also asked whether an agent could help decide. Not needed here, since the answer was already clear; debate-style agents are better spent on #5/#7.
+
+Remaining open issues: #4 (deferred), #5 loose keyword matching (next, starting with `/opsx:explore`), #6 friendlier/web interface, #7 dated/versioned report files.
+
+## 2026-10-25 (later) — Explore + propose: search by relevance (open issue #5)
+
+**Clarification from the user (important for future sessions):** RepoScout is a class project, not thesis work. The 2026-09-24 entry's note about a *possible future* thesis use was over-weighted in this session's reasoning (it was cited as a reason for decisions). Don't treat it as a goal or a constraint.
+
+**Explore findings (live GitHub probes via PowerShell; Python `requests` in the agent's sandbox fails TLS verification, likely the sandbox proxy):**
+- GitHub repo search matches when every word appears *somewhere* in name/description/topics: any order, any distance, word forms too ("activities" for "activity"). It is **not** phrase matching.
+- `"repo activity research"` (exact phrase) → **0** results; `"expense tracker"` → 232,773 vs 244,832 without quotes, identical top 5. So phrase-by-default fails on the motivating case.
+- The junk repos (`molyswu/hand_detection`, a TensorFlow hand detector; `hackcrypto/fluxion`, a Wi-Fi phishing tool) pasted their whole README into the description, so the three words appear thousands of words apart.
+- Root cause: `sort=stars` picks the most-starred loose matches. Without `sort`, GitHub's relevance ("best match") ranking applies: for "repo activity research" (80 matches) **none of the five junk repos from the HW5 run is in the relevance top 50**; for "expense tracker" the relevance top results are all real expense trackers.
+- Quotes and qualifiers (`language:python`) already work today, since the keyword is passed through unchanged; they're just undocumented.
+
+**Decisions (user):** default = the 50 most on-topic matches (GitHub relevance), displayed ranked by stars ("most-on-topic matches by default and among those the most popular ones"). No exact phrase by default. No `--by-stars` flag for now. More-than-50 verdict wording becomes "Showing the 50 best-matching of N repos, …". The manual gets a tip on quotes/qualifiers. README left unchanged (original course spec).
+
+Ran `/opsx:propose` → change `search-by-relevance`: MODIFIED `repo-search` ("Keyword search against GitHub", "One-line verdict summary") and `search-cache` ("Cache hit avoids GitHub API calls": entries without `"selection": "best-match"` are a miss, so no star-picked results are served after the update). Design: omit `sort`/`order` (the documented default) rather than send an undocumented `sort=best-match`. `openspec validate --strict` passes. Nothing implemented yet.
+
+**Next step:** `/opsx:apply`. Task 3.4 is a live smoke test the user runs in their own terminal.
+
+## 2026-10-25 (later) — Implemented: search by relevance (11/12 tasks, live smoke test pending)
+
+`/opsx:apply` for `search-by-relevance`. **Red first:** the request-params test (no `sort`/`order`), the new verdict wording, and the old-format cache entry → miss all failed on the old code. The display-order guard (GitHub returns 5/300/40 stars → table shows 300, 40, 5) already passed, confirming `rank_by_stars()` owns the display order.
+
+**Implementation:** `github.py` drops `sort`/`order` (GitHub's documented default is best match); `cache.py` writes `"selection": "best-match"` and treats entries without it as a miss; `output.py`'s more-than-50 verdict says "Showing the 50 best-matching of N repos"; `bucketing.py`'s `rank_by_stars()` docstring updated. Found during implementation: the new `raw.get(...)` check would raise `AttributeError` on a cache file holding non-object JSON (previously a caught `TypeError`), breaking the "corrupted cache self-heals" spec. Added `AttributeError` to the caught exceptions, plus a test.
+
+**User manual:** fetch description, verdict example, and a tip on exact phrases / qualifiers. The exact-phrase quoting was **verified per shell** before documenting, because the first draft was wrong: in Windows PowerShell 5.1, `'"expense tracker"'` loses the quotes and `'\"expense tracker\"'` splits into two arguments. Working forms: bash/zsh/Git Bash `'"expense tracker"'`; PowerShell `--% "\"expense tracker\""`; Command Prompt `"\"expense tracker\""`.
+
+119/119 tests passing (+4), `openspec validate --strict` passes. A grep finds no remaining claims that the 50 are chosen by stars outside the main spec lines the archive step will replace.
+
+**Pending:** task 3.4, a live smoke test the user runs in their own terminal (the agent's Python can't verify GitHub's TLS certificate in its sandbox).
+
+## 2026-10-25 (later) — Live smoke test passed: search by relevance (12/12 tasks)
+
+The user ran `.\.venv\Scripts\reposcout search "repo activity research" --refresh` in their own PowerShell (first attempt without the leading `.\` failed: PowerShell treats `.venv\...` as a module name; explained). Result: `Showing the 50 best-matching of 80 repos, 14 active among them — most recent entrant pushed 1 day ago`.
+- None of the five HW5 junk repos (`molyswu/hand_detection`, `hackcrypto/fluxion`, `82goober82/fluxionwpacrack`, `Sfedfcv/redesigned-pancake`, `ManojKumarPatnaik/Major-project-list`) appears.
+- Stars column descending (13, 7, 6, 5, 2, 1…, then 0s); 14 `active` rows match the verdict; newest push 2026-10-24 → "1 day ago" is correct.
+- Honest limit, noted to the user: results now have the words close together (e.g. `human-walking-activities`, `my_research_activity`), but keyword search still can't tell meanings apart (e.g. `Sportswear_Market_to_Reach_Research_Report`). Exact phrases and qualifiers (documented in the manual) are the remaining tools.
+
+Task 3.4 done; 12/12. **Next step:** `/opsx:archive`, then push and open a PR.
+
+## 2026-10-25 (later) — Archived: `search-by-relevance`
+
+`/opsx:archive`: all 4 artifacts and 12/12 tasks done. Synced 3 MODIFIED requirements into the main specs: `repo-search` "Keyword search against GitHub" (50 best-matching by GitHub relevance; keyword passed through unchanged) and "One-line verdict summary" (best-matching wording), and `search-cache` "Cache hit avoids GitHub API calls" (entries without the relevance-selection marker aren't served). Verified each matches its delta exactly, requirement counts unchanged (6 and 5), and `openspec validate --specs --strict` passes. Change moved to `openspec/changes/archive/2026-10-25-search-by-relevance/`. No active changes left.
+
+Side note from the user's live run: a third-party repo `ly5566lyui/repo-scout` appeared in the results. Checked it out of curiosity: an AI "Agent Skill" (`SKILL.md`, no program code) that researches one given repo in depth. Same name, different problem (RepoScout scans many repos by keyword); complementary, not overlapping.
+
+Open issue #5 closed. Remaining: #4 lock file (deferred), #6 friendlier/web interface, #7 dated/versioned report files.
+
+**Next step:** push `fix-keyword-matching` and open a PR.

@@ -1,6 +1,6 @@
 # RepoScout User Manual
 
-RepoScout searches GitHub for repositories matching a keyword, ranks them by stars, classifies each by recent activity, and gives you both a quick terminal summary and a CSV you can open in a spreadsheet.
+RepoScout searches GitHub for the repositories that best match a keyword, ranks them by stars, classifies each by recent activity, and gives you both a quick terminal summary and a CSV you can open in a spreadsheet.
 
 ## Quick Start
 
@@ -69,7 +69,15 @@ For example:
 reposcout search "expense tracker"
 ```
 
-This prints a ranked table of the top 50 matching repositories (by stars), a one-line summary, and writes a CSV report.
+This prints a table of the 50 repositories that best match your keyword (GitHub's own relevance ranking), shown ranked by stars, plus a one-line summary, and writes a CSV report. So you get the most popular of the on-topic repos, not just the most popular repos that happen to mention your words somewhere.
+
+GitHub matches each word of your keyword separately: every word has to appear somewhere in a repository's name, description or topics, in any order. Two tricks, passed straight to GitHub, let you narrow that down:
+
+- **Exact phrase:** GitHub needs the double quotes themselves, so they must survive your shell. Only repos containing those words in that order match, and unusual phrases may return 0 results.
+  - macOS/Linux (bash, zsh) or Git Bash: `reposcout search '"expense tracker"'`
+  - Windows PowerShell: `reposcout search --% "\"expense tracker\""` (the `--%` stops PowerShell from removing the inner quotes)
+  - Windows Command Prompt: `reposcout search "\"expense tracker\""`
+- **GitHub qualifiers:** e.g. `reposcout search "expense tracker language:python"` to limit to Python projects.
 
 Repeat searches for the same keyword are served from a local cache for 24 hours, so they return instantly and don't use up your GitHub request quota. If you want to force a fresh fetch before the cache expires (for example, if you know something changed recently), add `--refresh`:
 
@@ -103,7 +111,7 @@ Below the table, a one-line verdict summarizes the results, for example:
 
 The "pushed … ago" time is always rounded down, never up: for example, 16 days shows as "2 weeks ago" (not "a month ago"), and anything under 3 months is shown in days or weeks, so an active repo is never described as "3 months ago".
 
-If GitHub reports more matches than the 50 RepoScout fetches, the verdict says so explicitly (e.g. "Showing top 50 of 3,241 matching repos...") rather than implying the 50 shown is everything that matched.
+If GitHub reports more matches than the 50 RepoScout fetches, the verdict says so explicitly (e.g. "Showing the 50 best-matching of 3241 repos...") rather than implying the 50 shown is everything that matched.
 
 **CSV export** — a file named after your search keyword, written in the directory you ran the command from. For example, searching `"expense tracker"` produces `expense-tracker-report.csv` in your current folder. Characters that can't be used in filenames (`< > : " / \ | ? *`) are replaced with hyphens, so `"c++/qt"` produces `c++-qt-report.csv`; a keyword with nothing usable left (e.g. `"???"`) produces `search-report.csv`. It contains the same rows and columns as the terminal table, plus a repository URL column, ready to open directly in Excel, Google Sheets, or Numbers.
 

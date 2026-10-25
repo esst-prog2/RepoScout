@@ -89,10 +89,12 @@ def _handle_error_response(response: requests.Response, authenticated: bool) -> 
 
 
 def search_repositories(keyword: str, token: str | None) -> SearchResult:
-    """Search GitHub for repos matching keyword, top PER_PAGE results by stars.
+    """Search GitHub for the PER_PAGE repos that best match keyword.
 
-    Uses only fields already present in the search response (stars, pushed_at,
-    language) - no per-repo follow-up call.
+    No `sort` is sent, so GitHub ranks by relevance ("best match"); sorting by
+    stars would pick popular repos that merely contain the words somewhere in a
+    long description. Uses only fields already present in the search response
+    (stars, pushed_at, language) - no per-repo follow-up call.
     """
     headers = {"Accept": "application/vnd.github+json"}
     if token:
@@ -100,8 +102,6 @@ def search_repositories(keyword: str, token: str | None) -> SearchResult:
 
     params = {
         "q": keyword,
-        "sort": "stars",
-        "order": "desc",
         "per_page": PER_PAGE,
     }
     try:

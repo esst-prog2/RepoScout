@@ -67,6 +67,24 @@ def test_corrupted_cache_file_is_treated_as_a_miss(isolated_dirs):
     assert entry is None
 
 
+def test_cache_file_holding_json_that_is_not_an_object_is_a_miss(isolated_dirs):
+    path = cache_path("expense tracker")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text('["not", "an", "entry"]', encoding="utf-8")
+
+    assert read_cache("expense tracker", now=NOW) is None
+
+
+def test_cache_entry_from_star_based_selection_is_a_miss(isolated_dirs):
+    write_cache("expense tracker", total_count=1, repos=[_repo()], now=NOW, incomplete=False)
+    path = cache_path("expense tracker")
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    raw.pop("selection", None)  # entries written before relevance selection have no such field
+    path.write_text(json.dumps(raw), encoding="utf-8")
+
+    assert read_cache("expense tracker", now=NOW) is None
+
+
 def test_cache_entry_without_incomplete_flag_is_refetched_not_assumed_complete(isolated_dirs):
     write_cache("expense tracker", total_count=1, repos=[_repo()], now=NOW, incomplete=True)
     path = cache_path("expense tracker")

@@ -174,6 +174,20 @@ def test_keyword_with_slash_writes_csv_in_working_directory(isolated_dirs, monke
 
 
 @responses.activate
+def test_table_is_ranked_by_stars_whatever_order_github_returns(isolated_dirs, monkeypatch, tmp_path):
+    monkeypatch.setattr("reposcout.cli.auth.resolve_token", lambda: "test-token")
+    monkeypatch.chdir(tmp_path)
+    relevance_order = [repo_item("a/five", 5), repo_item("a/three-hundred", 300), repo_item("a/forty", 40)]
+    responses.add(responses.GET, SEARCH_URL, json=search_payload(3, relevance_order), status=200)
+
+    result = runner.invoke(app, ["search", "expense tracker"])
+
+    assert result.exit_code == 0
+    out = result.stdout
+    assert out.index("a/three-hundred") < out.index("a/forty") < out.index("a/five")
+
+
+@responses.activate
 def test_incomplete_results_warning_is_shown_and_survives_the_cache(isolated_dirs, monkeypatch, tmp_path):
     monkeypatch.setattr("reposcout.cli.auth.resolve_token", lambda: "test-token")
     monkeypatch.chdir(tmp_path)
