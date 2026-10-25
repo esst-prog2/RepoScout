@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -16,9 +17,17 @@ TABLE_HEADERS = ["#", "Repository", "Stars", "Last Push", "Language", "Bucket"]
 CSV_HEADERS = TABLE_HEADERS + ["URL"]
 
 
+# Characters invalid in filenames on Windows (only "/" on macOS/Linux), control
+# characters, and whitespace: each run becomes a single hyphen.
+_UNSAFE_FILENAME_RUN = re.compile(r'[<>:"/\\|?*\x00-\x1f\x7f\s]+')
+FALLBACK_SLUG = "search"
+
+
 def slugify_keyword(keyword: str) -> str:
-    """The normalized query with spaces turned into hyphens (matches the README demo)."""
-    return normalize_query(keyword).replace(" ", "-")
+    """The normalized query as a safe filename stem ("expense tracker" -> "expense-tracker")."""
+    slug = _UNSAFE_FILENAME_RUN.sub("-", normalize_query(keyword))
+    slug = re.sub(r"-{2,}", "-", slug).strip("-.")
+    return slug or FALLBACK_SLUG
 
 
 def csv_filename(keyword: str) -> str:

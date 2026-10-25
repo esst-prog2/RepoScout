@@ -438,3 +438,15 @@ Ran `/opsx:propose` → change `safe-csv-filename` (MODIFIED `repo-search` "CSV 
 **New open issue #7 (raised by the user, deliberately not part of #2):** dated or versioned report files, so re-running a search doesn't overwrite the earlier report. The user suggested `v1`/`v2`. Suggested instead: a date stamp (`expense-tracker-report-2026-10-25.csv`), possibly behind an opt-in flag so the README's default `expense-tracker-report.csv` stays. Trade-offs: files pile up in the working directory; it changes spec/README-defined behaviour; re-runs within 24h come from the cache, so a new file would often duplicate the last one. It would also suit the thesis idea (snapshots over time). A good candidate for `/opsx:explore`, since there's a real design question.
 
 **Next step:** `/opsx:apply`.
+
+## 2026-10-25 (later) — Implemented: safe CSV filenames
+
+`/opsx:apply` completed all 5 tasks for `safe-csv-filename`.
+
+**Red first:** a CLI test (`"c++/qt"` → `c++-qt-report.csv` in the working directory, no `c++/` folder) failed with the same `FileNotFoundError` as the probe, and 6 of the 8 new `slugify_keyword()`/`csv_filename()` unit cases failed. The tab and Hungarian cases already passed; they're kept as guards so the fix can't break them.
+
+**Fix:** `slugify_keyword()` in `reposcout/output.py` still builds on `normalize_query()`, then replaces each run of Windows-invalid characters, control characters, and whitespace with one hyphen, collapses `--`, trims `-`/`.` at the ends, and falls back to `"search"`. One sentence added to the CSV paragraph of `docs/USER_MANUAL.md`.
+
+Re-ran the Windows probe: `c++-qt-report.csv`, `c#-tools-report.csv`, `search-report.csv` are all written as normal visible files (no more hidden NTFS stream for `:`). 85/85 tests passing (+9), `openspec validate --strict` passes.
+
+**Next step:** `/opsx:archive`, then push and open a PR.

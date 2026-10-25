@@ -1,6 +1,8 @@
 import csv
 from datetime import datetime, timedelta, timezone
 
+import pytest
+
 from reposcout.bucketing import BucketedRepo
 from reposcout.github import RepoData
 from reposcout.output import csv_filename, format_verdict, render_table, slugify_keyword, write_csv
@@ -54,6 +56,26 @@ def test_format_verdict_zero_matches():
 def test_slugify_keyword_matches_readme_demo():
     assert slugify_keyword("expense tracker") == "expense-tracker"
     assert csv_filename("expense tracker") == "expense-tracker-report.csv"
+
+
+@pytest.mark.parametrize(
+    "keyword, slug",
+    [
+        ("c++/qt", "c++-qt"),
+        ("c#: tools", "c#-tools"),
+        ("a / b", "a-b"),
+        (".hidden", "hidden"),
+        ('a\\b|c*d"e<f>g', "a-b-c-d-e-f-g"),
+        ("tab\there", "tab-here"),
+        ("költség követő", "költség-követő"),
+    ],
+)
+def test_slugify_keyword_replaces_filename_unsafe_characters(keyword, slug):
+    assert slugify_keyword(keyword) == slug
+
+
+def test_csv_filename_falls_back_when_nothing_usable_is_left():
+    assert csv_filename("???") == "search-report.csv"
 
 
 def test_write_csv_populated(tmp_path):
