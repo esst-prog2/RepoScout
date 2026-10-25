@@ -424,3 +424,17 @@ Ran `/opsx:propose` → change `env-token-invalid-handling` with `proposal.md`, 
 Open issue #1 from the HW6 list is closed. Remaining: #2 `slugify_keyword()` unsafe filename characters, #3 `naturaltime` rounding, #4 transitive-dependency lock file, #5 loose keyword matching, #6 friendlier/web interface.
 
 **Next step:** push `fix-env-token-recovery` and open a PR.
+
+## 2026-10-25 (later) — Proposed: safe CSV filenames (open issue #2)
+
+PR #7 (`fix-env-token-recovery`) merged by the user. New branch `fix-csv-filename-chars` from the updated `main`. Going forward: one branch and one PR per issue, each branched from `main` after the previous PR is merged (both append to `AGENTS.md`, so parallel branches would conflict there).
+
+**Probe on the current code (Windows), before planning:** `csv_filename("c++/qt")` → `c++/qt-report.csv` → `FileNotFoundError` (raw traceback). `csv_filename("c#: tools")` → `c#:-tools-report.csv`, which "succeeds" but leaves only a file named `c#`: the `:` makes NTFS write the CSV into a hidden alternate data stream.
+
+**Decisions (agreed with the user, no explore needed):** (1) unsafe = characters invalid on Windows (`< > : " / \ | ? *`) + control characters; letters (incl. non-ASCII), digits, `+ . _ -` kept. (2) Each run of unsafe characters/whitespace → one hyphen, collapse `--`, trim `-`/`.` at the ends (`"c++/qt"` → `c++-qt-report.csv`). (3) Nothing left (`"???"`) → `search-report.csv`. Silent overwrite on filename collision stays, as the spec already accepts.
+
+Ran `/opsx:propose` → change `safe-csv-filename` (MODIFIED `repo-search` "CSV export" requirement with 3 new scenarios). `openspec validate --strict` passes. Nothing implemented yet.
+
+**New open issue #7 (raised by the user, deliberately not part of #2):** dated or versioned report files, so re-running a search doesn't overwrite the earlier report. The user suggested `v1`/`v2`. Suggested instead: a date stamp (`expense-tracker-report-2026-10-25.csv`), possibly behind an opt-in flag so the README's default `expense-tracker-report.csv` stays. Trade-offs: files pile up in the working directory; it changes spec/README-defined behaviour; re-runs within 24h come from the cache, so a new file would often duplicate the last one. It would also suit the thesis idea (snapshots over time). A good candidate for `/opsx:explore`, since there's a real design question.
+
+**Next step:** `/opsx:apply`.
