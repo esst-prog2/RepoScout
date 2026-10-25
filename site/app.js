@@ -133,6 +133,16 @@ function renderTable(ranked) {
   });
 }
 
+// A stable pseudo-random height in 0.08..0.92 from a repo name (FNV-1a hash).
+function spread(name) {
+  let h = 2166136261;
+  for (let i = 0; i < name.length; i++) {
+    h ^= name.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return 0.08 + ((h >>> 0) % 1000) / 1000 * 0.84;
+}
+
 function renderChart(ranked, nowMs) {
   els.chart.replaceChildren();
   els.chartNote.hidden = true;
@@ -149,9 +159,13 @@ function renderChart(ranked, nowMs) {
       { x1: 1, x2: 2, label: narrow ? "slowing" : "slowing (3–12 months)", fill: "#faf3e3" },
       { x1: 2, x2: 3, label: narrow ? "active" : "active (last 3 months)", fill: "#e6f2e8" },
     ];
+    // Vertical spread instead of stacking: many repos can share one x (a "now"
+    // or "5+ years" pile), and a stacked column would spill out of the chart.
+    // Each dot gets a fixed height from its name, so redraws look the same.
     const points = ranked.map((r) => ({
       ...r,
       x: xPosition((nowMs - Date.parse(r.pushedAt)) / DAY_MS),
+      y: spread(r.name),
       lastPush: lastPushDate(r.pushedAt),
     }));
     const svg = Plot.plot({
@@ -160,28 +174,29 @@ function renderChart(ranked, nowMs) {
       marginTop: 28,
       marginBottom: 32,
       x: {
-        domain: [0, 3],
+        domain: [-0.06, 3.06], // a little room so edge piles sit inside the frame
         ticks: [0, 1, 2, 3],
         tickFormat: (t) => ["5+ years", "1 year", "90 days", "now"][t],
         label: null,
       },
-      y: { axis: null },
-      r: { range: [2, narrow ? 12 : 16] },
+      y: { axis: null, domain: [0, 1], inset: 14 },
+      r: { range: [2, narrow ? 9 : 11] },
       color: { domain: [STALE, SLOWING, ACTIVE], range: ["#a5a8ad", "#e8a317", "#2b8a3e"] },
       marks: [
         Plot.rect(zones, { x1: "x1", x2: "x2", fill: "fill" }),
         Plot.text(zones, { x: (d) => (d.x1 + d.x2) / 2, text: "label", frameAnchor: "top", dy: -16, fill: "#5f6368", fontSize: 11 }),
-        Plot.dot(points, Plot.dodgeY({
-          anchor: "middle",
+        Plot.dot(points, {
           x: "x",
+          y: "y",
           r: "stars",
           fill: "bucket",
+          fillOpacity: 0.8,
           stroke: "white",
-          strokeWidth: 0.6,
-          padding: 1,
+          strokeWidth: 0.7,
+          sort: { channel: "r", order: "descending" }, // small dots drawn on top of big ones
           channels: { Repository: "name", Stars: "stars", "Last push": "lastPush" },
           tip: { format: { x: false, y: false, r: false, fill: false } },
-        })),
+        }),
       ],
     });
     els.chart.append(svg);

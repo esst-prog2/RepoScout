@@ -49,7 +49,18 @@
       const name = new URLSearchParams(location.search).get("case") || "normal";
       window.__harnessCalls = 0;
       window.fetch = (url) => { window.__harnessCalls += 1; return Promise.resolve().then(() => cases[name](String(url))); };
-      try { localStorage.clear(); } catch (e) { /* storage blocked: fine */ }
+      // In-memory storage: the harness's fake answers must never land in the real
+      // browser cache, where the real page (same address) would show them as results.
+      const memory = new Map();
+      const fakeStorage = {
+        getItem: (k) => (memory.has(k) ? memory.get(k) : null),
+        setItem: (k, v) => { memory.set(k, String(v)); },
+        removeItem: (k) => { memory.delete(k); },
+        clear: () => memory.clear(),
+        key: (i) => [...memory.keys()][i] ?? null,
+        get length() { return memory.size; },
+      };
+      Object.defineProperty(window, "localStorage", { configurable: true, get: () => fakeStorage });
       window.alert = () => { window.__alerted = true; }; // the XSS check fails if this ever fires
     })();
   </script>

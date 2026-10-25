@@ -6,7 +6,7 @@
 - [x] 1.2 Create `site/index.html` (title, one-line promise, search form, verdict area), `site/style.css` (minimal), `site/app.js` (form submit → `fetch` GitHub search with `per_page=50`, no `sort`, `encodeURIComponent` → verdict text), and `site/rules.js` with `bucketFor`, `timeAgo`, `activeWindowText`, `formatVerdict` ported from `bucketing.py`/`output.py`. Verify by serving `site/` with `python -m http.server` and loading the page without console errors, and check in the browser's Network tab that `.js` files arrive as `text/javascript` (Windows can map `.js` to `text/plain` via the registry; fallback: a few-line `site/serve.py` forcing the type).
 - [ ] 1.3 Live walk-through of the thin path (run by the user in their own browser, since the agent sandbox can't reach GitHub from Python): search "expense tracker" and see a verdict line. Verify by the user's report.
 - [x] 1.4 Rewrite README §1 "The demo" for the website demo (open the page, search a topic, read the verdict, point at the heartbeat strip, show the table and CSV), keeping the CLI as the tool underneath. Done here, right after the thin path, so HW8 (due 7 Nov) doesn't depend on the rest of the build; touch it up at the end if the page changes. Verify by reading it against the planned page.
-- [ ] 1.5 Push checkpoint for HW7 (due 7 Nov; "what is not pushed does not exist"): commit and push the `website-ui` branch after 1.4, and again after group 2. Verify the commits are visible on GitHub.
+- [x] 1.5 Push checkpoint for HW7 (due 7 Nov; "what is not pushed does not exist"): commit and push the `website-ui` branch after 1.4, and again after group 2. Verify the commits are visible on GitHub.
 
 ## 2. Shared rules fixture (two implementations, one fixture)
 
@@ -24,8 +24,8 @@
 
 - [x] 4.1 Vendor `d3` and `@observablehq/plot` UMD builds at exact versions into `site/vendor/` with their licence files (download via PowerShell from jsDelivr's npm mirror); load them as classic scripts before `app.js`. Verify the files exist and `Plot`/`d3` are defined in the page.
 - [x] 4.2 Add `xPosition(days)` to `rules.js` (equal-thirds piecewise mapping, clamp at 5+ years) with fixture cases (0, 45, 90, 200, 365, 1000, 3000 days). Verify both fixture test runs pass.
-- [x] 4.3 Draw the strip: zone backgrounds and labels, custom ticks ("5+ years", "1 year", "90 days", "now"), `Plot.dodgeY` dots with a capped square-root radius by stars, shade by bucket, tooltip via Plot's `tip` mark (hover and tap) with name/stars/last push, the one-line "Last push = GitHub's pushed_at" note, and the "chart unavailable" fallback (verdict and table drawn first; chart only if `d3` and `Plot` exist, wrapped in try/catch). Verify the fallback by temporarily renaming the vendor file.
-- [ ] 4.4 Check the strip against a real "expense tracker" result (user's browser) and pick and record the "graveyard" keyword for screenshot 8.3 (a topic whose dots cluster in the stale zone); adjust the radius cap or height if dots are unreadable. Verify by the user's screenshot or report.
+- [x] 4.3 Draw the strip: zone backgrounds and labels, custom ticks ("5+ years", "1 year", "90 days", "now"), dots spread vertically inside the frame (fixed height per repo name; `Plot.dodgeY` replaced because piles spilled out, see design.md) with a capped square-root radius by stars, shade by bucket, tooltip via Plot's `tip` mark (hover and tap) with name/stars/last push, the one-line "Last push = GitHub's pushed_at" note, and the "chart unavailable" fallback (verdict and table drawn first; chart only if `d3` and `Plot` exist, wrapped in try/catch). Verify the fallback by temporarily renaming the vendor file.
+- [x] 4.4 Check the strip against a real "expense tracker" result (user's browser) and pick and record the "graveyard" keyword for screenshot 8.3 (a topic whose dots cluster in the stale zone); adjust the radius cap or height if dots are unreadable. Verify by the user's screenshot or report.
 
 ## 5. States and browser cache
 
@@ -39,11 +39,11 @@
 
 ## 7. Docs
 
-- [ ] 7.1 Re-read README §1 (written in task 1.4) against the finished page and correct anything that changed. Verify by reading it against the actual page.
-- [ ] 7.2 Add a "Website" section to `docs/USER_MANUAL.md`: how to start it (`cd site`, `python -m http.server`, open `http://localhost:8000`), that it needs no token (10 searches/minute limit; when reached, the page says when to try again), what the strip shows, and the two test commands `pytest` and `node --test "tests/js/*.test.mjs"` (run separately; both must pass). Verify by following the steps from a fresh PowerShell terminal.
+- [x] 7.1 Re-read README §1 (written in task 1.4) against the finished page and correct anything that changed. Verify by reading it against the actual page.
+- [x] 7.2 Add a "Website" section to `docs/USER_MANUAL.md`: how to start it (`cd site`, `python -m http.server`, open `http://localhost:8000`), that it needs no token (10 searches/minute limit; when reached, the page says when to try again), what the strip shows, and the two test commands `pytest` and `node --test "tests/js/*.test.mjs"` (run separately; both must pass). Verify by following the steps from a fresh PowerShell terminal.
 
 ## 8. Verification
 
-- [ ] 8.1 Run `pytest`, `node --test "tests/js/*.test.mjs"` and `openspec validate website-heartbeat-ui --strict`; verify all pass.
+- [x] 8.1 Run `pytest`, `node --test "tests/js/*.test.mjs"` and `openspec validate website-heartbeat-ui --strict`; verify all pass.
 - [ ] 8.2 Run gstack `/qa` against the locally served page (desktop and 360 px) and fix anything it finds that breaks a spec scenario; verify by its report.
-- [ ] 8.3 Take the three demo screenshots (alive topic strip, graveyard topic strip, table/CSV) and save them under `docs/screenshots/`; verify the files exist and read clearly.
+- [x] 8.3 Take the three demo screenshots (alive topic strip, graveyard topic strip, table/CSV) and save them under `docs/screenshots/`; verify the files exist and read clearly.

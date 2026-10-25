@@ -598,3 +598,21 @@ Outside voice: Codex not installed, so a native Plan subagent (5-minute bound) r
 Result: 24 tasks, 9 requirements, 19 scenarios; `openspec validate --strict` passes. Review report: CEO CLEAR, 0 critical gaps, 0 unresolved; gstack notes "eng review required" (its default gate). Report saved in `~/.gstack/projects/esst-prog2-RepoScout/ceo-plans/2026-10-25-website-heartbeat-ui-ceo-review.md`.
 
 **Next step:** `/opsx:apply` (optionally gstack `/plan-eng-review` first).
+
+## 2026-10-25 (later) — Implemented: website-heartbeat-ui (22/24 tasks)
+
+The user skipped gstack's `/plan-eng-review` (rejected the target prompt) and ran `/opsx:apply`.
+
+**Built:** `site/` = `index.html`, `style.css`, `app.js` (DOM, fetch, browser cache, chart), `rules.js` (pure rules ported from the CLI), vendored **d3 7.9.0** + **Observable Plot 0.6.17** with licences (ISC). Shared fixture `tests/fixtures/rules.json` (values computed once from the real Python functions, then frozen; the computing script stayed in the scratchpad), checked by `tests/test_rules_fixture.py` (Python CLI, incl. `_is_rate_limited`/`_parse_reset_time` and payload validation via `responses`) and `tests/js/rules.test.mjs` (site/rules.js). **175 pytest + 63 node tests passing.** Drift check: threshold changed in JS only → 5 JS failures; in Python only → 3 Python failures; reverted, never committed.
+
+**Verified in a real (headless) browser** via gstack `browse` with `tests/browser/harness.html` (recorded GitHub answers per `?case=`): ranking by stars, `-` for no language, `<img onerror>` repo name shown as text (no alert), every state (zero, incomplete, both rate-limit forms, 422, HTML 200, `pushed_at: null`, offline), latest-search-wins race, spaces-only input blocked, cache (no second request; normalized key), storage blocked, chart fallback, CSV download (`c++-qt-report.csv`, CRLF, no BOM), 360 px (no sideways scroll, optional columns hidden).
+
+**Found and fixed while building:**
+- Zone labels overlapped at phone width → short labels on narrow screens.
+- **The harness polluted the real page's cache** (same address → the real page showed the harness's fake "5 repos found"). Harness now uses in-memory storage.
+- With live data, `Plot.dodgeY` stacked 30-40 dots in one column and spilled out of the chart → replaced by a fixed vertical spread inside the frame (design.md updated).
+- A `text/plain` Content-Type reading for `.js` came from the headless browser's tooling, not the server: `curl` and Python's mimetypes both give `text/javascript`, so no `serve.py` was needed.
+
+**Live (gstack's browser can reach GitHub from the sandbox):** "expense tracker" → 50 of 245015, 4 active; graveyard keyword **"angularjs directive"** (0 active, 48 stale); alive keyword **"mcp server"** (37 active, pushed minutes ago). Three demo screenshots in `docs/screenshots/`. README §1 (HW8) rewritten for the website; USER_MANUAL gets a "Website" section. Branch `website-ui` pushed (HW7 checkpoint).
+
+**Remaining:** 1.3 (user's own live walk-through in their browser) and 8.2 (gstack `/qa` pass).

@@ -115,6 +115,36 @@ If GitHub reports more matches than the 50 RepoScout fetches, the verdict says s
 
 **CSV export** — a file named after your search keyword, written in the directory you ran the command from. For example, searching `"expense tracker"` produces `expense-tracker-report.csv` in your current folder. Characters that can't be used in filenames (`< > : " / \ | ? *`) are replaced with hyphens, so `"c++/qt"` produces `c++-qt-report.csv`; a keyword with nothing usable left (e.g. `"???"`) produces `search-report.csv`. It contains the same rows and columns as the terminal table, plus a repository URL column, ready to open directly in Excel, Google Sheets, or Numbers.
 
+## Website
+
+RepoScout also has a web page that does the same search in your browser and adds a picture of the results, the **heartbeat strip**.
+
+**Start it** (from the project folder, in PowerShell or any terminal):
+
+```
+cd site
+python -m http.server
+```
+
+Then open **http://localhost:8000** in your browser. Keep the terminal open while you use the page; press `Ctrl+C` there to stop it. (Opening `index.html` by double-clicking doesn't work: browsers only run the page's scripts when they come from a server like this one.)
+
+**Using it:** type a topic and press **Scout**. You get:
+
+- the same one-line summary as the command-line tool;
+- the **heartbeat strip**: one dot per repository, bigger for more stars, placed by how long ago it was last pushed to, across three zones: *stale* (over a year), *slowing* (3–12 months) and *active* (last 3 months). Hover or tap a dot to see its name, stars and last push date. A cluster on the right means a lively topic; dots fading to the left mean a graveyard;
+- a table of the same repositories ranked by stars, and a **Download CSV** button that saves the same file the command-line tool writes (same columns, same filename rule).
+
+**No token needed.** The page never asks for or stores a GitHub token, so it works with GitHub's limit for anonymous searches: 10 per minute. If you reach it, the page tells you the time after which you can search again. Repeating a search within 24 hours is answered from your browser's memory and doesn't count against the limit. (The command-line tool keeps using your token as before.)
+
+**If something goes wrong,** the page says so in plain words instead of going blank: no internet, the rate limit, an error from GitHub (with its error number), or a response it doesn't understand (this can happen on a Wi-Fi with a login page: sign in there first). If the chart can't be drawn, the summary and table still appear.
+
+**Running the tests.** The page follows exactly the same rules as the command-line tool, checked by one shared set of test cases. Run both test commands from the project folder, separately; both must pass:
+
+```
+pytest
+node --test "tests/js/*.test.mjs"
+```
+
 ## Where your data is stored
 
 RepoScout stores two small files outside the project folder, in locations standard for your operating system (handled automatically — you shouldn't need to find these yourself in normal use):
