@@ -10,7 +10,7 @@ Session 7 (halftime) asks finished projects to "make it bigger", and the slides 
 - The page follows the CLI's rules: GitHub's relevance picks the 50 repos, the display is ranked by stars, the active/slowing/stale thresholds are the same, and the verdict wording and round-down relative time are the same.
 - **The heartbeat strip (hero):** one dot per repo on a piecewise "days since last push" axis (stale | slowing | active zones of readable width), dot size by stars, shade by bucket, tooltips. Uses Observable Plot and d3, **vendored** at pinned versions into `site/vendor/` (no CDN, works offline). If the chart library is missing, the verdict and table still render.
 - A results table (same columns as the CLI) and a **Download CSV** button that builds the file in the browser, with the CLI's columns and filename rule.
-- Plain-language states: loading, empty input, zero results, incomplete results, rate-limited (countdown when GitHub gives a time, honest "unknown" otherwise), offline, other errors.
+- Plain-language states: loading, empty input, zero results, incomplete results, rate-limited ("try again after HH:MM:SS" when GitHub gives a time, honest "unknown" otherwise; no live countdown), offline, other errors.
 - A 24-hour browser cache (`localStorage`) keyed like the CLI's cache, storing the incomplete flag.
 - **Two implementations, one shared test fixture:** the rules exist in Python (`reposcout/`) and in JavaScript (`site/rules.js`). A shared fixture (`tests/fixtures/rules.json`) is checked by both pytest and `node --test`, so a rule changed in one language but not the other fails a test.
 - **Usable at phone width** (user decision, "should" priority): the layout stacks, the table scrolls or hides less important columns, the strip gets more height.
@@ -31,6 +31,6 @@ _None._ The CLI's `repo-search`, `search-cache` and `github-auth` behaviour is u
 ## Impact
 
 - **New files:** `site/index.html`, `site/style.css`, `site/app.js`, `site/rules.js`, `site/vendor/` (d3 + Observable Plot, pinned, with their licence files), `tests/fixtures/rules.json`, `tests/test_rules_fixture.py`, `tests/js/rules.test.mjs`.
-- **Changed docs:** `README.md` §1, `docs/USER_MANUAL.md` (new Website section, including the test command `pytest && node --test tests/js/`).
+- **Changed docs:** `README.md` §1, `docs/USER_MANUAL.md` (new Website section, including the two test commands `pytest` and `node --test "tests/js/*.test.mjs"`).
 - **Unchanged:** all of `reposcout/`, `pyproject.toml` (no new Python dependencies). JavaScript tests use Node's built-in test runner (Node 24 is installed), with no npm packages.
 - **Demo:** screenshots for the 28 Nov slides come from this page.

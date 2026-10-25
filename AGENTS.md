@@ -580,3 +580,21 @@ Phone-width usability added to the approved design doc as a "should" (user decis
 Ran `/opsx:propose` → change `website-heartbeat-ui` with a **new capability `web-ui`** (9 requirements: static tokenless page; same selection/ranking as the CLI; verdict wording; heartbeat strip with piecewise axis + fallback; table + CSV; states incl. rate-limit rules and incomplete warning; browser cache; rules parity via a shared fixture; usable at 360 px). No existing capability is modified; the CLI is untouched. The 10 minor spec-review points from office hours are folded into the spec, design and tasks (rate-limit only on non-OK responses, Distribution wording, piecewise axis as a precomputed 0-3 position with custom ticks, dodge + capped sqrt radius, fuller fixture incl. normalization/slug/CSV, parity via recorded inputs, the exact test command `pytest && node --test tests/js/`, input handling, "two implementations, one shared test fixture"). 30 tasks in 8 groups, thin path (keyword → verdict on screen) first. `openspec validate --strict` passes.
 
 **Next step:** `/opsx:apply`. Live checks (tasks 1.3, 4.4) are run by the user in their own browser.
+
+## 2026-10-25 (later) — gstack /plan-ceo-review on website-heartbeat-ui (SCOPE REDUCTION)
+
+The user ran gstack `/plan-ceo-review` (asked earlier whether 30 tasks was too much; the real count was 22, I had misreported it). Telemetry for gstack set to "community" at the user's choice.
+
+Mode chosen: **SCOPE REDUCTION** (~17 files). Decisions (all by the user, one question each):
+- R1: README §1 rewrite moved to task 1.4 (right after the thin path) so HW8 doesn't depend on the chart work.
+- R2: browser cache **kept**. R7: phone width **kept**. R8: gstack `/qa` pass **kept**.
+- R6: live rate-limit countdown replaced by a static "try again after HH:MM:SS" message (no timer).
+- R3: "unexpected response" state for a garbage 200 (e.g. captive-portal HTML). R9: plus item-level checks like the CLI (`github.py:124-136`).
+- R4: GitHub text and the keyword always inserted as plain text (`textContent`, never `innerHTML`).
+- R5: latest search wins (an older, slower response can't overwrite newer results).
+
+Outside voice: Codex not installed, so a native Plan subagent (5-minute bound) reviewed the plan: 12 findings. Verified before acting: the plan stated the CLI's rate-limit rule three different ways (any 429; 403 with Remaining 0 or Retry-After); `&&` is a parse error in PowerShell 5.1 and `node --test tests/js/` fails on Node 24 (the glob `"tests/js/*.test.mjs"` works); `.js` maps to `text/javascript` on this machine (check kept anyway). Nine findings applied as corrections (exact CLI rate-limit rule + fixture cases, two separate test commands, MIME check, UTC `Last Push` date, chart can't take the table down, `tip` mark tooltips, frozen fixture, verdict wording, push checkpoints for HW7 + graveyard keyword choice, normalization parity limited to fixture cases); three were scope questions (R6-R8) and one behaviour (R9).
+
+Result: 24 tasks, 9 requirements, 19 scenarios; `openspec validate --strict` passes. Review report: CEO CLEAR, 0 critical gaps, 0 unresolved; gstack notes "eng review required" (its default gate). Report saved in `~/.gstack/projects/esst-prog2-RepoScout/ceo-plans/2026-10-25-website-heartbeat-ui-ceo-review.md`.
+
+**Next step:** `/opsx:apply` (optionally gstack `/plan-eng-review` first).
