@@ -458,3 +458,39 @@ Re-ran the Windows probe: `c++-qt-report.csv`, `c#-tools-report.csv`, `search-re
 Open issue #2 closed. Remaining: #3 `naturaltime` rounding, #4 transitive-dependency lock file, #5 loose keyword matching, #6 friendlier/web interface, #7 dated/versioned report files.
 
 **Next step:** push `fix-csv-filename-chars` and open a PR.
+
+## 2026-10-25 (later) — Proposed: verdict time rounded down (open issue #3)
+
+PR #8 (`fix-csv-filename-chars`) merged by the user. New branch `fix-verdict-time-rounding` from the updated `main`.
+
+**Probe on the current code:** `humanize.naturaltime` rounds to the *nearest* unit, often up: 15 days → "15 days", 16 days → "a month ago", 46 days → "2 months", 89 days → "3 months", 364 days → "a year", and under a day too (119 s → "2 minutes", 23h59m → "a day"). Two consequences beyond inexactness: (a) the verdict can contradict itself, since an 89-day-old repo is *active* and a 100-day-old one isn't, but both print "3 months ago" (so `0 active in the last 3 months — most recent entrant pushed 3 months ago` is possible); (b) the spec/manual example "pushed 2 weeks ago" can't happen, because humanize never says weeks.
+
+**Decision (user chose option A, no explore needed):** always round down, with natural units: "just now" < 1 min, minutes, hours, days < 14 days, weeks < 90 days, 30-day months < 365 days, then years + months. Rejected B: exact days under a year (precise but less natural). Because it never rounds up, an active repo never shows "3 months". Our own ~20-line function replaces humanize (it has no round-down option), so `humanize` is removed from the dependencies.
+
+Ran `/opsx:propose` → change `verdict-time-round-down` (MODIFIED `repo-search` "One-line verdict summary" requirement, 3 new scenarios). `openspec validate --strict` passes. Nothing implemented yet.
+
+Side question from the user, answered in conversation: subagents can be used as small "teams" (each reports back to the main agent; they don't freely discuss). Most useful here: a fresh reviewer agent for a finished change, a spec-only test writer, parallel research on independent questions (e.g. #4 and #5), a devil's advocate during explore (#7). Not worth it for small, clear fixes.
+
+**Next step:** `/opsx:apply`.
+
+## 2026-10-25 (later) — Independent review of the plan, then implemented: verdict time rounded down
+
+**First use of a reviewer subagent.** At the user's request, before applying, a fresh general-purpose agent (no access to this conversation, read-only) reviewed the `verdict-time-round-down` plan and searched the repo for anything else the change must touch. It found no blocking problems and verified every expected value in `tasks.md` by hand. Its findings, all folded into the plan before applying (commit `061fc67`):
+- The spec said "years plus any remaining whole months" while design/tasks capped the months at 11 → spec now says "(at most 11)", with a new 729-day scenario.
+- `format_verdict()` already had a local variable named `time_ago`, which would shadow the new function (`UnboundLocalError`) → renamed to `pushed_ago`.
+- The proposal didn't mention the smaller wording changes ("a day ago" → "1 day ago"; 14–15 days → "2 weeks ago") → added.
+- Missing boundary tests (plurals for minutes/hours, flooring inside an hour, a 395-day month boundary, −1 s, 13 d 23 h) → added. The 400-day case already passed under humanize, so it's noted as a guard, not evidence.
+- Singular forms and the clock-skew → "just now" rule were only in design.md → added to the spec.
+- Outside the plan: the gitignored `reposcout.egg-info/` still listed humanize, and a stale gitignored `build/` copy still imported it → refreshed with `pip install -e ".[dev]"` and removed `build/`.
+
+**Implementation (`/opsx:apply`, 6/6 tasks):** red first. The 16- and 89-day verdict tests failed on the old code ("a month ago" / "3 months ago"; 100 days already read "3 months ago" and stays as a guard), and the boundary tests failed at import. Added `time_ago()` (+ a `_count()` singular/plural helper) in `reposcout/output.py`, removed `humanize` from `output.py` and `pyproject.toml`, and added one note to `docs/USER_MANUAL.md`. A whole-repo grep finds `humanize` only in this change's planning docs. The installed `reposcout --help` works. 115/115 tests passing (+30), `openspec validate --strict` passes.
+
+**Next step:** `/opsx:archive`, then push and open a PR.
+
+## 2026-10-25 (later) — Archived: `verdict-time-round-down`
+
+`/opsx:archive`: all 4 artifacts and 6/6 tasks done. Synced the delta into `openspec/specs/repo-search/spec.md` (the "One-line verdict summary" requirement now states the round-down rule, singular forms, and clock skew → "just now", with 4 new scenarios). Verified the main spec's requirement matches the delta exactly, and `openspec validate --specs --strict` passes. Change moved to `openspec/changes/archive/2026-10-25-verdict-time-round-down/`. No active changes left.
+
+Open issue #3 closed. Remaining: #4 transitive-dependency lock file, #5 loose keyword matching, #6 friendlier/web interface, #7 dated/versioned report files.
+
+**Next step:** push `fix-verdict-time-rounding` and open a PR.

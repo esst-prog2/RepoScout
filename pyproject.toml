@@ -11,7 +11,6 @@ dependencies = [
     "requests==2.34.2",
     "typer==0.27.2",
     "tabulate==0.10.0",
-    "humanize==4.16.0",
     "platformdirs==4.11.12",
     "pwinput==1.0.3",
 ]

@@ -5,7 +5,7 @@ import pytest
 
 from reposcout.bucketing import BucketedRepo
 from reposcout.github import RepoData
-from reposcout.output import csv_filename, format_verdict, render_table, slugify_keyword, write_csv
+from reposcout.output import csv_filename, format_verdict, render_table, slugify_keyword, time_ago, write_csv
 
 NOW = datetime(2026, 9, 24, tzinfo=timezone.utc)
 
@@ -47,6 +47,52 @@ def test_format_verdict_top_50_phrasing_when_total_exceeds_fetched():
     verdict = format_verdict(total_count=3241, bucketed=rows, now=NOW)
 
     assert "top 50 of 3241" in verdict.replace(",", "")
+
+
+@pytest.mark.parametrize(
+    "days_ago, bucket, expected",
+    [(16, "active", "pushed 2 weeks ago"), (89, "active", "pushed 12 weeks ago"), (100, "slowing", "pushed 3 months ago")],
+)
+def test_format_verdict_rounds_time_down(days_ago, bucket, expected):
+    verdict = format_verdict(total_count=1, bucketed=[_bucketed("a/one", 100, days_ago, bucket)], now=NOW)
+
+    assert verdict.endswith(expected)
+
+
+@pytest.mark.parametrize(
+    "delta, expected",
+    [
+        (timedelta(0), "just now"),
+        (timedelta(seconds=-1), "just now"),
+        (timedelta(days=-1), "just now"),
+        (timedelta(seconds=59), "just now"),
+        (timedelta(seconds=60), "1 minute ago"),
+        (timedelta(seconds=119), "1 minute ago"),
+        (timedelta(seconds=120), "2 minutes ago"),
+        (timedelta(minutes=59), "59 minutes ago"),
+        (timedelta(hours=1), "1 hour ago"),
+        (timedelta(hours=1, minutes=59), "1 hour ago"),
+        (timedelta(hours=2), "2 hours ago"),
+        (timedelta(hours=23, minutes=59), "23 hours ago"),
+        (timedelta(days=1), "1 day ago"),
+        (timedelta(days=13), "13 days ago"),
+        (timedelta(days=13, hours=23), "13 days ago"),
+        (timedelta(days=14), "2 weeks ago"),
+        (timedelta(days=16), "2 weeks ago"),
+        (timedelta(days=89), "12 weeks ago"),
+        (timedelta(days=90), "3 months ago"),
+        (timedelta(days=100), "3 months ago"),
+        (timedelta(days=364), "12 months ago"),
+        (timedelta(days=365), "1 year ago"),
+        (timedelta(days=395), "1 year, 1 month ago"),
+        (timedelta(days=400), "1 year, 1 month ago"),
+        (timedelta(days=729), "1 year, 11 months ago"),
+        (timedelta(days=730), "2 years ago"),
+        (timedelta(days=2057), "5 years, 7 months ago"),
+    ],
+)
+def test_time_ago_rounds_down_at_every_unit(delta, expected):
+    assert time_ago(delta) == expected
 
 
 def test_format_verdict_zero_matches():
