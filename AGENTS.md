@@ -572,3 +572,11 @@ PR #10 (`fix-keyword-matching`) merged by the user. New branch `website-ui` from
 - Design doc **APPROVED**: `docs/designs/reposcout-website.md`.
 
 **Next step:** `/opsx:propose` (includes the README §1 rewrite for HW8).
+
+## 2026-10-25 (later) — Proposed: website-heartbeat-ui
+
+Phone-width usability added to the approved design doc as a "should" (user decision, after asking whether the site would look good on phones: it wouldn't have by default, since the requirement had dropped out when the demo became screenshots).
+
+Ran `/opsx:propose` → change `website-heartbeat-ui` with a **new capability `web-ui`** (9 requirements: static tokenless page; same selection/ranking as the CLI; verdict wording; heartbeat strip with piecewise axis + fallback; table + CSV; states incl. rate-limit rules and incomplete warning; browser cache; rules parity via a shared fixture; usable at 360 px). No existing capability is modified; the CLI is untouched. The 10 minor spec-review points from office hours are folded into the spec, design and tasks (rate-limit only on non-OK responses, Distribution wording, piecewise axis as a precomputed 0-3 position with custom ticks, dodge + capped sqrt radius, fuller fixture incl. normalization/slug/CSV, parity via recorded inputs, the exact test command `pytest && node --test tests/js/`, input handling, "two implementations, one shared test fixture"). 30 tasks in 8 groups, thin path (keyword → verdict on screen) first. `openspec validate --strict` passes.
+
+**Next step:** `/opsx:apply`. Live checks (tasks 1.3, 4.4) are run by the user in their own browser.
