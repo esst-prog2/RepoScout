@@ -504,3 +504,20 @@ Discussed #4 (indirect dependencies aren't locked) with the user. The direct dep
 **Decision (user): deferred.** Benefit small for a project this size (direct deps pinned; indirect ones are large, well-maintained packages) vs. a new tool, an extra install step, and a file to regenerate on every update. Ranked below #5 and #7, which change what users actually see. Stays on the open-issues list. The user also asked whether an agent could help decide. Not needed here, since the answer was already clear; debate-style agents are better spent on #5/#7.
 
 Remaining open issues: #4 (deferred), #5 loose keyword matching (next, starting with `/opsx:explore`), #6 friendlier/web interface, #7 dated/versioned report files.
+
+## 2026-10-25 (later) — Explore + propose: search by relevance (open issue #5)
+
+**Clarification from the user (important for future sessions):** RepoScout is a class project, not thesis work. The 2026-09-24 entry's note about a *possible future* thesis use was over-weighted in this session's reasoning (it was cited as a reason for decisions). Don't treat it as a goal or a constraint.
+
+**Explore findings (live GitHub probes via PowerShell; Python `requests` in the agent's sandbox fails TLS verification, likely the sandbox proxy):**
+- GitHub repo search matches when every word appears *somewhere* in name/description/topics: any order, any distance, word forms too ("activities" for "activity"). It is **not** phrase matching.
+- `"repo activity research"` (exact phrase) → **0** results; `"expense tracker"` → 232,773 vs 244,832 without quotes, identical top 5. So phrase-by-default fails on the motivating case.
+- The junk repos (`molyswu/hand_detection`, a TensorFlow hand detector; `hackcrypto/fluxion`, a Wi-Fi phishing tool) pasted their whole README into the description, so the three words appear thousands of words apart.
+- Root cause: `sort=stars` picks the most-starred loose matches. Without `sort`, GitHub's relevance ("best match") ranking applies: for "repo activity research" (80 matches) **none of the five junk repos from the HW5 run is in the relevance top 50**; for "expense tracker" the relevance top results are all real expense trackers.
+- Quotes and qualifiers (`language:python`) already work today, since the keyword is passed through unchanged; they're just undocumented.
+
+**Decisions (user):** default = the 50 most on-topic matches (GitHub relevance), displayed ranked by stars ("most-on-topic matches by default and among those the most popular ones"). No exact phrase by default. No `--by-stars` flag for now. More-than-50 verdict wording becomes "Showing the 50 best-matching of N repos, …". The manual gets a tip on quotes/qualifiers. README left unchanged (original course spec).
+
+Ran `/opsx:propose` → change `search-by-relevance`: MODIFIED `repo-search` ("Keyword search against GitHub", "One-line verdict summary") and `search-cache` ("Cache hit avoids GitHub API calls": entries without `"selection": "best-match"` are a miss, so no star-picked results are served after the update). Design: omit `sort`/`order` (the documented default) rather than send an undocumented `sort=best-match`. `openspec validate --strict` passes. Nothing implemented yet.
+
+**Next step:** `/opsx:apply`. Task 3.4 is a live smoke test the user runs in their own terminal.
