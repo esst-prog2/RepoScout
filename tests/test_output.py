@@ -46,7 +46,7 @@ def test_format_verdict_top_50_phrasing_when_total_exceeds_fetched():
 
     verdict = format_verdict(total_count=3241, bucketed=rows, now=NOW)
 
-    assert "top 50 of 3241" in verdict.replace(",", "")
+    assert verdict.startswith("Showing the 50 best-matching of 3241 repos, 50 active among them")
 
 
 @pytest.mark.parametrize(

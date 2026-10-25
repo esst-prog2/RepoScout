@@ -67,7 +67,7 @@ def format_verdict(total_count: int, bucketed: list[BucketedRepo], now: datetime
             f"— most recent entrant pushed {pushed_ago}"
         )
     return (
-        f"Showing top {len(bucketed)} of {total_count} matching repos, "
+        f"Showing the {len(bucketed)} best-matching of {total_count} repos, "
         f"{active_count} active among them — most recent entrant pushed {pushed_ago}"
     )
 

@@ -521,3 +521,15 @@ Remaining open issues: #4 (deferred), #5 loose keyword matching (next, starting 
 Ran `/opsx:propose` → change `search-by-relevance`: MODIFIED `repo-search` ("Keyword search against GitHub", "One-line verdict summary") and `search-cache` ("Cache hit avoids GitHub API calls": entries without `"selection": "best-match"` are a miss, so no star-picked results are served after the update). Design: omit `sort`/`order` (the documented default) rather than send an undocumented `sort=best-match`. `openspec validate --strict` passes. Nothing implemented yet.
 
 **Next step:** `/opsx:apply`. Task 3.4 is a live smoke test the user runs in their own terminal.
+
+## 2026-10-25 (later) — Implemented: search by relevance (11/12 tasks, live smoke test pending)
+
+`/opsx:apply` for `search-by-relevance`. **Red first:** the request-params test (no `sort`/`order`), the new verdict wording, and the old-format cache entry → miss all failed on the old code. The display-order guard (GitHub returns 5/300/40 stars → table shows 300, 40, 5) already passed, confirming `rank_by_stars()` owns the display order.
+
+**Implementation:** `github.py` drops `sort`/`order` (GitHub's documented default is best match); `cache.py` writes `"selection": "best-match"` and treats entries without it as a miss; `output.py`'s more-than-50 verdict says "Showing the 50 best-matching of N repos"; `bucketing.py`'s `rank_by_stars()` docstring updated. Found during implementation: the new `raw.get(...)` check would raise `AttributeError` on a cache file holding non-object JSON (previously a caught `TypeError`), breaking the "corrupted cache self-heals" spec. Added `AttributeError` to the caught exceptions, plus a test.
+
+**User manual:** fetch description, verdict example, and a tip on exact phrases / qualifiers. The exact-phrase quoting was **verified per shell** before documenting, because the first draft was wrong: in Windows PowerShell 5.1, `'"expense tracker"'` loses the quotes and `'\"expense tracker\"'` splits into two arguments. Working forms: bash/zsh/Git Bash `'"expense tracker"'`; PowerShell `--% "\"expense tracker\""`; Command Prompt `"\"expense tracker\""`.
+
+119/119 tests passing (+4), `openspec validate --strict` passes. A grep finds no remaining claims that the 50 are chosen by stars outside the main spec lines the archive step will replace.
+
+**Pending:** task 3.4, a live smoke test the user runs in their own terminal (the agent's Python can't verify GitHub's TLS certificate in its sandbox).

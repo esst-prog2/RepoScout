@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from urllib.parse import parse_qs, urlparse
 
 import pytest
 import requests
@@ -29,6 +30,19 @@ def test_search_returns_repos_from_single_call():
     assert result.repos[0].stars == 100
     assert result.repos[0].language == "Python"
     assert result.repos[0].pushed_at == datetime(2026, 8, 1, tzinfo=timezone.utc)
+
+
+@responses.activate
+def test_search_lets_github_rank_by_relevance_not_stars():
+    responses.add(responses.GET, SEARCH_URL, json=search_payload(0, []), status=200)
+
+    search_repositories("repo activity research", token=None)
+
+    query = parse_qs(urlparse(responses.calls[0].request.url).query)
+    assert query["q"] == ["repo activity research"]
+    assert query["per_page"] == ["50"]
+    assert "sort" not in query
+    assert "order" not in query
 
 
 @responses.activate

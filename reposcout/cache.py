@@ -15,6 +15,9 @@ from reposcout import APP_NAME
 from reposcout.github import RepoData
 
 TTL = timedelta(hours=24)
+# How the cached repos were chosen. Entries without it were picked by stars
+# (before relevance selection) and are refetched rather than shown.
+SELECTION = "best-match"
 
 _WHITESPACE_RE = re.compile(r"\s+")
 
@@ -51,6 +54,8 @@ def read_cache(keyword: str, now: datetime | None = None) -> CacheEntry | None:
 
     try:
         raw = json.loads(path.read_text(encoding="utf-8"))
+        if raw.get("selection") != SELECTION:
+            return None
         fetched_at = datetime.fromisoformat(raw["fetched_at"])
         repos = [
             RepoData(
@@ -64,7 +69,7 @@ def read_cache(keyword: str, now: datetime | None = None) -> CacheEntry | None:
         ]
         total_count = raw["total_count"]
         incomplete = bool(raw["incomplete"])  # missing = older format: refetch, don't guess
-    except (json.JSONDecodeError, KeyError, ValueError, TypeError):
+    except (json.JSONDecodeError, KeyError, ValueError, TypeError, AttributeError):
         return None
 
     if now - fetched_at > TTL:
@@ -88,6 +93,7 @@ def write_cache(
 
     payload = {
         "fetched_at": now.isoformat(),
+        "selection": SELECTION,
         "total_count": total_count,
         "incomplete": incomplete,
         "repos": [
