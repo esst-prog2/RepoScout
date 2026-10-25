@@ -486,3 +486,11 @@ Side question from the user, answered in conversation: subagents can be used as 
 **Implementation (`/opsx:apply`, 6/6 tasks):** red first. The 16- and 89-day verdict tests failed on the old code ("a month ago" / "3 months ago"; 100 days already read "3 months ago" and stays as a guard), and the boundary tests failed at import. Added `time_ago()` (+ a `_count()` singular/plural helper) in `reposcout/output.py`, removed `humanize` from `output.py` and `pyproject.toml`, and added one note to `docs/USER_MANUAL.md`. A whole-repo grep finds `humanize` only in this change's planning docs. The installed `reposcout --help` works. 115/115 tests passing (+30), `openspec validate --strict` passes.
 
 **Next step:** `/opsx:archive`, then push and open a PR.
+
+## 2026-10-25 (later) — Archived: `verdict-time-round-down`
+
+`/opsx:archive`: all 4 artifacts and 6/6 tasks done. Synced the delta into `openspec/specs/repo-search/spec.md` (the "One-line verdict summary" requirement now states the round-down rule, singular forms, and clock skew → "just now", with 4 new scenarios). Verified the main spec's requirement matches the delta exactly, and `openspec validate --specs --strict` passes. Change moved to `openspec/changes/archive/2026-10-25-verdict-time-round-down/`. No active changes left.
+
+Open issue #3 closed. Remaining: #4 transitive-dependency lock file, #5 loose keyword matching, #6 friendlier/web interface, #7 dated/versioned report files.
+
+**Next step:** push `fix-verdict-time-rounding` and open a PR.
