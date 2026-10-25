@@ -450,3 +450,11 @@ Ran `/opsx:propose` → change `safe-csv-filename` (MODIFIED `repo-search` "CSV 
 Re-ran the Windows probe: `c++-qt-report.csv`, `c#-tools-report.csv`, `search-report.csv` are all written as normal visible files (no more hidden NTFS stream for `:`). 85/85 tests passing (+9), `openspec validate --strict` passes.
 
 **Next step:** `/opsx:archive`, then push and open a PR.
+
+## 2026-10-25 (later) — Archived: `safe-csv-filename`
+
+`/opsx:archive`: all 4 artifacts and 5/5 tasks done. Synced the delta into `openspec/specs/repo-search/spec.md` (the "CSV export" requirement now states the filename-safety rule and the `search-report.csv` fallback, with 3 new scenarios). Verified the main spec's requirement matches the delta exactly, and `openspec validate --specs --strict` passes. Change moved to `openspec/changes/archive/2026-10-25-safe-csv-filename/`. No active changes left.
+
+Open issue #2 closed. Remaining: #3 `naturaltime` rounding, #4 transitive-dependency lock file, #5 loose keyword matching, #6 friendlier/web interface, #7 dated/versioned report files.
+
+**Next step:** push `fix-csv-filename-chars` and open a PR.
