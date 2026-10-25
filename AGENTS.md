@@ -458,3 +458,17 @@ Re-ran the Windows probe: `c++-qt-report.csv`, `c#-tools-report.csv`, `search-re
 Open issue #2 closed. Remaining: #3 `naturaltime` rounding, #4 transitive-dependency lock file, #5 loose keyword matching, #6 friendlier/web interface, #7 dated/versioned report files.
 
 **Next step:** push `fix-csv-filename-chars` and open a PR.
+
+## 2026-10-25 (later) — Proposed: verdict time rounded down (open issue #3)
+
+PR #8 (`fix-csv-filename-chars`) merged by the user. New branch `fix-verdict-time-rounding` from the updated `main`.
+
+**Probe on the current code:** `humanize.naturaltime` rounds to the *nearest* unit, often up: 15 days → "15 days", 16 days → "a month ago", 46 days → "2 months", 89 days → "3 months", 364 days → "a year", and under a day too (119 s → "2 minutes", 23h59m → "a day"). Two consequences beyond inexactness: (a) the verdict can contradict itself, since an 89-day-old repo is *active* and a 100-day-old one isn't, but both print "3 months ago" (so `0 active in the last 3 months — most recent entrant pushed 3 months ago` is possible); (b) the spec/manual example "pushed 2 weeks ago" can't happen, because humanize never says weeks.
+
+**Decision (user chose option A, no explore needed):** always round down, with natural units: "just now" < 1 min, minutes, hours, days < 14 days, weeks < 90 days, 30-day months < 365 days, then years + months. Rejected B: exact days under a year (precise but less natural). Because it never rounds up, an active repo never shows "3 months". Our own ~20-line function replaces humanize (it has no round-down option), so `humanize` is removed from the dependencies.
+
+Ran `/opsx:propose` → change `verdict-time-round-down` (MODIFIED `repo-search` "One-line verdict summary" requirement, 3 new scenarios). `openspec validate --strict` passes. Nothing implemented yet.
+
+Side question from the user, answered in conversation: subagents can be used as small "teams" (each reports back to the main agent; they don't freely discuss). Most useful here: a fresh reviewer agent for a finished change, a spec-only test writer, parallel research on independent questions (e.g. #4 and #5), a devil's advocate during explore (#7). Not worth it for small, clear fixes.
+
+**Next step:** `/opsx:apply`.
