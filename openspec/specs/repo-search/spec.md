@@ -6,15 +6,19 @@ Given a keyword, search GitHub for matching repositories, rank and classify them
 ## Requirements
 
 ### Requirement: Keyword search against GitHub
-The system SHALL search GitHub's repository Search API for a given keyword and retrieve the top 50 matching repositories ordered by star count, using data already present in the search response (no separate per-repository follow-up call for stars, last-push time, or primary language).
+The system SHALL search GitHub's repository Search API for a given keyword and retrieve the 50 best-matching repositories according to GitHub's own relevance ranking ("best match"), not the 50 most-starred, using data already present in the search response (no separate per-repository follow-up call for stars, last-push time, or primary language). The keyword SHALL be passed to GitHub unchanged, so GitHub's own search syntax (a quoted exact phrase, qualifiers such as `language:python`) works as GitHub defines it. The fetched repositories are then displayed ranked by stars (see "Terminal results table").
 
 #### Scenario: Search returns matches
 - **WHEN** a user runs `reposcout search "<keyword>"` for a keyword with matching repositories
-- **THEN** the system fetches up to 50 repositories from GitHub's Search API, ordered by stars descending, using only the search response's own fields (stars, `pushed_at`, language)
+- **THEN** the system fetches up to 50 repositories from GitHub's Search API, selected by GitHub's relevance ranking rather than by stars, using only the search response's own fields (stars, `pushed_at`, language)
 
 #### Scenario: Search returns zero matches
 - **WHEN** a user runs `reposcout search "<keyword>"` for a keyword with no matching repositories
 - **THEN** the system reports "0 repos found" in the terminal and writes a CSV file containing only the header row, with no error raised
+
+#### Scenario: Popular but off-topic matches are not preferred
+- **WHEN** a search has more than 50 matches, and some matching repositories contain the keyword's words only scattered through a long description
+- **THEN** the system does not ask GitHub to rank by stars, so those repositories are not selected merely for being popular
 
 ### Requirement: Activity bucketing
 The system SHALL classify each fetched repository into exactly one activity bucket based on the recency of its last push: `active` (pushed within the last 3 months), `slowing` (pushed 3-12 months ago), or `stale` (pushed 12 or more months ago).
@@ -43,7 +47,7 @@ The system SHALL print a one-line verdict after the table, stating how many repo
 
 #### Scenario: Total matches exceed the fetched limit
 - **WHEN** GitHub reports more than 50 total matching repositories for the keyword
-- **THEN** the verdict makes explicit that only the top 50 (by stars) were fetched and evaluated, rather than implying the 50 shown is the full result set
+- **THEN** the verdict makes explicit that only the 50 best-matching repositories were fetched and evaluated (e.g. "Showing the 50 best-matching of 3241 repos, 12 active among them — …"), rather than implying the 50 shown is the full result set or the 50 most popular
 
 #### Scenario: Relative time is rounded down, not to the nearest unit
 - **WHEN** the most recently pushed repository was pushed 16 days ago

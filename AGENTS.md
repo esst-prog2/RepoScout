@@ -542,3 +542,13 @@ The user ran `.\.venv\Scripts\reposcout search "repo activity research" --refres
 - Honest limit, noted to the user: results now have the words close together (e.g. `human-walking-activities`, `my_research_activity`), but keyword search still can't tell meanings apart (e.g. `Sportswear_Market_to_Reach_Research_Report`). Exact phrases and qualifiers (documented in the manual) are the remaining tools.
 
 Task 3.4 done; 12/12. **Next step:** `/opsx:archive`, then push and open a PR.
+
+## 2026-10-25 (later) — Archived: `search-by-relevance`
+
+`/opsx:archive`: all 4 artifacts and 12/12 tasks done. Synced 3 MODIFIED requirements into the main specs: `repo-search` "Keyword search against GitHub" (50 best-matching by GitHub relevance; keyword passed through unchanged) and "One-line verdict summary" (best-matching wording), and `search-cache` "Cache hit avoids GitHub API calls" (entries without the relevance-selection marker aren't served). Verified each matches its delta exactly, requirement counts unchanged (6 and 5), and `openspec validate --specs --strict` passes. Change moved to `openspec/changes/archive/2026-10-25-search-by-relevance/`. No active changes left.
+
+Side note from the user's live run: a third-party repo `ly5566lyui/repo-scout` appeared in the results. Checked it out of curiosity: an AI "Agent Skill" (`SKILL.md`, no program code) that researches one given repo in depth. Same name, different problem (RepoScout scans many repos by keyword); complementary, not overlapping.
+
+Open issue #5 closed. Remaining: #4 lock file (deferred), #6 friendlier/web interface, #7 dated/versioned report files.
+
+**Next step:** push `fix-keyword-matching` and open a PR.
