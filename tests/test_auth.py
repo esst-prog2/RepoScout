@@ -88,6 +88,22 @@ def test_authenticated_rate_limit_message_states_reset_time():
     assert "2026-09-24 15:00" in message
 
 
+def test_token_from_env_reflects_github_token(monkeypatch):
+    monkeypatch.setenv("GITHUB_TOKEN", "env-token")
+    assert auth.token_from_env() is True
+    monkeypatch.setenv("GITHUB_TOKEN", "")
+    assert auth.token_from_env() is False
+    monkeypatch.delenv("GITHUB_TOKEN")
+    assert auth.token_from_env() is False
+
+
+def test_invalid_env_token_message_names_the_variable():
+    message = auth.invalid_env_token_message()
+
+    assert "GITHUB_TOKEN" in message
+    assert "update or unset" in message
+
+
 def test_handle_invalid_token_saves_replacement(isolated_dirs, monkeypatch, capsys):
     auth.config_path().parent.mkdir(parents=True, exist_ok=True)
     auth.config_path().write_text(json.dumps({"token": "bad-token"}), encoding="utf-8")

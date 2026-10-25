@@ -404,3 +404,15 @@ Fixing the first carried-forward issue: a rejected token from the `GITHUB_TOKEN`
 Ran `/opsx:propose` → change `env-token-invalid-handling` with `proposal.md`, a MODIFIED `github-auth` delta (new scenario on the "Invalid or expired saved token recovery" requirement), `design.md` (`auth.token_from_env()` instead of changing `resolve_token()`'s return type; report via the existing `GitHubAPIError` → exit `1` path), and `tasks.md` (reproduce with a failing test first). `openspec validate --strict` passes. Nothing implemented yet.
 
 **Next step:** `/opsx:apply`.
+
+## 2026-10-25 (later) — Implemented: invalid `GITHUB_TOKEN` env var handling
+
+`/opsx:apply` completed all 6 tasks for `env-token-invalid-handling`.
+
+**Red first:** added `test_rejected_env_var_token_says_fix_the_variable_without_prompting` (`tests/test_cli.py`) and ran it on the unchanged code. It failed for the expected reason: the prompt was invoked (`AssertionError('prompt should not have been invoked')`).
+
+**Fix:** `auth.token_from_env()` + `auth.invalid_env_token_message()`, and one branch in `cli._fetch_with_token_recovery()` that raises `GitHubAPIError` with that message when the rejected token came from the env var (→ exit `1`, no prompt, nothing written to config, one API call). The two existing saved-token recovery CLI tests now clear `GITHUB_TOKEN` so they don't depend on the machine's environment. One paragraph added to `docs/USER_MANUAL.md`.
+
+76/76 tests passing (+3), `openspec validate --strict` passes.
+
+**Next step:** `/opsx:archive` (writes the new scenario into `openspec/specs/github-auth/spec.md`), then push and open a PR.
