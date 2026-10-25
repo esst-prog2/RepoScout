@@ -533,3 +533,12 @@ Ran `/opsx:propose` → change `search-by-relevance`: MODIFIED `repo-search` ("K
 119/119 tests passing (+4), `openspec validate --strict` passes. A grep finds no remaining claims that the 50 are chosen by stars outside the main spec lines the archive step will replace.
 
 **Pending:** task 3.4, a live smoke test the user runs in their own terminal (the agent's Python can't verify GitHub's TLS certificate in its sandbox).
+
+## 2026-10-25 (later) — Live smoke test passed: search by relevance (12/12 tasks)
+
+The user ran `.\.venv\Scripts\reposcout search "repo activity research" --refresh` in their own PowerShell (first attempt without the leading `.\` failed: PowerShell treats `.venv\...` as a module name; explained). Result: `Showing the 50 best-matching of 80 repos, 14 active among them — most recent entrant pushed 1 day ago`.
+- None of the five HW5 junk repos (`molyswu/hand_detection`, `hackcrypto/fluxion`, `82goober82/fluxionwpacrack`, `Sfedfcv/redesigned-pancake`, `ManojKumarPatnaik/Major-project-list`) appears.
+- Stars column descending (13, 7, 6, 5, 2, 1…, then 0s); 14 `active` rows match the verdict; newest push 2026-10-24 → "1 day ago" is correct.
+- Honest limit, noted to the user: results now have the words close together (e.g. `human-walking-activities`, `my_research_activity`), but keyword search still can't tell meanings apart (e.g. `Sportswear_Market_to_Reach_Research_Report`). Exact phrases and qualifiers (documented in the manual) are the remaining tools.
+
+Task 3.4 done; 12/12. **Next step:** `/opsx:archive`, then push and open a PR.
