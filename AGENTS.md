@@ -472,3 +472,17 @@ Ran `/opsx:propose` → change `verdict-time-round-down` (MODIFIED `repo-search`
 Side question from the user, answered in conversation: subagents can be used as small "teams" (each reports back to the main agent; they don't freely discuss). Most useful here: a fresh reviewer agent for a finished change, a spec-only test writer, parallel research on independent questions (e.g. #4 and #5), a devil's advocate during explore (#7). Not worth it for small, clear fixes.
 
 **Next step:** `/opsx:apply`.
+
+## 2026-10-25 (later) — Independent review of the plan, then implemented: verdict time rounded down
+
+**First use of a reviewer subagent.** At the user's request, before applying, a fresh general-purpose agent (no access to this conversation, read-only) reviewed the `verdict-time-round-down` plan and searched the repo for anything else the change must touch. It found no blocking problems and verified every expected value in `tasks.md` by hand. Its findings, all folded into the plan before applying (commit `061fc67`):
+- The spec said "years plus any remaining whole months" while design/tasks capped the months at 11 → spec now says "(at most 11)", with a new 729-day scenario.
+- `format_verdict()` already had a local variable named `time_ago`, which would shadow the new function (`UnboundLocalError`) → renamed to `pushed_ago`.
+- The proposal didn't mention the smaller wording changes ("a day ago" → "1 day ago"; 14–15 days → "2 weeks ago") → added.
+- Missing boundary tests (plurals for minutes/hours, flooring inside an hour, a 395-day month boundary, −1 s, 13 d 23 h) → added. The 400-day case already passed under humanize, so it's noted as a guard, not evidence.
+- Singular forms and the clock-skew → "just now" rule were only in design.md → added to the spec.
+- Outside the plan: the gitignored `reposcout.egg-info/` still listed humanize, and a stale gitignored `build/` copy still imported it → refreshed with `pip install -e ".[dev]"` and removed `build/`.
+
+**Implementation (`/opsx:apply`, 6/6 tasks):** red first. The 16- and 89-day verdict tests failed on the old code ("a month ago" / "3 months ago"; 100 days already read "3 months ago" and stays as a guard), and the boundary tests failed at import. Added `time_ago()` (+ a `_count()` singular/plural helper) in `reposcout/output.py`, removed `humanize` from `output.py` and `pyproject.toml`, and added one note to `docs/USER_MANUAL.md`. A whole-repo grep finds `humanize` only in this change's planning docs. The installed `reposcout --help` works. 115/115 tests passing (+30), `openspec validate --strict` passes.
+
+**Next step:** `/opsx:archive`, then push and open a PR.

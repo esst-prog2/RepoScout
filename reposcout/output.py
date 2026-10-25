@@ -4,10 +4,9 @@ from __future__ import annotations
 
 import csv
 import re
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-import humanize
 from tabulate import tabulate
 
 from reposcout.bucketing import ACTIVE, BucketedRepo, active_window_text
@@ -60,17 +59,47 @@ def format_verdict(total_count: int, bucketed: list[BucketedRepo], now: datetime
     now = now or datetime.now(timezone.utc)
     active_count = sum(1 for b in bucketed if b.bucket == ACTIVE)
     most_recent = max(bucketed, key=lambda b: b.repo.pushed_at).repo
-    time_ago = humanize.naturaltime(now - most_recent.pushed_at)
+    pushed_ago = time_ago(now - most_recent.pushed_at)
 
     if total_count <= len(bucketed):
         return (
             f"{total_count} repos found, {active_count} active in the last {active_window_text()} "
-            f"— most recent entrant pushed {time_ago}"
+            f"— most recent entrant pushed {pushed_ago}"
         )
     return (
         f"Showing top {len(bucketed)} of {total_count} matching repos, "
-        f"{active_count} active among them — most recent entrant pushed {time_ago}"
+        f"{active_count} active among them — most recent entrant pushed {pushed_ago}"
     )
+
+
+def _count(n: int, unit: str) -> str:
+    return f"{n} {unit}" if n == 1 else f"{n} {unit}s"
+
+
+def time_ago(delta: timedelta) -> str:
+    """Relative time, always rounded down so it is never later than the truth.
+
+    Weeks run up to 90 days, so a repo inside the active window never reads "3 months".
+    Months are 30 days and years 365, as in the bucket thresholds.
+    """
+    seconds = max(int(delta.total_seconds()), 0)  # a push slightly in the future (clock skew) is "just now"
+    days = seconds // 86400
+    if seconds < 60:
+        return "just now"
+    if seconds < 3600:
+        return f"{_count(seconds // 60, 'minute')} ago"
+    if days < 1:
+        return f"{_count(seconds // 3600, 'hour')} ago"
+    if days < 14:
+        return f"{_count(days, 'day')} ago"
+    if days < 90:
+        return f"{_count(days // 7, 'week')} ago"
+    if days < 365:
+        return f"{_count(days // 30, 'month')} ago"
+    years, months = days // 365, min((days % 365) // 30, 11)
+    if months == 0:
+        return f"{_count(years, 'year')} ago"
+    return f"{_count(years, 'year')}, {_count(months, 'month')} ago"
 
 
 def write_csv(path: Path, bucketed: list[BucketedRepo]) -> None:

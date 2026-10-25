@@ -101,6 +101,8 @@ Below the table, a one-line verdict summarizes the results, for example:
 42 repos found, 6 active in the last 3 months — most recent entrant pushed 2 weeks ago
 ```
 
+The "pushed … ago" time is always rounded down, never up: for example, 16 days shows as "2 weeks ago" (not "a month ago"), and anything under 3 months is shown in days or weeks, so an active repo is never described as "3 months ago".
+
 If GitHub reports more matches than the 50 RepoScout fetches, the verdict says so explicitly (e.g. "Showing top 50 of 3,241 matching repos...") rather than implying the 50 shown is everything that matched.
 
 **CSV export** — a file named after your search keyword, written in the directory you ran the command from. For example, searching `"expense tracker"` produces `expense-tracker-report.csv` in your current folder. Characters that can't be used in filenames (`< > : " / \ | ? *`) are replaced with hyphens, so `"c++/qt"` produces `c++-qt-report.csv`; a keyword with nothing usable left (e.g. `"???"`) produces `search-report.csv`. It contains the same rows and columns as the terminal table, plus a repository URL column, ready to open directly in Excel, Google Sheets, or Numbers.
