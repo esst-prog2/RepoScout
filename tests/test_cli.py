@@ -160,6 +160,20 @@ def test_rejected_env_var_token_says_fix_the_variable_without_prompting(isolated
 
 
 @responses.activate
+def test_keyword_with_slash_writes_csv_in_working_directory(isolated_dirs, monkeypatch, tmp_path):
+    monkeypatch.setattr("reposcout.cli.auth.resolve_token", lambda: "test-token")
+    monkeypatch.chdir(tmp_path)
+    responses.add(responses.GET, SEARCH_URL, json=search_payload(1, [repo_item("a/one", 100)]), status=200)
+
+    result = runner.invoke(app, ["search", "c++/qt"])
+
+    assert result.exit_code == 0
+    assert result.exception is None or isinstance(result.exception, SystemExit)
+    assert (tmp_path / "c++-qt-report.csv").is_file()
+    assert not (tmp_path / "c++").exists()
+
+
+@responses.activate
 def test_incomplete_results_warning_is_shown_and_survives_the_cache(isolated_dirs, monkeypatch, tmp_path):
     monkeypatch.setattr("reposcout.cli.auth.resolve_token", lambda: "test-token")
     monkeypatch.chdir(tmp_path)

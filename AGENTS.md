@@ -424,3 +424,37 @@ Ran `/opsx:propose` → change `env-token-invalid-handling` with `proposal.md`, 
 Open issue #1 from the HW6 list is closed. Remaining: #2 `slugify_keyword()` unsafe filename characters, #3 `naturaltime` rounding, #4 transitive-dependency lock file, #5 loose keyword matching, #6 friendlier/web interface.
 
 **Next step:** push `fix-env-token-recovery` and open a PR.
+
+## 2026-10-25 (later) — Proposed: safe CSV filenames (open issue #2)
+
+PR #7 (`fix-env-token-recovery`) merged by the user. New branch `fix-csv-filename-chars` from the updated `main`. Going forward: one branch and one PR per issue, each branched from `main` after the previous PR is merged (both append to `AGENTS.md`, so parallel branches would conflict there).
+
+**Probe on the current code (Windows), before planning:** `csv_filename("c++/qt")` → `c++/qt-report.csv` → `FileNotFoundError` (raw traceback). `csv_filename("c#: tools")` → `c#:-tools-report.csv`, which "succeeds" but leaves only a file named `c#`: the `:` makes NTFS write the CSV into a hidden alternate data stream.
+
+**Decisions (agreed with the user, no explore needed):** (1) unsafe = characters invalid on Windows (`< > : " / \ | ? *`) + control characters; letters (incl. non-ASCII), digits, `+ . _ -` kept. (2) Each run of unsafe characters/whitespace → one hyphen, collapse `--`, trim `-`/`.` at the ends (`"c++/qt"` → `c++-qt-report.csv`). (3) Nothing left (`"???"`) → `search-report.csv`. Silent overwrite on filename collision stays, as the spec already accepts.
+
+Ran `/opsx:propose` → change `safe-csv-filename` (MODIFIED `repo-search` "CSV export" requirement with 3 new scenarios). `openspec validate --strict` passes. Nothing implemented yet.
+
+**New open issue #7 (raised by the user, deliberately not part of #2):** dated or versioned report files, so re-running a search doesn't overwrite the earlier report. The user suggested `v1`/`v2`. Suggested instead: a date stamp (`expense-tracker-report-2026-10-25.csv`), possibly behind an opt-in flag so the README's default `expense-tracker-report.csv` stays. Trade-offs: files pile up in the working directory; it changes spec/README-defined behaviour; re-runs within 24h come from the cache, so a new file would often duplicate the last one. It would also suit the thesis idea (snapshots over time). A good candidate for `/opsx:explore`, since there's a real design question.
+
+**Next step:** `/opsx:apply`.
+
+## 2026-10-25 (later) — Implemented: safe CSV filenames
+
+`/opsx:apply` completed all 5 tasks for `safe-csv-filename`.
+
+**Red first:** a CLI test (`"c++/qt"` → `c++-qt-report.csv` in the working directory, no `c++/` folder) failed with the same `FileNotFoundError` as the probe, and 6 of the 8 new `slugify_keyword()`/`csv_filename()` unit cases failed. The tab and Hungarian cases already passed; they're kept as guards so the fix can't break them.
+
+**Fix:** `slugify_keyword()` in `reposcout/output.py` still builds on `normalize_query()`, then replaces each run of Windows-invalid characters, control characters, and whitespace with one hyphen, collapses `--`, trims `-`/`.` at the ends, and falls back to `"search"`. One sentence added to the CSV paragraph of `docs/USER_MANUAL.md`.
+
+Re-ran the Windows probe: `c++-qt-report.csv`, `c#-tools-report.csv`, `search-report.csv` are all written as normal visible files (no more hidden NTFS stream for `:`). 85/85 tests passing (+9), `openspec validate --strict` passes.
+
+**Next step:** `/opsx:archive`, then push and open a PR.
+
+## 2026-10-25 (later) — Archived: `safe-csv-filename`
+
+`/opsx:archive`: all 4 artifacts and 5/5 tasks done. Synced the delta into `openspec/specs/repo-search/spec.md` (the "CSV export" requirement now states the filename-safety rule and the `search-report.csv` fallback, with 3 new scenarios). Verified the main spec's requirement matches the delta exactly, and `openspec validate --specs --strict` passes. Change moved to `openspec/changes/archive/2026-10-25-safe-csv-filename/`. No active changes left.
+
+Open issue #2 closed. Remaining: #3 `naturaltime` rounding, #4 transitive-dependency lock file, #5 loose keyword matching, #6 friendlier/web interface, #7 dated/versioned report files.
+
+**Next step:** push `fix-csv-filename-chars` and open a PR.
