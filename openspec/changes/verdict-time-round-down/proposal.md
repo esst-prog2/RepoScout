@@ -7,6 +7,7 @@ The verdict line's "most recent entrant pushed …" uses `humanize.naturaltime`,
 ## What Changes
 
 - The relative time in the verdict is always **rounded down**, never up, using the largest fitting unit: seconds as "just now" (under a minute), minutes (under an hour), hours (under a day), days (under 14 days), weeks (under 90 days), months of 30 days (under 365 days), then years plus months. Examples: 16 days → "2 weeks ago", 89 days → "12 weeks ago", 100 days → "3 months ago", 400 days → "1 year, 1 month ago".
+- Smaller wording changes that come with this: a count of one is written as a number ("1 day ago", "1 hour ago", "1 minute ago" instead of humanize's "a day ago", "an hour ago", "a minute ago"), and 14–15 days now read "2 weeks ago" instead of "14 days ago" / "15 days ago".
 - So an `active` repo (pushed under 90 days ago) never shows "3 months", and the shown time is never later than the real one.
 - `humanize` is no longer used anywhere, so it is removed from `pyproject.toml`'s dependencies.
 - Unchanged: the verdict's structure, the bucket thresholds, the table and the CSV (they show dates, not relative times).
