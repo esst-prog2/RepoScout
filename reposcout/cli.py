@@ -63,6 +63,9 @@ def _fetch_with_token_recovery(keyword: str, token: str | None) -> github.Search
     except github.InvalidTokenError:
         if token is None:
             raise github.GitHubAPIError("GitHub rejected the request as unauthorized.") from None
+        if auth.token_from_env():
+            # A replacement saved to config would lose to the env var next run.
+            raise github.GitHubAPIError(auth.invalid_env_token_message()) from None
         new_token = auth.handle_invalid_token()
         try:
             return github.search_repositories(keyword, new_token)

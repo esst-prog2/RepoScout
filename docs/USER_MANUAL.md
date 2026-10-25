@@ -53,6 +53,8 @@ You can create a personal access token at **github.com → Settings → Develope
 
 If RepoScout ever tells you your saved token is invalid or expired, it will immediately offer to let you enter a replacement — you don't need to find or edit any files by hand.
 
+If the invalid or expired token comes from the `GITHUB_TOKEN` environment variable instead, RepoScout won't prompt or save anything (the variable would override a saved replacement on the next run anyway). It tells you to update or unset `GITHUB_TOKEN`, and stops with exit code `1`.
+
 ## Searching
 
 The basic command is:

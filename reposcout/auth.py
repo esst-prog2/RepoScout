@@ -77,6 +77,11 @@ def resolve_token() -> str | None:
     return _remember_choice(config, prompt_for_token())
 
 
+def token_from_env() -> bool:
+    """True when the token in use came from GITHUB_TOKEN (resolve_token checks it first)."""
+    return bool(os.environ.get(ENV_VAR))
+
+
 def handle_invalid_token() -> str | None:
     """Called when a saved token is rejected by GitHub; offers immediate re-entry."""
     print(
@@ -111,6 +116,13 @@ def rate_limit_message(error: RateLimitExceeded) -> str:
             f"(Try again {when}.)"
         )
     return f"GitHub API rate limit reached, try again {when}."
+
+
+def invalid_env_token_message() -> str:
+    return (
+        f"The GitHub token in your {ENV_VAR} environment variable appears invalid or "
+        f"expired. Please update or unset {ENV_VAR} and try again."
+    )
 
 
 def network_error_message() -> str:

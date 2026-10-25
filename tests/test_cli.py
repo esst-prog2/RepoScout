@@ -4,12 +4,17 @@ import requests
 import responses
 from typer.testing import CliRunner
 
+from reposcout import auth
 from reposcout.cli import app
 from reposcout.github import SEARCH_URL
 
 from helpers import repo_item, search_payload
 
 runner = CliRunner()
+
+
+def _no_prompt(*args, **kwargs):
+    raise AssertionError("prompt should not have been invoked")
 
 
 @responses.activate
@@ -105,6 +110,7 @@ def test_unexpected_github_error_is_reported_cleanly(isolated_dirs, monkeypatch,
 
 @responses.activate
 def test_rejected_token_is_replaced_and_search_retried(isolated_dirs, monkeypatch, tmp_path):
+    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
     monkeypatch.setattr("reposcout.cli.auth.resolve_token", lambda: "bad-token")
     monkeypatch.setattr("reposcout.auth.pwinput.pwinput", lambda prompt, mask: "good-token")
     monkeypatch.chdir(tmp_path)
@@ -121,6 +127,7 @@ def test_rejected_token_is_replaced_and_search_retried(isolated_dirs, monkeypatc
 
 @responses.activate
 def test_rejected_replacement_token_exits_cleanly(isolated_dirs, monkeypatch, tmp_path):
+    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
     monkeypatch.setattr("reposcout.cli.auth.resolve_token", lambda: "bad-token")
     monkeypatch.setattr("reposcout.auth.pwinput.pwinput", lambda prompt, mask: "also-bad")
     monkeypatch.chdir(tmp_path)
@@ -132,6 +139,24 @@ def test_rejected_replacement_token_exits_cleanly(isolated_dirs, monkeypatch, tm
     assert result.exit_code == 1
     assert result.exception is None or isinstance(result.exception, SystemExit)
     assert "rejected the new token as well" in result.stdout
+
+
+@responses.activate
+def test_rejected_env_var_token_says_fix_the_variable_without_prompting(isolated_dirs, monkeypatch, tmp_path):
+    monkeypatch.setenv("GITHUB_TOKEN", "bad-env-token")
+    monkeypatch.setattr("reposcout.auth.pwinput.pwinput", _no_prompt)
+    monkeypatch.chdir(tmp_path)
+    responses.add(responses.GET, SEARCH_URL, json={"message": "Bad credentials"}, status=401)
+
+    result = runner.invoke(app, ["search", "expense tracker"])
+
+    assert result.exit_code == 1
+    assert result.exception is None or isinstance(result.exception, SystemExit)
+    assert "GITHUB_TOKEN" in result.stdout
+    assert "update or unset" in result.stdout
+    assert "saved" not in result.stdout
+    assert len(responses.calls) == 1
+    assert not auth.config_path().exists()
 
 
 @responses.activate
