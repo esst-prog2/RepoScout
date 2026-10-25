@@ -552,3 +552,23 @@ Side note from the user's live run: a third-party repo `ly5566lyui/repo-scout` a
 Open issue #5 closed. Remaining: #4 lock file (deferred), #6 friendlier/web interface, #7 dated/versioned report files.
 
 **Next step:** push `fix-keyword-matching` and open a PR.
+
+## 2026-10-25 (later) — Session 7 halftime: website UI explored, gstack installed, design approved
+
+PR #10 (`fix-keyword-matching`) merged by the user. New branch `website-ui` from the updated `main`.
+
+**Context (session 7 slides, 20 Oct):** halftime, "if you're done, make it bigger"; the project is the homework until the demos (1 and 8 Dec). HW7 (what moved forward, linked commits, + one question) and HW8 (re-read README §1 "The demo", update it via `propose` if it no longer fits) are both due 7 Nov; slides in the repo by 28 Nov. Course rules: plan with OpenSpec `propose`, a thin end-to-end path first, `main` never broken. The user later clarified the demo format: **a five-minute presentation with screenshots, not a live run.**
+
+**Tools:** the user asked to install gstack (the slides recommend it). Installed globally only (not in the repo, no team mode): Bun 1.4.4 via `npm install -g bun`, gstack v1.91.216.0 cloned to `~/.claude/skills/gstack` (the sandbox's git needed `-c http.sslBackend=schannel`; `setup.ps1` reported a spurious PowerShell 5.1 stderr "error", but `./setup --status` and `gstack-doctor` confirmed 11 ok / 0 fail). Added the README's gstack section to the user's *global* `~/.claude/CLAUDE.md`. The user asked whether gstack is needed. Answer: not strictly (OpenSpec + agent cover planning/review); the useful pieces for this project are `/office-hours` (once) and `/qa` (drives a real browser) later. The user kept it for other projects. Impeccable not installed.
+
+**Explore + `/office-hours` (builder mode, goal: class demo):**
+- GitHub Pages hosts static files only; GitHub's search API allows browser calls (`Access-Control-Allow-Origin: *`; `Retry-After` and `X-RateLimit-*` exposed). Verified live.
+- Ideas: the "heartbeat strip" (every repo a dot on a last-push axis, size = stars, shade = bucket) was chosen as the hero. Topic-vs-topic is a later "could".
+- First direction (classmates on phones → prebaked JSON via a nightly GitHub Action + live box) was **dropped** when the user checked the assignment: the demo is screenshots.
+- **Decision (user, D2): a static HTML+JS page in `site/`, run on localhost (`python -m http.server`), Pages-ready later; tokenless on the web; the CLI keeps its token.** Rejected: a Flask/FastAPI app (GitHub Pages can't run Python, so publishing later would mean a rewrite).
+- Wireframe approved (title, search, verdict, heartbeat strip, table + CSV, state messages). It was first "approved" without the user seeing it (the image only rendered on the agent's side), so it was opened in their browser and re-confirmed.
+- An independent second-opinion subagent flagged: the course org repo may not allow Pages/Actions; JS/Python rule drift (needs one shared test fixture); explain "Last Push" on the page. Rejected its "hollow dots for unreliable pushed_at" idea (the HW4 spike gives a rate, not which repos).
+- gstack's adversarial spec review: round 1 = 7/10 with 5 blocking (dropped `incomplete_results`; only one rate-limit kind; linear time axis would shrink the 90-day zone to ~2%; CDN failure; Pages can't serve `site/` via the settings switch). All fixed (piecewise axis by bucket, vendored Plot+d3, CLI's rate-limit rule, incomplete warning + cache flag, publish via `docs/` move or a Pages workflow). Round 2 = PASS, 8/10, 10 minor points left for the OpenSpec tasks.
+- Design doc **APPROVED**: `docs/designs/reposcout-website.md`.
+
+**Next step:** `/opsx:propose` (includes the README §1 rewrite for HW8).
