@@ -75,6 +75,7 @@ An independent Claude subagent (Codex not installed), given a structured summary
 - Python and JavaScript rule tests pass against the same fixture; the existing 119 Python tests still pass.
 - Three clean screenshots exist for the slides (strip with an alive topic, strip with a graveyard topic, the table/CSV).
 - README section 1 describes the website demo (HW8).
+- *(Amendment 2026-10-25, user decision, priority "should")* The page is usable at phone width: the layout stacks vertically on narrow screens, the table scrolls sideways or hides less important columns (Language, Last Push), and the strip gets more height so the dots stay readable. Checked at a phone viewport (gstack `/qa` or the browser's device mode).
 
 ## Distribution Plan
 
