@@ -1,0 +1,613 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-26T13:00:33+00:00",
+  "title": "Design System: RepoScout",
+  "extensions": {
+    "colorMeta": {
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "#fdfafa",
+        "tonalRamp": [
+          "oklch(15% 0.002 17)",
+          "oklch(25% 0.002 17)",
+          "oklch(35% 0.002 17)",
+          "oklch(45% 0.003 17)",
+          "oklch(55% 0.003 17)",
+          "oklch(68% 0.003 17)",
+          "oklch(82% 0.002 17)",
+          "oklch(95% 0.002 17)"
+        ]
+      },
+      "sheet": {
+        "role": "neutral",
+        "displayName": "Sheet",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "oklch(15% 0.000 90)",
+          "oklch(25% 0.000 90)",
+          "oklch(35% 0.000 90)",
+          "oklch(45% 0.000 90)",
+          "oklch(55% 0.000 90)",
+          "oklch(68% 0.000 90)",
+          "oklch(82% 0.000 90)",
+          "oklch(95% 0.000 90)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#24161a",
+        "tonalRamp": [
+          "oklch(15% 0.013 1)",
+          "oklch(25% 0.016 1)",
+          "oklch(35% 0.018 1)",
+          "oklch(45% 0.021 1)",
+          "oklch(55% 0.024 1)",
+          "oklch(68% 0.020 1)",
+          "oklch(82% 0.017 1)",
+          "oklch(95% 0.013 1)"
+        ]
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "Soft Ink",
+        "canonical": "#6a5357",
+        "tonalRamp": [
+          "oklch(15% 0.017 7)",
+          "oklch(25% 0.021 7)",
+          "oklch(35% 0.024 7)",
+          "oklch(45% 0.028 7)",
+          "oklch(55% 0.031 7)",
+          "oklch(68% 0.027 7)",
+          "oklch(82% 0.022 7)",
+          "oklch(95% 0.017 7)"
+        ]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "#ecdcdc",
+        "tonalRamp": [
+          "oklch(15% 0.010 17)",
+          "oklch(25% 0.012 17)",
+          "oklch(35% 0.014 17)",
+          "oklch(45% 0.016 17)",
+          "oklch(55% 0.018 17)",
+          "oklch(68% 0.015 17)",
+          "oklch(82% 0.012 17)",
+          "oklch(95% 0.010 17)"
+        ]
+      },
+      "band": {
+        "role": "primary",
+        "displayName": "Oxblood Ink",
+        "canonical": "#3a0d17",
+        "tonalRamp": [
+          "oklch(15% 0.039 11)",
+          "oklch(25% 0.047 11)",
+          "oklch(35% 0.055 11)",
+          "oklch(45% 0.063 11)",
+          "oklch(55% 0.071 11)",
+          "oklch(68% 0.061 11)",
+          "oklch(82% 0.050 11)",
+          "oklch(95% 0.039 11)"
+        ]
+      },
+      "band-text": {
+        "role": "neutral",
+        "displayName": "Band Text",
+        "canonical": "#fbeef0",
+        "tonalRamp": [
+          "oklch(15% 0.008 7)",
+          "oklch(25% 0.010 7)",
+          "oklch(35% 0.011 7)",
+          "oklch(45% 0.013 7)",
+          "oklch(55% 0.014 7)",
+          "oklch(68% 0.012 7)",
+          "oklch(82% 0.010 7)",
+          "oklch(95% 0.008 7)"
+        ]
+      },
+      "band-soft": {
+        "role": "neutral",
+        "displayName": "Band Soft",
+        "canonical": "#e3bfc5",
+        "tonalRamp": [
+          "oklch(15% 0.023 7)",
+          "oklch(25% 0.028 7)",
+          "oklch(35% 0.033 7)",
+          "oklch(45% 0.037 7)",
+          "oklch(55% 0.042 7)",
+          "oklch(68% 0.036 7)",
+          "oklch(82% 0.029 7)",
+          "oklch(95% 0.023 7)"
+        ]
+      },
+      "grid-minor": {
+        "role": "neutral",
+        "displayName": "Grid Minor",
+        "canonical": "#f1cdd2",
+        "tonalRamp": [
+          "oklch(15% 0.023 9)",
+          "oklch(25% 0.027 9)",
+          "oklch(35% 0.032 9)",
+          "oklch(45% 0.036 9)",
+          "oklch(55% 0.041 9)",
+          "oklch(68% 0.035 9)",
+          "oklch(82% 0.029 9)",
+          "oklch(95% 0.023 9)"
+        ]
+      },
+      "grid-major": {
+        "role": "neutral",
+        "displayName": "Grid Major",
+        "canonical": "#e09aa6",
+        "tonalRamp": [
+          "oklch(15% 0.047 8)",
+          "oklch(25% 0.057 8)",
+          "oklch(35% 0.066 8)",
+          "oklch(45% 0.076 8)",
+          "oklch(55% 0.085 8)",
+          "oklch(68% 0.073 8)",
+          "oklch(82% 0.060 8)",
+          "oklch(95% 0.047 8)"
+        ]
+      },
+      "zone-rule": {
+        "role": "neutral",
+        "displayName": "Zone Divider",
+        "canonical": "#c98591",
+        "tonalRamp": [
+          "oklch(15% 0.047 8)",
+          "oklch(25% 0.057 8)",
+          "oklch(35% 0.066 8)",
+          "oklch(45% 0.075 8)",
+          "oklch(55% 0.085 8)",
+          "oklch(68% 0.073 8)",
+          "oklch(82% 0.059 8)",
+          "oklch(95% 0.047 8)"
+        ]
+      },
+      "printout": {
+        "role": "neutral",
+        "displayName": "Printout Ink",
+        "canonical": "#9a5562",
+        "tonalRamp": [
+          "oklch(15% 0.051 9)",
+          "oklch(25% 0.061 9)",
+          "oklch(35% 0.072 9)",
+          "oklch(45% 0.082 9)",
+          "oklch(55% 0.092 9)",
+          "oklch(68% 0.079 9)",
+          "oklch(82% 0.065 9)",
+          "oklch(95% 0.051 9)"
+        ]
+      },
+      "active": {
+        "role": "primary",
+        "displayName": "Trace Red",
+        "canonical": "#b3122e",
+        "tonalRamp": [
+          "oklch(15% 0.105 21)",
+          "oklch(25% 0.126 21)",
+          "oklch(35% 0.147 21)",
+          "oklch(45% 0.168 21)",
+          "oklch(55% 0.189 21)",
+          "oklch(68% 0.161 21)",
+          "oklch(82% 0.132 21)",
+          "oklch(95% 0.105 21)"
+        ]
+      },
+      "active-hover": {
+        "role": "primary",
+        "displayName": "Pulse Red",
+        "canonical": "#cf1a39",
+        "tonalRamp": [
+          "oklch(15% 0.111 20)",
+          "oklch(25% 0.133 20)",
+          "oklch(35% 0.156 20)",
+          "oklch(45% 0.178 20)",
+          "oklch(55% 0.200 20)",
+          "oklch(68% 0.171 20)",
+          "oklch(82% 0.140 20)",
+          "oklch(95% 0.111 20)"
+        ]
+      },
+      "slowing": {
+        "role": "secondary",
+        "displayName": "Chart Amber",
+        "canonical": "#a35f00",
+        "tonalRamp": [
+          "oklch(15% 0.069 64)",
+          "oklch(25% 0.083 64)",
+          "oklch(35% 0.097 64)",
+          "oklch(45% 0.111 64)",
+          "oklch(55% 0.125 64)",
+          "oklch(68% 0.107 64)",
+          "oklch(82% 0.087 64)",
+          "oklch(95% 0.069 64)"
+        ]
+      },
+      "stale": {
+        "role": "secondary",
+        "displayName": "Flatline Grey",
+        "canonical": "#666b72",
+        "tonalRamp": [
+          "oklch(15% 0.007 257)",
+          "oklch(25% 0.008 257)",
+          "oklch(35% 0.010 257)",
+          "oklch(45% 0.011 257)",
+          "oklch(55% 0.013 257)",
+          "oklch(68% 0.011 257)",
+          "oklch(82% 0.009 257)",
+          "oklch(95% 0.007 257)"
+        ]
+      },
+      "active-dot": {
+        "role": "secondary",
+        "displayName": "Active Dot",
+        "canonical": "#c8193a",
+        "tonalRamp": [
+          "oklch(15% 0.111 19)",
+          "oklch(25% 0.133 19)",
+          "oklch(35% 0.156 19)",
+          "oklch(45% 0.178 19)",
+          "oklch(55% 0.200 19)",
+          "oklch(68% 0.171 19)",
+          "oklch(82% 0.140 19)",
+          "oklch(95% 0.111 19)"
+        ]
+      },
+      "slowing-dot": {
+        "role": "secondary",
+        "displayName": "Slowing Dot",
+        "canonical": "#d48a14",
+        "tonalRamp": [
+          "oklch(15% 0.081 71)",
+          "oklch(25% 0.097 71)",
+          "oklch(35% 0.113 71)",
+          "oklch(45% 0.129 71)",
+          "oklch(55% 0.145 71)",
+          "oklch(68% 0.124 71)",
+          "oklch(82% 0.102 71)",
+          "oklch(95% 0.081 71)"
+        ]
+      },
+      "stale-dot": {
+        "role": "secondary",
+        "displayName": "Stale Dot",
+        "canonical": "#9a9ea5",
+        "tonalRamp": [
+          "oklch(15% 0.006 262)",
+          "oklch(25% 0.007 262)",
+          "oklch(35% 0.009 262)",
+          "oklch(45% 0.010 262)",
+          "oklch(55% 0.011 262)",
+          "oklch(68% 0.010 262)",
+          "oklch(82% 0.008 262)",
+          "oklch(95% 0.006 262)"
+        ]
+      },
+      "active-label": {
+        "role": "secondary",
+        "displayName": "Active Zone Ink",
+        "canonical": "#a3102a",
+        "tonalRamp": [
+          "oklch(15% 0.098 21)",
+          "oklch(25% 0.117 21)",
+          "oklch(35% 0.137 21)",
+          "oklch(45% 0.156 21)",
+          "oklch(55% 0.176 21)",
+          "oklch(68% 0.150 21)",
+          "oklch(82% 0.123 21)",
+          "oklch(95% 0.098 21)"
+        ]
+      },
+      "slowing-label": {
+        "role": "secondary",
+        "displayName": "Slowing Zone Ink",
+        "canonical": "#8a5000",
+        "tonalRamp": [
+          "oklch(15% 0.061 64)",
+          "oklch(25% 0.073 64)",
+          "oklch(35% 0.086 64)",
+          "oklch(45% 0.098 64)",
+          "oklch(55% 0.110 64)",
+          "oklch(68% 0.094 64)",
+          "oklch(82% 0.077 64)",
+          "oklch(95% 0.061 64)"
+        ]
+      },
+      "stale-label": {
+        "role": "secondary",
+        "displayName": "Stale Zone Ink",
+        "canonical": "#4f5359",
+        "tonalRamp": [
+          "oklch(15% 0.006 258)",
+          "oklch(25% 0.007 258)",
+          "oklch(35% 0.009 258)",
+          "oklch(45% 0.010 258)",
+          "oklch(55% 0.011 258)",
+          "oklch(68% 0.009 258)",
+          "oklch(82% 0.008 258)",
+          "oklch(95% 0.006 258)"
+        ]
+      },
+      "tint": {
+        "role": "neutral",
+        "displayName": "Row Tint",
+        "canonical": "#fdf1f3",
+        "tonalRamp": [
+          "oklch(15% 0.006 10)",
+          "oklch(25% 0.007 10)",
+          "oklch(35% 0.008 10)",
+          "oklch(45% 0.010 10)",
+          "oklch(55% 0.011 10)",
+          "oklch(68% 0.009 10)",
+          "oklch(82% 0.008 10)",
+          "oklch(95% 0.006 10)"
+        ]
+      },
+      "head-bg": {
+        "role": "neutral",
+        "displayName": "Head Tint",
+        "canonical": "#fbf4f4",
+        "tonalRamp": [
+          "oklch(15% 0.004 17)",
+          "oklch(25% 0.005 17)",
+          "oklch(35% 0.006 17)",
+          "oklch(45% 0.007 17)",
+          "oklch(55% 0.008 17)",
+          "oklch(68% 0.006 17)",
+          "oklch(82% 0.005 17)",
+          "oklch(95% 0.004 17)"
+        ]
+      },
+      "warning-bg": {
+        "role": "neutral",
+        "displayName": "Warning Cream",
+        "canonical": "#fff3d9",
+        "tonalRamp": [
+          "oklch(15% 0.020 86)",
+          "oklch(25% 0.024 86)",
+          "oklch(35% 0.028 86)",
+          "oklch(45% 0.032 86)",
+          "oklch(55% 0.036 86)",
+          "oklch(68% 0.031 86)",
+          "oklch(82% 0.025 86)",
+          "oklch(95% 0.020 86)"
+        ]
+      },
+      "warning-ink": {
+        "role": "neutral",
+        "displayName": "Warning Ink",
+        "canonical": "#5c3a00",
+        "tonalRamp": [
+          "oklch(15% 0.045 73)",
+          "oklch(25% 0.054 73)",
+          "oklch(35% 0.063 73)",
+          "oklch(45% 0.072 73)",
+          "oklch(55% 0.081 73)",
+          "oklch(68% 0.069 73)",
+          "oklch(82% 0.057 73)",
+          "oklch(95% 0.045 73)"
+        ]
+      },
+      "error-ink": {
+        "role": "neutral",
+        "displayName": "Error Ink",
+        "canonical": "#8f0f26",
+        "tonalRamp": [
+          "oklch(15% 0.088 20)",
+          "oklch(25% 0.106 20)",
+          "oklch(35% 0.123 20)",
+          "oklch(45% 0.141 20)",
+          "oklch(55% 0.158 20)",
+          "oklch(68% 0.135 20)",
+          "oklch(82% 0.111 20)",
+          "oklch(95% 0.088 20)"
+        ]
+      },
+      "error-rule": {
+        "role": "neutral",
+        "displayName": "Error Rule",
+        "canonical": "#e7b3bd",
+        "tonalRamp": [
+          "oklch(15% 0.034 6)",
+          "oklch(25% 0.041 6)",
+          "oklch(35% 0.048 6)",
+          "oklch(45% 0.055 6)",
+          "oklch(55% 0.062 6)",
+          "oklch(68% 0.053 6)",
+          "oklch(82% 0.043 6)",
+          "oklch(95% 0.034 6)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "RepoScout title on the band."
+      },
+      "headline": {
+        "displayName": "Verdict Headline",
+        "purpose": "The CLI verdict sentence, the page's answer."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Table heading."
+      },
+      "body-large": {
+        "displayName": "Body Large",
+        "purpose": "Promise, input, Scout, idle caption, verdict tail."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Default text and table cells."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Table header cells."
+      },
+      "printout": {
+        "displayName": "Printout",
+        "purpose": "Margin line under the strip."
+      },
+      "zone-label": {
+        "displayName": "Zone Label",
+        "purpose": "Fixed-size zone counts above the strip (13px narrow)."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "loading-dim",
+        "value": "opacity 150ms ease-out",
+        "purpose": "Previous results dim to 45% while a search runs."
+      },
+      {
+        "name": "linked-highlight",
+        "value": "opacity 120ms ease-out",
+        "purpose": "Other dots dim to 18% when a table row is hovered or focused. Disabled under prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "phone",
+        "value": "600px"
+      },
+      {
+        "name": "narrow-chart",
+        "value": "520px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Scout Button",
+      "kind": "button",
+      "refersTo": "button-scout",
+      "description": "The one primary action, trace red on the oxblood band.",
+      "html": "<div class=\"ds-band\"><button class=\"ds-scout\">Scout</button></div>",
+      "css": ":host{--paper:#fdfafa;--sheet:#fff;--ink:#24161a;--ink-soft:#6a5357;--rule:#ecdcdc;--band:#3a0d17;--band-text:#fbeef0;--band-soft:#e3bfc5;--active:#b3122e;--slowing:#a35f00;--stale:#666b72;--focus:#b3122e} .ds-band{background:var(--band);padding:20px} .ds-scout{font-family:Archivo,system-ui,sans-serif;padding:13px 26px;border:0;border-radius:6px;background:var(--active);color:#fff;font-weight:700;font-stretch:87%;font-size:1.05rem;letter-spacing:.01em;cursor:pointer} .ds-scout:hover{background:#cf1a39} .ds-scout:focus-visible{outline:2px solid var(--band-text);outline-offset:2px}"
+    },
+    {
+      "name": "Search Input",
+      "kind": "input",
+      "refersTo": "input-search",
+      "description": "Borderless white field on the band with a trace-red caret.",
+      "html": "<div class=\"ds-band\"><input class=\"ds-input\" type=\"search\" placeholder=\"e.g. expense tracker\"></div>",
+      "css": ":host{--paper:#fdfafa;--sheet:#fff;--ink:#24161a;--ink-soft:#6a5357;--rule:#ecdcdc;--band:#3a0d17;--band-text:#fbeef0;--band-soft:#e3bfc5;--active:#b3122e;--slowing:#a35f00;--stale:#666b72;--focus:#b3122e} .ds-band{background:var(--band);padding:20px} .ds-input{font-family:Archivo,system-ui,sans-serif;width:100%;box-sizing:border-box;padding:13px 16px;border:1px solid transparent;border-radius:6px;font-size:1.05rem;color:var(--ink);background:#fff;caret-color:var(--active)} .ds-input::placeholder{color:#7d6a6e} .ds-input:focus-visible{outline:2px solid var(--band-text);outline-offset:2px}"
+    },
+    {
+      "name": "Example Topic Chip",
+      "kind": "chip",
+      "refersTo": "chip-topic",
+      "description": "Ghost chip on the band; fills the input and searches.",
+      "html": "<div class=\"ds-band\"><span class=\"ds-try\">Try</span> <button class=\"ds-topic\">expense tracker</button> <button class=\"ds-topic\">monitoring</button></div>",
+      "css": ":host{--paper:#fdfafa;--sheet:#fff;--ink:#24161a;--ink-soft:#6a5357;--rule:#ecdcdc;--band:#3a0d17;--band-text:#fbeef0;--band-soft:#e3bfc5;--active:#b3122e;--slowing:#a35f00;--stale:#666b72;--focus:#b3122e} .ds-band{background:var(--band);padding:20px;font-family:Archivo,system-ui,sans-serif;} .ds-try{color:var(--band-soft);font-size:.9rem} .ds-topic{font-family:Archivo,system-ui,sans-serif;padding:5px 12px;border:1px solid rgba(251,238,240,.35);border-radius:6px;background:transparent;color:var(--band-text);font-size:.9rem;cursor:pointer} .ds-topic:hover{background:rgba(251,238,240,.12);border-color:rgba(251,238,240,.6)} .ds-topic:focus-visible{outline:2px solid var(--band-text);outline-offset:2px}"
+    },
+    {
+      "name": "Download CSV Button",
+      "kind": "button",
+      "refersTo": "button-csv",
+      "description": "Secondary action: trace-red outline on white.",
+      "html": "<button class=\"ds-csv\">Download CSV</button>",
+      "css": ":host{--paper:#fdfafa;--sheet:#fff;--ink:#24161a;--ink-soft:#6a5357;--rule:#ecdcdc;--band:#3a0d17;--band-text:#fbeef0;--band-soft:#e3bfc5;--active:#b3122e;--slowing:#a35f00;--stale:#666b72;--focus:#b3122e} .ds-csv{font-family:Archivo,system-ui,sans-serif;padding:9px 16px;border:1px solid var(--active);border-radius:6px;background:#fff;color:var(--active);font-weight:650;font-size:1rem;cursor:pointer} .ds-csv:hover{background:#fdf0f2} .ds-csv:focus-visible{outline:2px solid var(--focus);outline-offset:2px}"
+    },
+    {
+      "name": "Verdict Headline",
+      "kind": "custom",
+      "refersTo": "",
+      "description": "The CLI's verdict sentence as a condensed headline; active count in trace red, tail on its own quieter line.",
+      "html": "<p class=\"ds-verdict\">Showing the 50 best-matching of 177,363 repos, <span class=\"ds-count\">37 active</span> among them<span class=\"ds-tail\"> — most recent entrant pushed 36 minutes ago</span></p>",
+      "css": ":host{--paper:#fdfafa;--sheet:#fff;--ink:#24161a;--ink-soft:#6a5357;--rule:#ecdcdc;--band:#3a0d17;--band-text:#fbeef0;--band-soft:#e3bfc5;--active:#b3122e;--slowing:#a35f00;--stale:#666b72;--focus:#b3122e} .ds-verdict{font-family:Archivo,system-ui,sans-serif;font-stretch:80%;font-size:2.4rem;font-weight:750;line-height:1.08;letter-spacing:-.01em;color:var(--ink);max-width:32ch;margin:0} .ds-count{color:var(--active);white-space:nowrap} .ds-tail{display:block;margin-top:10px;font-stretch:100%;font-size:1.05rem;font-weight:500;letter-spacing:0;color:var(--ink-soft)}"
+    },
+    {
+      "name": "Heartbeat Strip with Trace Lane",
+      "kind": "custom",
+      "refersTo": "",
+      "description": "Chart paper with zone dividers, bucket dots, and an oxblood trace with a calibration pulse; then the printout line.",
+      "html": "<figure class=\"ds-strip\"><svg viewBox=\"0 0 600 200\" width=\"100%\"><defs><pattern id=\"ds-g\" width=\"25\" height=\"25\" patternUnits=\"userSpaceOnUse\"><rect width=\"25\" height=\"25\" fill=\"#fff\"/><path d=\"M5 0V25M10 0V25M15 0V25M20 0V25M0 5H25M0 10H25M0 15H25M0 20H25\" stroke=\"#f1cdd2\"/><path d=\"M0 0V25M0 0H25\" stroke=\"#e09aa6\"/></pattern></defs><rect width=\"600\" height=\"200\" fill=\"url(#ds-g)\"/><line x1=\"200\" y1=\"0\" x2=\"200\" y2=\"200\" stroke=\"#c98591\"/><line x1=\"400\" y1=\"0\" x2=\"400\" y2=\"200\" stroke=\"#c98591\"/><circle cx=\"60\" cy=\"60\" r=\"7\" fill=\"#9a9ea5\" fill-opacity=\".85\" stroke=\"#fff\"/><circle cx=\"300\" cy=\"90\" r=\"9\" fill=\"#d48a14\" fill-opacity=\".85\" stroke=\"#fff\"/><circle cx=\"560\" cy=\"50\" r=\"12\" fill=\"#c8193a\" fill-opacity=\".85\" stroke=\"#fff\"/><circle cx=\"530\" cy=\"110\" r=\"6\" fill=\"#c8193a\" fill-opacity=\".85\" stroke=\"#fff\"/><polyline fill=\"none\" stroke=\"#3a0d17\" stroke-width=\"1.6\" stroke-linejoin=\"round\" points=\"0,170 4,170 4,150 18,150 18,170 56,170 58,174 60,158 62,176 64,170 296,170 298,175 300,150 302,177 304,170 526,170 528,174 530,155 532,176 534,170 556,170 558,175 560,140 562,177 564,170 600,170\"/></svg><p class=\"ds-printout\">GitHub search · 50 of 177,363 repos · fetched 13:31</p></figure>",
+      "css": ":host{--paper:#fdfafa;--sheet:#fff;--ink:#24161a;--ink-soft:#6a5357;--rule:#ecdcdc;--band:#3a0d17;--band-text:#fbeef0;--band-soft:#e3bfc5;--active:#b3122e;--slowing:#a35f00;--stale:#666b72;--focus:#b3122e} .ds-strip{margin:0;font-family:Archivo,system-ui,sans-serif;} .ds-printout{margin:2px 0 0;font-size:.82rem;font-stretch:87%;font-variant-numeric:tabular-nums;letter-spacing:.01em;color:#9a5562}"
+    },
+    {
+      "name": "Results Table Rows",
+      "kind": "custom",
+      "refersTo": "table-head-cell",
+      "description": "Dense hairline table; state restyles ink inside the same grid.",
+      "html": "<div class=\"ds-tw\"><table class=\"ds-t\"><thead><tr><th class=\"n\">#</th><th>Repository</th><th class=\"n\">Stars</th><th>Bucket</th></tr></thead><tbody><tr class=\"a\"><td class=\"n\">1</td><td>punkpeye/awesome-mcp-servers</td><td class=\"n\">96884</td><td><span class=\"b ba\">active</span></td></tr><tr><td class=\"n\">8</td><td>hangwin/mcp-chrome</td><td class=\"n\">12510</td><td><span class=\"b bs\">slowing</span></td></tr><tr class=\"s\"><td class=\"n\">17</td><td>BrowserMCP/mcp</td><td class=\"n\">7224</td><td><span class=\"b bz\">stale</span></td></tr></tbody></table></div>",
+      "css": ":host{--paper:#fdfafa;--sheet:#fff;--ink:#24161a;--ink-soft:#6a5357;--rule:#ecdcdc;--band:#3a0d17;--band-text:#fbeef0;--band-soft:#e3bfc5;--active:#b3122e;--slowing:#a35f00;--stale:#666b72;--focus:#b3122e} .ds-tw{background:#fff;border:1px solid var(--rule);border-radius:8px;overflow-x:auto} .ds-t{width:100%;border-collapse:collapse;font-size:.93rem;font-family:Archivo,system-ui,sans-serif;color:var(--ink)} .ds-t th,.ds-t td{padding:6px 12px;text-align:left;border-bottom:1px solid var(--rule);white-space:nowrap} .ds-t th{font-stretch:85%;font-weight:650;font-size:.85rem;color:var(--ink-soft);background:#fbf4f4} .ds-t th:first-child,.ds-t td:first-child{padding-left:22px;position:relative} .ds-t .n{text-align:right;font-variant-numeric:tabular-nums} .ds-t tbody tr:last-child td{border-bottom:0} .ds-t tbody tr:hover td{background:#fdf3f4} .ds-t tr.a td:first-child::before{content:\"\";position:absolute;left:9px;top:50%;width:6px;height:6px;margin-top:-3px;border-radius:1px;background:var(--active)} .ds-t tr.s td:nth-child(-n+2){color:var(--ink-soft)} .b{font-size:.88rem;font-weight:700;font-stretch:87%} .ba{color:var(--active)} .bs{color:var(--slowing)} .bz{color:var(--stale);font-weight:600}"
+    },
+    {
+      "name": "Status and Notices",
+      "kind": "custom",
+      "refersTo": "status-error",
+      "description": "Loading line, error box, and incomplete-results warning.",
+      "html": "<p class=\"ds-load\">Scouting GitHub…</p><p class=\"ds-err\">Could not reach GitHub. Check your internet connection and try again.</p><p class=\"ds-warn\">GitHub's search timed out before it finished, so these results may be incomplete.</p>",
+      "css": ":host{--paper:#fdfafa;--sheet:#fff;--ink:#24161a;--ink-soft:#6a5357;--rule:#ecdcdc;--band:#3a0d17;--band-text:#fbeef0;--band-soft:#e3bfc5;--active:#b3122e;--slowing:#a35f00;--stale:#666b72;--focus:#b3122e} p{font-family:Archivo,system-ui,sans-serif;margin:0 0 12px} .ds-load{font-size:1.15rem;font-weight:600;color:var(--active)} .ds-err{padding:12px 16px;border:1px solid #e7b3bd;border-radius:6px;background:#fff;color:#8f0f26} .ds-warn{padding:12px 16px;border-radius:6px;background:#fff3d9;color:#5c3a00}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The ECG Printout",
+    "overview": "A topic on GitHub is read the way a clinician reads a strip: near-white paper, a pink millimetre grid inside the chart, and one dark trace that runs flat and spikes where something moved. An oxblood ink band at the top holds the title and the search, like the printed header of a recording. Below it, everything is paper: the verdict set as a condensed headline, the strip itself, the line printed on the sheet's margin saying where the data came from, and a dense, hairline-ruled table.\n\nThe system is flat, dense and honest. Colour carries meaning only: trace red is active (and the one action), amber is slowing, flatline grey is stale. One vendored variable family (Archivo) does every job, and its width axis, not a second typeface, carries the hierarchy. The page answers first; the chart is supporting evidence, and the verdict and table survive without it.\n\nIt refuses the grey-card dashboard with a blue button: no cards around the chart, no shadows, no GitHub blue, no system fonts as display.",
+    "keyCharacteristics": [
+      "Paper ground, oxblood header band, pink grid only on the chart sheet.",
+      "Three bucket inks (red, amber, grey) used for meaning, never for decoration.",
+      "One family, Archivo, with condensed widths for headline, labels and numbers.",
+      "Hairline rules and tonal tints instead of shadows or containers.",
+      "Tabular numerals wherever numbers stack.",
+      "A trace lane with a calibration pulse: the signature that turns a scatter into a heartbeat."
+    ],
+    "rules": [
+      {
+        "name": "The Instrument Ink Rule",
+        "body": "Red, amber and grey mean active, slowing and stale. Red additionally marks the one primary action and focus. No colour is applied for decoration.",
+        "section": "colors"
+      },
+      {
+        "name": "The Grid Belongs To The Sheet Rule",
+        "body": "The pink millimetre grid appears only on chart paper (the results strip and the blank start sheet). The page ground stays plain paper.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Family Rule",
+        "body": "Archivo is the only typeface. New hierarchy comes from width (75 / 80 / 85–87 / 100%) and weight, not from a second family.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular Numbers Rule",
+        "body": "Stars, ranks, dates and the printout use tabular numerals so columns align.",
+        "section": "typography"
+      },
+      {
+        "name": "The Fixed Label Rule",
+        "body": "Chart labels keep fixed pixel sizes (like a rail map), changing only at the narrow breakpoint; they never scale with the chart.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Printout Rule",
+        "body": "Nothing floats. State is shown with tint, ink and opacity (a lit row tints, a lit dot gets an ink ring, loading dims results to 45%), never with lift or shadow.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** keep the verdict text exactly as the CLI words it (`formatVerdict` in `rules.js`, checked by the shared fixture). Styling may split it into spans, but the element's text content must equal the CLI sentence.",
+      "**Do** insert every GitHub-supplied string (repo names, languages, error messages) and the keyword as plain text (`textContent` or text nodes), never as HTML.",
+      "**Do** keep the page static: plain HTML/CSS/JS, vendored pinned assets (d3 7.9.0, Observable Plot 0.6.17, Archivo woff2), no CDN, no build step.",
+      "**Do** render the verdict and table before the chart, and show the chart-unavailable note if the chart fails.",
+      "**Do** use bucket inks only for bucket meaning, and use the darkened zone inks for labels on the grid.",
+      "**Do** keep chart labels at fixed pixel sizes and spike shapes in screen pixels.",
+      "**Do** keep the page usable at 360 px with no sideways page scroll."
+    ],
+    "donts": [
+      "**Don't** wrap the strip in a card, add a shadow, or tint the zones; the sheet itself is the chart.",
+      "**Don't** draw the pink grid outside chart paper.",
+      "**Don't** introduce a second typeface or a system display face; use Archivo's width axis.",
+      "**Don't** render buckets as filled pills; the bucket is a coloured word.",
+      "**Don't** change a row's layout to show its state; change its ink.",
+      "**Don't** reword \"Last Push\", \"best-matching\", or the bucket names \"active / slowing / stale\"."
+    ]
+  }
+}
