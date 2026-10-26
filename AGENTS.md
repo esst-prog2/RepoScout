@@ -616,3 +616,11 @@ The user skipped gstack's `/plan-eng-review` (rejected the target prompt) and ra
 **Live (gstack's browser can reach GitHub from the sandbox):** "expense tracker" → 50 of 245015, 4 active; graveyard keyword **"angularjs directive"** (0 active, 48 stale); alive keyword **"mcp server"** (37 active, pushed minutes ago). Three demo screenshots in `docs/screenshots/`. README §1 (HW8) rewritten for the website; USER_MANUAL gets a "Website" section. Branch `website-ui` pushed (HW7 checkpoint).
 
 **Remaining:** 1.3 (user's own live walk-through in their browser) and 8.2 (gstack `/qa` pass).
+
+## 2026-10-26 — Task 1.3 passed (user's own browser) + table overflow fix
+
+The user ran the page in their own browser on Windows (`cd site`, `python -m http.server`, http://localhost:8000): "expense tracker" → `Showing the 50 best-matching of 245188 repos, 4 active among them — most recent entrant pushed 1 day ago`; heartbeat chart appears; 50 table rows; CSV download works. Task 1.3 done (23/24).
+
+**User-found issue:** for some searches (e.g. "project management software") the table got a horizontal scrollbar and Language/Bucket were off-screen. Cause: every cell was `white-space: nowrap`, so one very long repo name (~120 characters) stretched the whole table. Fix: the Repository column (`td.repo`) may wrap (`overflow-wrap: anywhere`, `min-width: 10rem`). Re-checked live at 1280 px: no sideways scroll, long name wraps. Tests unchanged and passing.
+
+**Remaining:** 8.2 (gstack `/qa` pass).

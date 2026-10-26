@@ -126,6 +126,7 @@ function renderTable(ranked) {
         td.textContent = String(value); // GitHub text always goes in as plain text
       }
       if (name === "#" || name === "Stars") td.classList.add("num");
+      if (name === "Repository") td.classList.add("repo");
       if (OPTIONAL_COLUMNS.has(name)) td.classList.add("optional");
       tr.append(td);
     });
