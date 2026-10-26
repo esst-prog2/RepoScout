@@ -632,3 +632,103 @@ The user reported the long-name wrap fix wasn't visible yet in their browser; mo
 Compared gstack `/qa` (finds functional bugs) with Impeccable (design polish). The functional checks were already done (every state, race, cache, phone width, live data, plus the user's own run), and the demo is screenshots, so **decision (user): replace task 8.2 with an Impeccable design pass** (install, `critique` then `polish` on `site/` at desktop and 360 px, keep every spec scenario true, re-run both test suites). Task 8.3 reopened: the screenshots taken earlier (before polishing) will be retaken afterwards. Reverses the CEO review's R8 ("keep `/qa`"), by the user's explicit choice. `openspec validate --strict` passes. Progress: 22/24.
 
 **Next step:** the user sends Impeccable's install instructions; install, then run the pass.
+
+## 2026-10-26 (later) — Impeccable installed; screenshot keywords decided
+
+The user confirmed the wrap fix after a server restart. Installed Impeccable (skill v4.7.0, engine v0.1.16) **globally** for Claude Code only, like gstack (`npx impeccable install --providers=claude --global --no-hooks -y`), into `~/.claude/skills/impeccable/` plus 4 helper agents in `~/.claude/agents/`. Optional hooks skipped. Nothing added to the repo.
+
+**Screenshot keywords (user decision):** alive `mcp server`, graveyard `angularjs directive`, and for the table/CSV shot **`project management software`** instead of `expense tracker` (the search where the long-name overflow was found, and it shows the fix). README §1 keeps the `expense tracker` example and also mentions `project management software`, with the real numbers from the retaken screenshot. Noted in task 8.3.
+
+**Next step:** `/impeccable init`, then the design pass (8.2), then the screenshots (8.3) and the README addition.
+
+## 2026-10-26 (later) — `/impeccable init`: PRODUCT.md written
+
+Impeccable's init interview (3 questions). User answers: users = the demo audience (classmates, instructor; screenshot presentation) plus the author and a friend for real use; positioning = **fast GitHub search with export** (no sign-in); constraints = static/no build step, same rules as the CLI, works at phone width. Written to `PRODUCT.md` at the repo root (product facts only, no visual decisions; Impeccable reads it for later commands). No image generation on this machine, so no comp-first/code-first setting; live mode not configured (not needed for a critique/polish pass).
+
+**Next step:** `/impeccable critique site`, then `polish` (task 8.2).
+
+## 2026-10-26 (later) — `/impeccable critique site`: 25/40, polish plan chosen
+
+Dual-agent critique (design review + Impeccable detector/browser, run as two isolated subagents). Score **25/40 (Acceptable)**. Detector: markup clean; browser flagged the `active` pill contrast (white on `#2b8a3e`, 4.4:1 < 4.5:1) and 11 px chart zone labels. Priority issues: no focal point at presentation size (P1), repo names not links (P1), zero/error states look broken (P2), accessibility gaps (P2), phone names break mid-word (P2), bare start screen (P3). Snapshot in `.impeccable/critique/` (contains a local absolute path → to be gitignored).
+
+**User choices:** focus on presentation impact first, take on all 6 issues, and give the page **more character** (not just a sharper default look). Order: bolder → typeset + colorize (font vendored in `site/vendor/`, no CDN) → harden (links, live verdict) → clarify (empty/error states) → adapt (break names after `/`) → onboard (example topics) → polish, keeping every `web-ui` spec scenario true.
+
+**Example topic buttons (user decision):** `mcp server`, `project management software`, `expense tracker`, `monitoring` — popular, understandable topics; `angularjs directive` left out of the buttons because it isn't understandable to a general audience.
+
+**Publishing later (question answered):** the page is static with relative paths, vendored libraries and no token, so GitHub Pages needs no code changes: one small Actions workflow that publishes `site/` (or a `docs/` move) plus the repo's Pages setting. Open question: whether the course org (`esst-prog2`) allows Pages for this repo.
+
+**Correction (user):** `mcp server` replaced by **data visualization** in the example buttons → `data visualization`, `project management software`, `expense tracker`, `monitoring`. US spelling on purpose: GitHub doesn't treat the spellings as the same word (live check: "data visualization" 402,105 repos vs "data visualisation" 35,668). `mcp server` stays the alive-topic screenshot.
+
+## 2026-10-26 (later) — `/impeccable bolder site`: verdict as headline, louder heartbeat strip
+
+Scope: the results hero only (verdict + strip); nothing else restyled, no new font. Chose *not* to add the critique's "big 37/50 number" block: Impeccable's craft floor bans the hero-metric template, and the verdict sentence already holds the number.
+- **Verdict** (`renderVerdict()` in `site/app.js`): display headline (fluid 1.5–2.25rem, 700, balanced, max 30ch); the `<A> active` part is a coloured span (dark green, grey when 0); the "— most recent entrant…" tail is a quieter second line. Built from text nodes, so `textContent` is still exactly the CLI verdict (spec wording unchanged; checked live and in the harness).
+- **Strip:** 340 px tall (360 on phones, was 230/300); zone labels now carry counts in darkened bucket colours at 15/13 px, 650 weight (`48 stale · 1 year+`, `0 active · last 3 months`), fixing the detector's 11 px tiny-text finding; dot radius 3–16 px (was 2–11); axis text 13 px; wider left padding so the "5+ years" pile sits inside the frame.
+- Not possible within the spec: thousands separators in the verdict ("177363"), since its wording must match the CLI.
+Checked live at 1280 and 360 (`mcp server`, `angularjs directive`; no sideways scroll). 175 pytest + 63 node tests passing.
+
+## 2026-10-26 (later) — `/impeccable typeset + colorize site`: the ECG chart-paper world
+
+The user asked for "more character". Impeccable treats that as a new visual world: I listed seven candidate worlds from the audience's own world (library due-date card, IUCN Red List, ECG chart paper, football table + form guide, best-before labels, weather-warning map, herbarium sheet), Impeccable's `concept-seed` assigned #3 and dealt six catalogue challengers (two competitive, four declined, each declined one lending one discipline). Choice presented as text (no image generation → no picture page). **User chose: ECG chart paper.** Direction contract in `.impeccable/surfaces/site-index-html.md` (seed `57447f7b3f68e516`).
+
+**Built (code-led):**
+- Oxblood header band with title, search, red Scout button and the four example topic buttons (`data visualization`, `project management software`, `expense tracker`, `monitoring`); on phones they scroll on one row with an edge fade.
+- **Archivo** variable font, vendored in `site/vendor/fonts/` (latin + latin-ext woff2, OFL licence, `@fontsource-variable/archivo@5.2.8`): condensed widths for title, verdict and table headers, normal width for reading.
+- The strip is one sheet of ECG paper (5/25 px pink grid drawn as an SVG pattern), no card frame, no zone washes; **the trace** (signature move) runs along the bottom and spikes at each repo's last push (taller = more stars, sized in pixels), so a dead topic flatlines across the active zone; a square calibration pulse at its start; a printout line under it ("GitHub search · 50 of 3137 repos · fetched 13:31").
+- Colours by meaning: trace red = active, amber = slowing, flat grey = stale; table shows the bucket word in its ink (no pills), a red mark on active ranks, stale rows faded; numeric headers right-aligned; names break after "/" (`<wbr>` text nodes).
+- Hovering (or tabbing into) a table row lifts its dot in the chart and dims the rest. Loading dims earlier results (`aria-busy`). Start screen shows a blank sheet with a flat trace, no data.
+- Verdict `textContent` still exactly the CLI wording; GitHub text still plain text; harness markup synced with the page.
+
+**Review:** Impeccable's finish reviewer (2 rounds): round 1 asked for 8 fixes (one printed sheet, no card, calibration pulse + printout line, row states, idle start screen, name breaks, header alignment, loading state), all applied; round 2 found three small regressions (a number shown with and without separators, "37 active" splitting at 360, cut-off topic chip), fixed and checked. Detector: one advisory on the grid background, kept on purpose (it is the measurement surface). 175 pytest + 63 node tests passing. DESIGN.md written by Impeccable's documenter.
+
+**New open issue #8:** thousands separators ("177,363") in the verdict. The verdict must match the CLI word for word (spec + shared fixture), so this is a small separate OpenSpec change touching the CLI, the page and the fixture; the printout line deliberately prints numbers the same way as the verdict until then.
+
+## 2026-10-26 (later) — `/impeccable harden site`
+
+- **Repo names are links** (new tab, `rel="noopener noreferrer"`), still built from text nodes. A link is made only when GitHub's `html_url` is `https://` on exactly `github.com` (`isGitHubUrl()`); anything else (e.g. `javascript:…`, `github.com.evil.example`) stays plain text. Focusing a link also triggers the linked chart highlight.
+- **Screen readers hear the answer:** a visually hidden `aria-live` region (`#announce`) gets the verdict (plus the incomplete warning) after each render; before, they heard "Scouting GitHub…" and then nothing.
+- **Hanging requests time out after 20 s** (`AbortController`), showing "Could not reach GitHub: it didn't answer within 20 seconds…" (still the spec's "unreachable" state) instead of loading forever.
+- Harness: new cases `badurl` (unsafe URLs stay text: 0 links) and `hang` (timeout message after 20 s); the mock `fetch` now passes the request options (signal) through. Checked: 5 links with correct href/target/rel in `normal`, announcement text = verdict, no alert from the `<img onerror>` name. 175 pytest + 63 node tests passing.
+
+## 2026-10-26 (later) — `/impeccable clarify site`
+
+- **Zero results:** the verdict still says `0 repos found` (spec), followed by "No repositories on GitHub match “<keyword>”. Try fewer or more general words, or one of the example topics above."; the empty chart, table heading and table are hidden. Found on the way: `.table-head { display: flex }` overrode the `hidden` attribute → global `[hidden] { display: none !important; }`.
+- **Errors say what failed and what to do,** with a **Try again** button where a second attempt can help (offline, 20 s timeout, GitHub 5xx, unexpected response); not for rate limits (must wait) or 4xx (change the words). 5xx and other 4xx now get different messages, both still naming the HTTP status (spec). Rate limit: "Too many searches for now: GitHub allows 10 a minute without signing in. Search again after HH:MM:SS." (or "GitHub gave no reset time…"). Spec-required phrases kept ("Could not reach GitHub", "GitHub sent a response RepoScout doesn't understand", the HTTP status, "no reset time").
+- Loading names the search: "Scouting GitHub for “<keyword>”…"; empty input: "Type a topic first, for example “expense tracker”." Keyword always inserted as text.
+- Harness: new `error502` case; every state checked (message, retry button presence, retry makes a new request). 175 pytest + 63 node tests passing.
+
+## 2026-10-26 (later) — `/impeccable adapt site`
+
+- **Chart redraws when its width changes** (window resized, phone rotated): a `ResizeObserver` on `#chart`, debounced 150 ms, redraws with the same data and the same "now" (`shown.nowMs`), so labels, dot sizes and spikes always fit the real width. Checked by resizing one page 1280 → 700 → 320 → 740 → 768 → 1600: SVG width follows each time, no sideways page scroll at any width.
+- **Touch screens** (`pointer: coarse`): example topics and Try again at least 40 px tall; repo links get a taller tap area.
+- **Phone held sideways** (`max-height: 480px` landscape): compact header band, so the verdict stays in view under the search box (was: band took 258 of 360 px).
+- **Notched phones:** `viewport-fit=cover` + side padding `max(…, env(safe-area-inset-*))`.
+- Evidence: Chromium headless with emulated viewports (layout only); real touch and iOS Safari not tested. 175 pytest + 63 node tests passing.
+
+## 2026-10-26 (later) — `/impeccable polish site` + plan order
+
+- **One palette:** every colour literal left in `site/style.css` and in the chart code of `site/app.js` is now a named CSS token (`--tint`, `--head-bg`, `--placeholder`, `--selection`, `--error-rule`, `--printout`, `--grid-minor/major`, `--zone-rule`, `--active-hover`, `--*-label`); the chart reads them with `token()` (`getComputedStyle`), so page and chart can't drift apart. Two near-identical hover tints merged into `--tint`. DESIGN.md + `.impeccable/design.json` token names aligned with the CSS.
+- Re-checked: rendering unchanged at 1280 (alive search + table), visible focus ring on topic buttons, repo links and the CSV button, no console errors, detector only the intended grid-background advisory, 175 pytest + 63 node tests passing. The critique snapshot wasn't formally closed (Impeccable sees the page as changed since the critique, which closes its backlog by itself); all six priority issues from it are addressed (bolder, links/harden, empty/error states, accessibility, phone name breaks, start screen + example topics).
+
+**Order agreed with the user for the rest of `website-ui`:** polish (done) → open issue #8 thousands separators as its own small OpenSpec change (CLI + page + fixture) → retake the three screenshots (`mcp server`, `angularjs directive`, `project management software`) → README §1 rewrite (≤ 6 sentences, present tense, real numbers; this is **HW8**, which asks for 3–6 sentences) → archive `website-heartbeat-ui`, commit, push → user pastes §1 into the HW8 submission.
+
+## 2026-10-26 (later) — Proposed: thousands separators in the verdict (open issue #8)
+
+On `website-ui` (same branch, separate OpenSpec change, as agreed). `/opsx:propose` → change `verdict-thousands-separators`: MODIFIED `repo-search` "One-line verdict summary" (every verdict count gets a comma every three digits, e.g. "244,832", independent of the computer's locale; example updated to "3,241"; 2 new scenarios). Decisions recorded in design.md: a **fixed comma** (Python `{:,}`, JS regex helper `groupThousands`, not `toLocaleString`) so the CLI, the page and the shared fixture agree on any machine; the page's printout line uses the same helper; **Stars column and CSV unchanged** (CSV stays plain digits for spreadsheets). Fixture-first, red then green, both suites. The `web-ui` example lives in the not-yet-archived `website-heartbeat-ui` change, so it's updated there (task 3.1). `openspec validate --strict` passes. Nothing implemented yet.
+
+## 2026-10-26 (later) — Implemented: thousands separators in the verdict (7/7 tasks)
+
+`/opsx:apply` for `verdict-thousands-separators`. **Red first:** fixture updated by hand (244832 → "244,832", plus new cases 999 / 1000 / 1000000) → 3 failures in each suite (999 already passed, kept as guard); `tests/test_output.py` "3,241" assertion and a new test that runs `format_verdict` under a real Hungarian locale (installed on this machine, so not skipped) → both failed.
+**Green:** `reposcout/output.py` formats verdict counts with `{:,}`; `site/rules.js` gets `groupThousands()` (regex, no `toLocaleString`) used in `formatVerdict`; the page's printout line uses it too. Harness case `big` (177455) shows "177,455" in verdict and printout; live "mcp server" → "Showing the 50 best-matching of 177,480 repos, 37 active among them…". Docs: USER_MANUAL example "3,241", the `web-ui` scenario in `website-heartbeat-ui` "244,832", design notes. 179 pytest + 66 node tests, both changes validate.
+**Found on the way:** the headless browser kept an old cached `rules.js` while loading the new `app.js` ("does not provide an export named 'groupThousands'"), so the page's script didn't start. Same can happen in a real browser after an update → hard refresh (Ctrl+F5). Possible later fix: version the script URLs (e.g. `app.js?v=…`) when publishing on GitHub Pages; noted, not done.
+
+## 2026-10-26 (later) — Archived: `verdict-thousands-separators`
+
+`/opsx:archive`: 4/4 artifacts, 7/7 tasks. Synced the MODIFIED "One-line verdict summary" requirement into `openspec/specs/repo-search/spec.md` (thousands-separator rule, "3,241" example, 2 new scenarios; other scenarios unchanged). Verified the main requirement equals the delta, requirement count unchanged (6), `openspec validate --specs --strict` passes. Moved to `openspec/changes/archive/2026-10-26-verdict-thousands-separators/`. Open issue #8 closed. Active change left: `website-heartbeat-ui` (screenshots + README §1 remaining).
+
+## 2026-10-26 (later) — Screenshots retaken, README §1 (HW8), `website-heartbeat-ui` archived
+
+- **Screenshots** (1440×900, live data, final design) in `docs/screenshots/`: `1-alive-mcp-server.png` (177,486 repos, 37 active), `2-graveyard-angularjs-directive.png` (3,137 repos, 0 active, trace flatlines across the active zone), `3-project-management-software.png` (14,067 repos, 10 active) and `4-table-csv-project-management-software.png` (ranked table + Download CSV). The old `3-table-expense-tracker.png` was removed.
+- **README §1 rewritten for HW8**: 6 sentences, present tense, real numbers and filenames (`project management software` as the main path, `mcp server` vs `angularjs directive` as the contrast, `project-management-software-report.csv`, `docs/screenshots/`, the CLI with `expense tracker` underneath). Recorded by the `website-heartbeat-ui` OpenSpec change (proposal + tasks 1.4/7.1/8.3), so no separate propose was needed.
+- Tasks 8.2 (Impeccable design pass) and 8.3 (screenshots) done → 24/24. `openspec archive website-heartbeat-ui -y` created the new main spec `openspec/specs/web-ui/spec.md` (9 requirements, 19 scenarios, identical to the delta); `openspec validate --specs --strict` → 4/4. No active changes left. 179 pytest + 66 node tests passing.
+- Open issues now: #4 lock file (deferred), #7 dated/versioned report files; noted: cache-busting script URLs before GitHub Pages; GitHub Pages permission question asked to the instructor in HW7.

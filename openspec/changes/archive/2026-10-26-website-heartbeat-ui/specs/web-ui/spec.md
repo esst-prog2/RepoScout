@@ -37,7 +37,7 @@ The page SHALL show a one-line verdict with the same wording rules as the CLI: `
 
 #### Scenario: More than 50 matches
 - **WHEN** GitHub reports 244,832 matches and 50 are fetched, 10 of them active
-- **THEN** the verdict begins `Showing the 50 best-matching of 244832 repos, 10 active among them`
+- **THEN** the verdict begins `Showing the 50 best-matching of 244,832 repos, 10 active among them`
 
 #### Scenario: Relative time rounded down
 - **WHEN** the most recently pushed repository was pushed 16 days ago
