@@ -45,5 +45,5 @@
 ## 8. Verification
 
 - [x] 8.1 Run `pytest`, `node --test "tests/js/*.test.mjs"` and `openspec validate website-heartbeat-ui --strict`; verify all pass.
-- [ ] 8.2 Run gstack `/qa` against the locally served page (desktop and 360 px) and fix anything it finds that breaks a spec scenario; verify by its report.
-- [x] 8.3 Take the three demo screenshots (alive topic strip, graveyard topic strip, table/CSV) and save them under `docs/screenshots/`; verify the files exist and read clearly.
+- [ ] 8.2 Impeccable design pass on the served page (replaces the planned gstack `/qa` pass, user decision 2026-10-26: the functional checks were already done in groups 3-6 and by the user's own run, and the demo is screenshots, so polish matters more): install Impeccable, run its review (e.g. `critique`, then `polish`) on `site/` at desktop and 360 px, apply the changes that keep every spec scenario true, and re-run `pytest` and `node --test "tests/js/*.test.mjs"`. Verify by before/after screenshots and green tests.
+- [ ] 8.3 Take the three demo screenshots (alive topic strip, graveyard topic strip, table/CSV) and save them under `docs/screenshots/`; verify the files exist and read clearly. Retake after the Impeccable pass (the first set, taken before polishing, is replaced).

@@ -624,3 +624,11 @@ The user ran the page in their own browser on Windows (`cd site`, `python -m htt
 **User-found issue:** for some searches (e.g. "project management software") the table got a horizontal scrollbar and Language/Bucket were off-screen. Cause: every cell was `white-space: nowrap`, so one very long repo name (~120 characters) stretched the whole table. Fix: the Repository column (`td.repo`) may wrap (`overflow-wrap: anywhere`, `min-width: 10rem`). Re-checked live at 1280 px: no sideways scroll, long name wraps. Tests unchanged and passing.
 
 **Remaining:** 8.2 (gstack `/qa` pass).
+
+## 2026-10-26 (later) — Plan change: `/qa` pass replaced by an Impeccable design pass
+
+The user reported the long-name wrap fix wasn't visible yet in their browser; most likely the browser's cached `style.css` (advised a hard refresh, Ctrl+F5; to be confirmed).
+
+Compared gstack `/qa` (finds functional bugs) with Impeccable (design polish). The functional checks were already done (every state, race, cache, phone width, live data, plus the user's own run), and the demo is screenshots, so **decision (user): replace task 8.2 with an Impeccable design pass** (install, `critique` then `polish` on `site/` at desktop and 360 px, keep every spec scenario true, re-run both test suites). Task 8.3 reopened: the screenshots taken earlier (before polishing) will be retaken afterwards. Reverses the CEO review's R8 ("keep `/qa`"), by the user's explicit choice. `openspec validate --strict` passes. Progress: 22/24.
+
+**Next step:** the user sends Impeccable's install instructions; install, then run the pass.
