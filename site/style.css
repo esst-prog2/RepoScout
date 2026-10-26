@@ -1,110 +1,380 @@
+/* RepoScout's look: an ECG printout. Paper ground, an oxblood ink band for the
+   title and search, trace red for "active", amber for "slowing", flat grey for
+   "stale". One vendored family (Archivo, variable width) does every job:
+   condensed for the headline and numbers, normal width for reading. */
+
+@font-face {
+  font-family: "Archivo";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  src: url(vendor/fonts/archivo-latin-ext-wdth-normal.woff2) format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Archivo";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  src: url(vendor/fonts/archivo-latin-wdth-normal.woff2) format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 :root {
-  --bg: #f7f7f5;
-  --surface: #ffffff;
-  --text: #1d1d1f;
-  --muted: #5f6368;
-  --border: #dcdcd8;
-  --accent: #1f6feb;
-  --active: #2b8a3e;
-  --slowing: #e8a317;
-  --stale: #a5a8ad;
-  --warning-bg: #fff4d6;
-  --error-bg: #fde8e8;
+  /* paper and ink */
+  --paper: #fdfafa;
+  --sheet: #ffffff;
+  --ink: #24161a;
+  --ink-soft: #6a5357;        /* secondary text, tinted from the ink */
+  --rule: #ecdcdc;            /* hairlines */
+  --band: #3a0d17;            /* oxblood header band */
+  --band-text: #fbeef0;
+  --band-soft: #e3bfc5;
+  --placeholder: #7d6a6e;
+  --tint: #fdf1f3;            /* hover/lit row and quiet button hover */
+  --head-bg: #fbf4f4;         /* table header row */
+  --selection: #f4c9d0;
+  --error-rule: #e7b3bd;
+  --printout: #9a5562;        /* the speed/gain-style line on the sheet */
+  /* grid paper inside the strip */
+  --grid-minor: #f1cdd2;
+  --grid-major: #e09aa6;
+  --zone-rule: #c98591;
+  /* buckets */
+  --active: #b3122e;          /* trace red */
+  --slowing: #a35f00;         /* amber, dark enough for white text */
+  --stale: #666b72;           /* flatline grey */
+  --active-hover: #cf1a39;
+  --active-dot: #c8193a;
+  --slowing-dot: #d48a14;
+  --stale-dot: #9a9ea5;
+  --active-label: #a3102a;    /* zone labels on the chart paper */
+  --slowing-label: #8a5000;
+  --stale-label: #4f5359;
+  --warning-bg: #fff3d9;
+  --warning-ink: #5c3a00;
+  --error-ink: #8f0f26;
+  --focus: #b3122e;
+
+  --narrow: "Archivo", system-ui, sans-serif;
+  --font: "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 * { box-sizing: border-box; }
+/* `hidden` always wins, even over components that set their own display. */
+[hidden] { display: none !important; }
 
+html { background: var(--paper); }
 body {
   margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font: 16px/1.5 var(--font);
+  font-stretch: 100%;
+  -webkit-font-smoothing: antialiased;
 }
+::selection { background: var(--selection); color: var(--ink); }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 
-main {
-  max-width: 1040px;
-  margin: 0 auto;
-  padding: 32px 24px 48px;
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+/* --- header band: title, promise, search, example topics ------------------- */
+
+.band {
+  background: var(--band);
+  color: var(--band-text);
+  padding: 32px 0 26px;
 }
+.band :focus-visible { outline-color: var(--band-text); }
+h1 {
+  margin: 0;
+  font-family: var(--narrow);
+  font-stretch: 75%;
+  font-weight: 800;
+  font-size: 2.6rem;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+.promise { margin: 8px 0 22px; color: var(--band-soft); font-size: 1.05rem; }
 
-h1 { margin: 0; font-size: 2rem; letter-spacing: -0.02em; }
-h2 { margin: 0; font-size: 1.05rem; }
-.promise { margin: 4px 0 24px; color: var(--muted); }
-
-.search { display: flex; gap: 8px; }
+.search { display: flex; gap: 10px; }
 .search input {
   flex: 1;
   min-width: 0;
-  padding: 12px 14px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  padding: 13px 16px;
+  border: 1px solid transparent;
+  border-radius: 6px;
   font: inherit;
-  background: var(--surface);
+  font-size: 1.05rem;
+  color: var(--ink);
+  background: var(--sheet);
+  caret-color: var(--active);
 }
-.search input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.search input::placeholder { color: var(--placeholder); }
 
 button {
-  padding: 12px 20px;
-  border: 0;
-  border-radius: 8px;
-  background: var(--accent);
-  color: #fff;
   font: inherit;
-  font-weight: 600;
   cursor: pointer;
+  border-radius: 6px;
 }
-button.secondary {
-  padding: 8px 14px;
-  background: var(--surface);
-  color: var(--accent);
-  border: 1px solid var(--border);
+.scout {
+  padding: 13px 26px;
+  border: 0;
+  background: var(--active);
+  color: #fff;
+  font-weight: 700;
+  font-stretch: 87%;
+  font-size: 1.05rem;
+  letter-spacing: 0.01em;
+}
+.scout:hover { background: var(--active-hover); }
+
+.topics {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.topics-label { color: var(--band-soft); font-size: 0.9rem; margin-right: 2px; }
+.topic {
+  padding: 5px 12px;
+  border: 1px solid rgba(251, 238, 240, 0.35);
+  background: transparent;
+  color: var(--band-text);
+  font-size: 0.9rem;
+}
+.topic:hover { background: rgba(251, 238, 240, 0.12); border-color: rgba(251, 238, 240, 0.6); }
+
+/* --- results ----------------------------------------------------------------- */
+
+main { padding-bottom: 56px; }
+
+.status { min-height: 1.5em; margin: 18px 0 0; color: var(--ink-soft); }
+.status.error {
+  padding: 12px 16px;
+  border: 1px solid var(--error-rule);
+  border-radius: 6px;
+  background: var(--sheet);
+  color: var(--error-ink);
 }
 
-.status { min-height: 1.5em; margin: 16px 0 0; color: var(--muted); }
-.status.error { padding: 10px 14px; border-radius: 8px; background: var(--error-bg); color: #8a1c1c; }
-
-.results { margin-top: 8px; }
-.verdict { font-size: 1.35rem; font-weight: 600; line-height: 1.35; margin: 8px 0 12px; }
-.warning { padding: 10px 14px; border-radius: 8px; background: var(--warning-bg); }
-
-.heartbeat {
-  margin: 16px 0 24px;
-  padding: 16px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
+/* The verdict is the answer, so it is the headline once results are in.
+   The active count carries the trace red; the "— most recent entrant…" tail
+   drops to a quieter second line. */
+.verdict {
+  font-family: var(--narrow);
+  font-stretch: 80%;
+  font-size: clamp(1.7rem, 1.2rem + 1.8vw, 2.6rem);
+  font-weight: 750;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  margin: 26px 0 18px;
+  max-width: 32ch;
 }
-.heartbeat figcaption { font-size: 0.85rem; color: var(--muted); margin-bottom: 8px; }
-.chart { width: 100%; min-height: 220px; }
-.note { font-size: 0.8rem; color: var(--muted); margin: 8px 0 0; }
+.verdict .count { white-space: nowrap; }
+.verdict .count.active { color: var(--active); }
+.verdict .count.none { color: var(--stale); }
+.verdict-tail {
+  display: block;
+  margin-top: 10px;
+  font-family: var(--font);
+  font-stretch: 100%;
+  font-size: 1.05rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--ink-soft);
+}
+.warning {
+  padding: 12px 16px;
+  border-radius: 6px;
+  background: var(--warning-bg);
+  color: var(--warning-ink);
+}
 
-.table-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 8px; }
-.table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; }
-table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
-th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
-th { font-weight: 600; color: var(--muted); }
+/* The strip is the sheet of chart paper itself, not a card holding a chart. */
+.heartbeat { margin: 18px 0 34px; }
+.heartbeat figcaption { font-size: 0.9rem; color: var(--ink-soft); margin-bottom: 4px; }
+/* Printed on the sheet's margin, like the speed/gain line on an ECG. */
+.printout {
+  margin: 2px 0 0;
+  font-size: 0.82rem;
+  font-stretch: 87%;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  color: var(--printout);
+}
+
+/* Start screen: a blank sheet with a flat trace and a calibration pulse. */
+.idle {
+  margin: 28px 0 0;
+  padding: 0;
+}
+.idle-trace {
+  display: block;
+  width: 100%;
+  height: 180px;
+  background-color: #fff;
+  background-image:
+    linear-gradient(var(--grid-major) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-major) 1px, transparent 1px),
+    linear-gradient(var(--grid-minor) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-minor) 1px, transparent 1px);
+  background-size: 25px 25px, 25px 25px, 5px 5px, 5px 5px;
+}
+.idle-trace polyline { fill: none; stroke: var(--band); stroke-width: 1.6; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.idle figcaption { margin-top: 10px; color: var(--ink-soft); font-size: 1.05rem; }
+
+/* Zero results: said plainly, with the next step; no empty chart or table. */
+.empty { margin: 4px 0 0; font-size: 1.1rem; }
+.empty p { margin: 0 0 6px; }
+.empty-hint { color: var(--ink-soft); font-size: 1rem; }
+
+.retry {
+  margin-left: 6px;
+  padding: 4px 12px;
+  border: 1px solid currentColor;
+  background: transparent;
+  color: inherit;
+  font-weight: 650;
+}
+.retry:hover { background: var(--tint); }
+
+.results.loading { opacity: 0.45; transition: opacity 150ms ease-out; }
+.status.loading { font-size: 1.15rem; font-weight: 600; color: var(--active); }
+.nowrap { white-space: nowrap; }
+.chart { width: 100%; min-height: 340px; }
+.chart svg { display: block; overflow: visible; }
+/* Grid paper: Plot draws one rect over the plot area with this class. */
+.chart rect.ecg-paper { fill: url(#ecg-grid); }
+/* Linked highlight: hovering a table row lifts its dot and dims the rest. */
+.chart.focusing .dots circle { opacity: 0.18; transition: opacity 120ms ease-out; }
+.chart.focusing .dots circle.lit { opacity: 1; stroke: var(--ink); stroke-width: 2; }
+.note { font-size: 0.85rem; color: var(--ink-soft); margin: 8px 0 0; }
+.note code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 0.85em; color: var(--ink); }
+
+.table-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+h2 {
+  margin: 0;
+  font-family: var(--narrow);
+  font-stretch: 85%;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+.csv {
+  padding: 9px 16px;
+  border: 1px solid var(--active);
+  background: var(--sheet);
+  color: var(--active);
+  font-weight: 650;
+}
+.csv:hover { background: var(--tint); }
+
+.table-wrap { overflow-x: auto; background: var(--sheet); border: 1px solid var(--rule); border-radius: 8px; }
+table { width: 100%; border-collapse: collapse; font-size: 0.93rem; }
+th, td { padding: 6px 12px; text-align: left; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+th {
+  font-family: var(--narrow);
+  font-stretch: 85%;
+  font-weight: 650;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  background: var(--head-bg);
+}
 tbody tr:last-child td { border-bottom: 0; }
-td.num { text-align: right; font-variant-numeric: tabular-nums; }
+tbody tr:hover td, tbody tr.lit td { background: var(--tint); }
+th.num { text-align: right; }
+td.num { text-align: right; font-variant-numeric: tabular-nums; font-stretch: 90%; }
+td.date { font-variant-numeric: tabular-nums; }
 /* Long repo names wrap instead of stretching the table past the page edge. */
-td.repo { white-space: normal; overflow-wrap: anywhere; min-width: 10rem; }
-.bucket { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 0.8rem; color: #fff; }
-.bucket.active { background: var(--active); }
-.bucket.slowing { background: var(--slowing); color: #3b2a00; }
-.bucket.stale { background: var(--stale); color: #1d1d1f; }
+td.repo { white-space: normal; overflow-wrap: break-word; min-width: 9rem; }
+td.repo a { color: inherit; text-decoration: none; text-underline-offset: 3px; }
+td.repo a:hover { color: var(--active); text-decoration: underline; text-decoration-thickness: 1px; }
+td.repo a:focus-visible { outline-offset: 1px; border-radius: 2px; }
+/* State restyles the row inside the same grid (split-flap discipline): the
+   bucket word in its own ink, a trace-red mark on active ranks, and stale rows
+   fade to secondary ink. The word itself stays, as the CLI and CSV have it. */
+.bucket { display: inline-block; min-width: 4.2rem; font-size: 0.88rem; font-weight: 700; font-stretch: 87%; }
+.bucket.active { color: var(--active); }
+.bucket.slowing { color: var(--slowing); }
+.bucket.stale { color: var(--stale); font-weight: 600; }
+th:first-child, td:first-child { padding-left: 22px; }
+tr.row-active td:first-child { position: relative; }
+tr.row-active td:first-child::before {
+  content: "";
+  position: absolute;
+  left: 9px;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin-top: -3px;
+  border-radius: 1px;
+  background: var(--active);
+}
+tr.row-stale td:nth-child(-n+2) { color: var(--ink-soft); }
 
 .visually-hidden {
   position: absolute; width: 1px; height: 1px; overflow: hidden;
   clip: rect(0 0 0 0); white-space: nowrap;
 }
 
+/* Touch screens: bigger tap targets for the example topics, retry and the
+   repo links (the whole name line), whatever the screen width. */
+@media (pointer: coarse) {
+  .topic { min-height: 40px; padding: 8px 14px; }
+  .retry { min-height: 40px; }
+  td.repo a { display: inline-block; padding: 6px 0; }
+}
+
+/* Short screens (a phone held sideways): a compact band, so the answer is
+   still in view under the search box. */
+@media (max-height: 480px) and (orientation: landscape) {
+  .band { padding: 12px 0 12px; }
+  h1 { font-size: 1.7rem; }
+  .promise { margin: 2px 0 10px; font-size: 0.95rem; }
+  .search input, .scout { padding-top: 9px; padding-bottom: 9px; }
+  .topics { margin-top: 10px; }
+  .verdict { margin-top: 16px; }
+}
+
+/* Notched phones in landscape: keep content clear of the rounded corners. */
+@supports (padding: max(0px)) {
+  .wrap { padding-left: max(24px, env(safe-area-inset-left)); padding-right: max(24px, env(safe-area-inset-right)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chart.focusing .dots circle, .results.loading { transition: none; }
+}
+
 /* Phone width: sections stack, the table scrolls inside its own box,
    less important columns hide, and the strip gets more height. */
 @media (max-width: 600px) {
-  main { padding: 20px 14px 36px; }
-  h1 { font-size: 1.6rem; }
+  .wrap { padding: 0 max(16px, env(safe-area-inset-right)) 0 max(16px, env(safe-area-inset-left)); }
+  .band { padding: 22px 0 20px; }
+  h1 { font-size: 2.1rem; }
   .search { flex-direction: column; }
-  .verdict { font-size: 1.1rem; }
+  .verdict-tail { font-size: 0.95rem; }
   .table-head { flex-direction: column; align-items: flex-start; }
-  .chart { min-height: 300px; }
+  .chart { min-height: 360px; }
   th.optional, td.optional { display: none; }
+  .bucket { min-width: 0; }
+  .topics { flex-wrap: nowrap; overflow-x: auto; margin-right: -16px; padding-right: 16px; scrollbar-width: none; }
+  .topics li { flex: none; }
+  /* the row scrolls sideways; a fade at the edge says there is more */
+  .topics { -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent); mask-image: linear-gradient(90deg, #000 85%, transparent); }
+  .idle-trace { height: 140px; }
+  th, td { padding: 7px 8px; }
+  th:first-child, td:first-child { padding-left: 18px; }
+  tr.row-active td:first-child::before { left: 6px; }
 }

@@ -2,39 +2,65 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#3a0d17">
   <title>RepoScout</title>
+  <link rel="preload" href="vendor/fonts/archivo-latin-wdth-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main>
-    <header>
+  <header class="band">
+    <div class="wrap">
       <h1>RepoScout</h1>
       <p class="promise">Is this corner of GitHub alive? Type a topic, see its heartbeat.</p>
-    </header>
 
-    <form id="search" class="search" autocomplete="off">
-      <label for="keyword" class="visually-hidden">Topic or keyword</label>
-      <input id="keyword" name="keyword" type="search" placeholder="e.g. expense tracker" required>
-      <button type="submit">Scout</button>
-    </form>
+      <form id="search" class="search" autocomplete="off">
+        <label for="keyword" class="visually-hidden">Topic or keyword</label>
+        <input id="keyword" name="keyword" type="search" placeholder="e.g. expense tracker" required>
+        <button type="submit" class="scout">Scout</button>
+      </form>
 
+      <ul class="topics" aria-label="Example topics">
+        <li class="topics-label" aria-hidden="true">Try</li>
+        <li><button type="button" class="topic">data visualization</button></li>
+        <li><button type="button" class="topic">project management software</button></li>
+        <li><button type="button" class="topic">expense tracker</button></li>
+        <li><button type="button" class="topic">monitoring</button></li>
+      </ul>
+    </div>
+  </header>
+
+  <main class="wrap">
     <p id="status" class="status" role="status" aria-live="polite"></p>
+    <p id="announce" class="visually-hidden" aria-live="polite" aria-atomic="true"></p>
+
+    <!-- Start screen: a blank sheet with a flat trace. No dots, no numbers: it is not data. -->
+    <figure id="idle" class="idle">
+      <svg class="idle-trace" viewBox="0 0 1000 120" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <polyline points="0,90 14,90 14,50 44,50 44,90 1000,90" />
+      </svg>
+      <figcaption>No topic yet. Type one above, or try an example, and its heartbeat is drawn here.</figcaption>
+    </figure>
 
     <section id="results" class="results" hidden>
       <p id="verdict" class="verdict"></p>
       <p id="incomplete" class="warning" hidden>GitHub's search timed out before it finished, so these results may be incomplete.</p>
+      <div id="empty" class="empty" hidden>
+        <p>No repositories on GitHub match “<span id="empty-keyword"></span>”.</p>
+        <p class="empty-hint">Try fewer or more general words, or one of the example topics above.</p>
+      </div>
 
       <figure class="heartbeat">
-        <figcaption>Heartbeat: each dot is a repo · bigger = more stars · further right = pushed more recently</figcaption>
+        <figcaption>Heartbeat: each dot is a repo · bigger = more stars · further right = pushed more recently · height only keeps dots apart · the trace spikes where repos were pushed</figcaption>
         <div id="chart" class="chart" role="img"></div>
+        <p id="printout" class="printout"></p>
         <p id="chart-note" class="note" hidden>The chart is unavailable right now; the table below has every repo.</p>
         <p class="note">"Last push" is GitHub's <code>pushed_at</code> time, which is not always the latest commit.</p>
       </figure>
 
       <div class="table-head">
         <h2>The best-matching repos, ranked by stars</h2>
-        <button id="csv" type="button" class="secondary">Download CSV</button>
+        <button id="csv" type="button" class="csv">Download CSV</button>
       </div>
       <div class="table-wrap">
         <table id="table">

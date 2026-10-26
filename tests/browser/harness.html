@@ -4,13 +4,14 @@
   answers, so every state can be checked without the network or the rate limit.
   Serve the REPO ROOT:  python -m http.server 8000
   Open:                 http://localhost:8000/tests/browser/harness.html?case=normal
-  Cases: normal, zero, incomplete, limited403, limited429none, error422, html200,
-         nullpushed, offline, race (search "react", then quickly "vue")
+  Cases: normal, big, badurl, zero, incomplete, limited403, limited429none, error422, error502, html200,
+         nullpushed, offline, hang (waits for the page's 20 s timeout),
+         race (search "react", then quickly "vue")
 -->
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>RepoScout (test harness)</title>
   <link rel="stylesheet" href="../../site/style.css">
   <script>
@@ -31,14 +32,25 @@
       ];
       const cases = {
         normal: () => ok({ total_count: 5, incomplete_results: false, items: normalItems }),
+        // links only for https://github.com URLs; these two must stay plain text
+        badurl: () => ok({ total_count: 2, incomplete_results: false, items: [
+          Object.assign(item("evil/js", 9, 3), { html_url: "javascript:alert(1)" }),
+          Object.assign(item("evil/host", 8, 3), { html_url: "https://github.com.evil.example/x" }),
+        ] }),
+        big: () => ok({ total_count: 177455, incomplete_results: false, items: normalItems }),
         zero: () => ok({ total_count: 0, incomplete_results: false, items: [] }),
         incomplete: () => ok({ total_count: 60, incomplete_results: true, items: normalItems }),
         limited403: () => new Response("{}", { status: 403, headers: { "Retry-After": "42", "X-RateLimit-Remaining": "7" } }),
         limited429none: () => new Response("{}", { status: 429 }),
         error422: () => new Response(JSON.stringify({ message: "Validation Failed" }), { status: 422 }),
+        error502: () => new Response(JSON.stringify({ message: "Server Error" }), { status: 502 }),
         html200: () => new Response("<html><body>Please log in to the Wi-Fi</body></html>", { status: 200 }),
         nullpushed: () => ok({ total_count: 1, incomplete_results: false, items: [Object.assign(item("a/b", 1, 1), { pushed_at: null })] }),
         offline: () => Promise.reject(new TypeError("Failed to fetch")),
+        // never answers: the page's own timeout must end it (aborts like real fetch)
+        hang: (url, init) => new Promise((_, reject) => {
+          init.signal.addEventListener("abort", () => reject(new DOMException("aborted", "AbortError")));
+        }),
         race: (url) => {
           const q = new URL(url).searchParams.get("q");
           const body = { total_count: 1, incomplete_results: false, items: [item("topic/" + q, 10, 5)] };
@@ -48,7 +60,7 @@
       };
       const name = new URLSearchParams(location.search).get("case") || "normal";
       window.__harnessCalls = 0;
-      window.fetch = (url) => { window.__harnessCalls += 1; return Promise.resolve().then(() => cases[name](String(url))); };
+      window.fetch = (url, init) => { window.__harnessCalls += 1; return Promise.resolve().then(() => cases[name](String(url), init || {})); };
       // In-memory storage: the harness's fake answers must never land in the real
       // browser cache, where the real page (same address) would show them as results.
       const memory = new Map();
@@ -66,35 +78,69 @@
   </script>
 </head>
 <body>
-  <main>
-    <header>
+  <header class="band">
+    <div class="wrap">
       <h1>RepoScout</h1>
       <p class="promise">Is this corner of GitHub alive? Type a topic, see its heartbeat.</p>
-    </header>
-    <form id="search" class="search" autocomplete="off">
-      <label for="keyword" class="visually-hidden">Topic or keyword</label>
-      <input id="keyword" name="keyword" type="search" placeholder="e.g. expense tracker" required>
-      <button type="submit">Scout</button>
-    </form>
+
+      <form id="search" class="search" autocomplete="off">
+        <label for="keyword" class="visually-hidden">Topic or keyword</label>
+        <input id="keyword" name="keyword" type="search" placeholder="e.g. expense tracker" required>
+        <button type="submit" class="scout">Scout</button>
+      </form>
+
+      <ul class="topics" aria-label="Example topics">
+        <li class="topics-label" aria-hidden="true">Try</li>
+        <li><button type="button" class="topic">data visualization</button></li>
+        <li><button type="button" class="topic">project management software</button></li>
+        <li><button type="button" class="topic">expense tracker</button></li>
+        <li><button type="button" class="topic">monitoring</button></li>
+      </ul>
+    </div>
+  </header>
+
+  <main class="wrap">
     <p id="status" class="status" role="status" aria-live="polite"></p>
+    <p id="announce" class="visually-hidden" aria-live="polite" aria-atomic="true"></p>
+
+    <!-- Start screen: a blank sheet with a flat trace. No dots, no numbers: it is not data. -->
+    <figure id="idle" class="idle">
+      <svg class="idle-trace" viewBox="0 0 1000 120" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <polyline points="0,90 14,90 14,50 44,50 44,90 1000,90" />
+      </svg>
+      <figcaption>No topic yet. Type one above, or try an example, and its heartbeat is drawn here.</figcaption>
+    </figure>
+
     <section id="results" class="results" hidden>
       <p id="verdict" class="verdict"></p>
       <p id="incomplete" class="warning" hidden>GitHub's search timed out before it finished, so these results may be incomplete.</p>
+      <div id="empty" class="empty" hidden>
+        <p>No repositories on GitHub match “<span id="empty-keyword"></span>”.</p>
+        <p class="empty-hint">Try fewer or more general words, or one of the example topics above.</p>
+      </div>
+
       <figure class="heartbeat">
-        <figcaption>Heartbeat: each dot is a repo · bigger = more stars · further right = pushed more recently</figcaption>
+        <figcaption>Heartbeat: each dot is a repo · bigger = more stars · further right = pushed more recently · height only keeps dots apart · the trace spikes where repos were pushed</figcaption>
         <div id="chart" class="chart" role="img"></div>
+        <p id="printout" class="printout"></p>
         <p id="chart-note" class="note" hidden>The chart is unavailable right now; the table below has every repo.</p>
         <p class="note">"Last push" is GitHub's <code>pushed_at</code> time, which is not always the latest commit.</p>
       </figure>
+
       <div class="table-head">
         <h2>The best-matching repos, ranked by stars</h2>
-        <button id="csv" type="button" class="secondary">Download CSV</button>
+        <button id="csv" type="button" class="csv">Download CSV</button>
       </div>
       <div class="table-wrap">
-        <table id="table"><thead><tr></tr></thead><tbody></tbody></table>
+        <table id="table">
+          <thead><tr></tr></thead>
+          <tbody></tbody>
+        </table>
       </div>
     </section>
   </main>
+
+  <!-- Vendored, pinned chart libraries (no CDN): d3 7.9.0, Observable Plot 0.6.17 -->
   <script src="../../site/vendor/d3.min.js"></script>
   <script src="../../site/vendor/plot.umd.min.js"></script>
   <script type="module" src="../../site/app.js"></script>

@@ -17,3 +17,7 @@ dist/
 id_rsa*
 id_ed25519*
 .claude/settings.local.json
+
+# Impeccable: critique snapshots hold local absolute paths; per-machine config
+.impeccable/critique/
+.impeccable/config.local.json
