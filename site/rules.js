@@ -58,15 +58,21 @@ export function timeAgo(deltaMs) {
 }
 
 // repos: [{pushedAt: ISO string, bucket}]; counts only ever describe the fetched repos.
+// A comma every three digits ("244,832"), the same in every browser language,
+// as Python's "{:,}" does it (toLocaleString would follow the browser's locale).
+export function groupThousands(n) {
+  return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
 export function formatVerdict(totalCount, repos, nowMs) {
   if (repos.length === 0) return "0 repos found";
-  const activeCount = repos.filter((r) => r.bucket === ACTIVE).length;
+  const activeCount = groupThousands(repos.filter((r) => r.bucket === ACTIVE).length);
   const mostRecentMs = Math.max(...repos.map((r) => Date.parse(r.pushedAt)));
   const pushedAgo = timeAgo(nowMs - mostRecentMs);
   if (totalCount <= repos.length) {
-    return `${totalCount} repos found, ${activeCount} active in the last ${activeWindowText()} — most recent entrant pushed ${pushedAgo}`;
+    return `${groupThousands(totalCount)} repos found, ${activeCount} active in the last ${activeWindowText()} — most recent entrant pushed ${pushedAgo}`;
   }
-  return `Showing the ${repos.length} best-matching of ${totalCount} repos, ${activeCount} active among them — most recent entrant pushed ${pushedAgo}`;
+  return `Showing the ${groupThousands(repos.length)} best-matching of ${groupThousands(totalCount)} repos, ${activeCount} active among them — most recent entrant pushed ${pushedAgo}`;
 }
 
 // Filename-unsafe characters on Windows (only "/" on macOS/Linux), control

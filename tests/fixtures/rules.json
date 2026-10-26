@@ -132,7 +132,70 @@
           "language": "Python"
         }
       ],
-      "expected": "Showing the 2 best-matching of 244832 repos, 1 active among them — most recent entrant pushed 2 days ago"
+      "expected": "Showing the 2 best-matching of 244,832 repos, 1 active among them — most recent entrant pushed 2 days ago"
+    },
+    {
+      "name": "thousands separator: total 999",
+      "total_count": 999,
+      "repos": [
+        {
+          "name": "a/one",
+          "url": "https://github.com/a/one",
+          "stars": 10,
+          "pushed_at": "2026-10-23T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/two",
+          "url": "https://github.com/a/two",
+          "stars": 5,
+          "pushed_at": "2025-09-20T12:00:00Z",
+          "language": "Python"
+        }
+      ],
+      "expected": "Showing the 2 best-matching of 999 repos, 1 active among them — most recent entrant pushed 2 days ago"
+    },
+    {
+      "name": "thousands separator: total 1000",
+      "total_count": 1000,
+      "repos": [
+        {
+          "name": "a/one",
+          "url": "https://github.com/a/one",
+          "stars": 10,
+          "pushed_at": "2026-10-23T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/two",
+          "url": "https://github.com/a/two",
+          "stars": 5,
+          "pushed_at": "2025-09-20T12:00:00Z",
+          "language": "Python"
+        }
+      ],
+      "expected": "Showing the 2 best-matching of 1,000 repos, 1 active among them — most recent entrant pushed 2 days ago"
+    },
+    {
+      "name": "thousands separator: total 1000000",
+      "total_count": 1000000,
+      "repos": [
+        {
+          "name": "a/one",
+          "url": "https://github.com/a/one",
+          "stars": 10,
+          "pushed_at": "2026-10-23T12:00:00Z",
+          "language": "Python"
+        },
+        {
+          "name": "a/two",
+          "url": "https://github.com/a/two",
+          "stars": 5,
+          "pushed_at": "2025-09-20T12:00:00Z",
+          "language": "Python"
+        }
+      ],
+      "expected": "Showing the 2 best-matching of 1,000,000 repos, 1 active among them — most recent entrant pushed 2 days ago"
     },
     {
       "name": "total equals fetched",

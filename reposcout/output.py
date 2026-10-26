@@ -61,14 +61,15 @@ def format_verdict(total_count: int, bucketed: list[BucketedRepo], now: datetime
     most_recent = max(bucketed, key=lambda b: b.repo.pushed_at).repo
     pushed_ago = time_ago(now - most_recent.pushed_at)
 
+    # Counts get a comma every three digits ("244,832"); "{:,}" ignores the locale.
     if total_count <= len(bucketed):
         return (
-            f"{total_count} repos found, {active_count} active in the last {active_window_text()} "
+            f"{total_count:,} repos found, {active_count:,} active in the last {active_window_text()} "
             f"— most recent entrant pushed {pushed_ago}"
         )
     return (
-        f"Showing the {len(bucketed)} best-matching of {total_count} repos, "
-        f"{active_count} active among them — most recent entrant pushed {pushed_ago}"
+        f"Showing the {len(bucketed):,} best-matching of {total_count:,} repos, "
+        f"{active_count:,} active among them — most recent entrant pushed {pushed_ago}"
     )
 
 

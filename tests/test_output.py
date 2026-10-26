@@ -1,4 +1,5 @@
 import csv
+import locale
 from datetime import datetime, timedelta, timezone
 
 import pytest
@@ -46,7 +47,31 @@ def test_format_verdict_top_50_phrasing_when_total_exceeds_fetched():
 
     verdict = format_verdict(total_count=3241, bucketed=rows, now=NOW)
 
-    assert verdict.startswith("Showing the 50 best-matching of 3241 repos, 50 active among them")
+    assert verdict.startswith("Showing the 50 best-matching of 3,241 repos, 50 active among them")
+
+
+@pytest.fixture
+def hungarian_locale():
+    """Switch the process to a Hungarian locale (thousands written "244 832"), if installed."""
+    saved = locale.setlocale(locale.LC_ALL)
+    for name in ("hu_HU.UTF-8", "hu_HU.utf8", "hu_HU", "Hungarian_Hungary.1250", "hu-HU"):
+        try:
+            locale.setlocale(locale.LC_ALL, name)
+            break
+        except locale.Error:
+            continue
+    else:
+        pytest.skip("no Hungarian locale installed")
+    yield
+    locale.setlocale(locale.LC_ALL, saved)
+
+
+def test_format_verdict_thousands_separator_ignores_locale(hungarian_locale):
+    rows = [_bucketed(f"a/{i}", 100 - i, 10, "active") for i in range(50)]
+
+    verdict = format_verdict(total_count=244832, bucketed=rows, now=NOW)
+
+    assert verdict.startswith("Showing the 50 best-matching of 244,832 repos")
 
 
 @pytest.mark.parametrize(
