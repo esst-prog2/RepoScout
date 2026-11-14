@@ -22,7 +22,7 @@
         <p class="sub">RepoScout searches GitHub for a topic, takes the 50 best-matching repositories and shows how many are still being worked on: one sentence, one heartbeat chart, one CSV. No sign-in.</p>
         <p class="actions">
           <a class="button primary" href="app/">Open RepoScout</a>
-          <a class="button secondary" href="https://github.com/esst-prog2/RepoScout">View the code on GitHub</a>
+          <a class="textlink" href="https://github.com/esst-prog2/RepoScout">View the code on GitHub</a>
         </p>
       </div>
     </div>
@@ -30,7 +30,7 @@
 
   <main>
     <section class="leads wrap" aria-labelledby="leads-title">
-      <h2 id="leads-title" class="visually-hidden">Two real searches</h2>
+      <h2 id="leads-title" class="leads-title">Two real searches, 26 October 2026</h2>
 
       <figure class="lead lead-alive">
         <h3 class="lead-topic">mcp server</h3>
@@ -49,7 +49,6 @@
         <p class="lead-note">The trace flatlines.</p>
       </figure>
 
-      <p class="printout">Two real searches, 26 October 2026.</p>
     </section>
 
     <section class="block wrap" aria-labelledby="who">
@@ -106,13 +105,20 @@
         <div class="way">
           <h3>On the command line</h3>
           <p>Python 3.10 or newer.</p>
-<pre class="code" tabindex="0" aria-label="Commands to install and run RepoScout"><code>git clone https://github.com/esst-prog2/RepoScout
+<p class="code-label" id="cmd-win">Windows (PowerShell)</p>
+<pre class="code" tabindex="0" aria-labelledby="cmd-win"><code>git clone https://github.com/esst-prog2/RepoScout
 cd RepoScout
 python -m venv .venv
-.venv\Scripts\activate        # macOS/Linux: source .venv/bin/activate
+.\.venv\Scripts\python -m pip install .
+.\.venv\Scripts\reposcout search "project management software"</code></pre>
+          <p class="code-label" id="cmd-unix">macOS and Linux</p>
+<pre class="code" tabindex="0" aria-labelledby="cmd-unix"><code>git clone https://github.com/esst-prog2/RepoScout
+cd RepoScout
+python3 -m venv .venv
+source .venv/bin/activate
 pip install .
 reposcout search "project management software"</code></pre>
-          <p>It applies the same rules, prints the same verdict sentence and writes the same CSV. With a free GitHub token it gets 30 searches a minute. The <a href="https://github.com/esst-prog2/RepoScout/blob/main/docs/USER_MANUAL.md">user manual</a> covers other platforms and the token setup.</p>
+          <p>It applies the same rules, prints the same verdict sentence and writes the same CSV. With a free GitHub token it gets 30 searches a minute. The <a href="https://github.com/esst-prog2/RepoScout/blob/main/docs/USER_MANUAL.md">user manual</a> covers the token setup and more search options.</p>
         </div>
       </div>
     </section>
