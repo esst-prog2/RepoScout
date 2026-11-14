@@ -24,9 +24,11 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 
 # Screenshots the promo page uses whole, copied from docs/screenshots/ into img/.
-# Screenshot 4 (the table) is deliberately absent: its account names can be real
-# names, so the page uses promo/img/table-csv.png, a copy with them blurred.
-SCREENSHOTS = {"3-project-management-software.png": "img/result-project-management-software.png"}
+# None at the moment: the page shows crops committed in promo/img/ (see its
+# README.md), because whole screenshots can't be read at the size shown.
+# Screenshot 4 (the table) must never be added here: its account names can be
+# real names, so the page uses promo/img/table-csv.png, a blurred copy.
+SCREENSHOTS: dict[str, str] = {}
 
 # Files in promo/ that document how the assets were made; never published.
 PROMO_EXCLUDE = {"img/README.md"}

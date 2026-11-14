@@ -42,7 +42,7 @@
 ## 3. Homework steps on the built page (Impeccable)
 
 - [x] 3.1 `/impeccable generate` on the hero: variants in the browser, and the user picks one. Bake it in, then re-run the tests.
-- [ ] 3.2 `/impeccable critique` on the promo page (as a classmate, the teacher and a stranger). Fix its weakest part, then re-run the tests.
+- [x] 3.2 `/impeccable critique` on the promo page (as a classmate, the teacher and a stranger). Fix its weakest part, then re-run the tests.
 
 ## 4. Deploy workflow
 

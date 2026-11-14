@@ -24,14 +24,6 @@
           <a class="button primary" href="app/">Open RepoScout</a>
           <a class="button secondary" href="https://github.com/esst-prog2/RepoScout">View the code on GitHub</a>
         </p>
-        <div class="band-trace" aria-hidden="true">
-          <svg viewBox="0 0 1000 96" preserveAspectRatio="none">
-            <path class="zone" d="M390 34 V96 M750 34 V96"/>
-            <path class="flat" d="M0 84 H540 l4 -6 l4 6 H670 l3 -10 l4 16 l3 -6 H750"/>
-            <path class="beat" d="M750 84 h14 l4 -28 l5 40 l4 -12 h16 l4 -40 l5 52 l4 -12 h10 l4 -22 l5 30 l4 -8 h8 l4 -56 l5 66 l4 -10 h6 l4 -34 l5 42 l4 -8 h5 l4 -64 l5 74 l4 -10 h4 l4 -46 l5 54 l4 -8 h4 l4 -72 l5 80 l4 -8 h3 l4 -52 l5 60 l4 -8 H1000"/>
-          </svg>
-          <p class="scale"><span>5+ years ago</span><span class="at-year">1 year</span><span class="at-months">3 months</span><span>now</span></p>
-        </div>
       </div>
     </div>
   </header>
@@ -69,31 +61,35 @@
       <h2 id="read">One search, four answers</h2>
       <p class="prose">A search for <strong>project management software</strong>, on 26 October 2026:</p>
 
-      <div class="shots">
+      <div class="pair">
         <figure class="shot">
           <div class="shot-frame">
-            <img src="img/result-project-management-software.png" width="1440" height="900" loading="lazy"
+            <img src="img/result-verdict-strip.png" width="1090" height="565" loading="lazy"
               alt="RepoScout result for project management software: the verdict 'Showing the 50 best-matching of 14,067 repos, 10 active among them' above the heartbeat strip, with 36 stale, 4 slowing and 10 active repositories.">
-            <span class="marker" style="left:11.2%;top:38.6%" aria-hidden="true">1</span>
-            <span class="marker" style="left:11.2%;top:58%" aria-hidden="true">2</span>
+            <span class="marker" style="left:2.4%;top:9.7%" aria-hidden="true">1</span>
+            <span class="marker" style="left:2.4%;top:60%" aria-hidden="true">2</span>
           </div>
         </figure>
-        <figure class="shot">
-          <div class="shot-frame">
-            <img src="img/table-csv.png" width="1440" height="900" loading="lazy"
-              alt="The same search as a table ranked by stars, with last push date, language and activity group for each repository, and a Download CSV button. Account names are blurred.">
-            <span class="marker" style="left:11.4%;top:5.6%" aria-hidden="true">3</span>
-            <span class="marker" style="left:73.3%;top:5%" aria-hidden="true">4</span>
-          </div>
-        </figure>
-      </div>
-
-      <ol class="answers">
+        <ol class="answers">
         <li><strong>The verdict.</strong> One sentence: “Showing the 50 best-matching of 14,067 repos, 10 active among them — most recent entrant pushed 1 minute ago.”</li>
         <li><strong>The heartbeat strip.</strong> Each dot is a repository. Further right means pushed more recently, bigger means more stars. Three zones: stale (over a year), slowing (3 to 12 months), active (last 3 months). The line along the bottom spikes wherever repositories were pushed, so a dead topic flatlines across the active zone.</li>
+        </ol>
+      </div>
+
+      <div class="pair">
+        <figure class="shot">
+          <div class="shot-frame">
+            <img src="img/table-csv.png" width="1130" height="380" loading="lazy"
+              alt="The top of the same search as a table ranked by stars, with last push date, language and activity group for each repository, and a Download CSV button. Account names are blurred.">
+            <span class="marker" style="left:2.3%;top:11%" aria-hidden="true">3</span>
+            <span class="marker" style="left:82.1%;top:9.5%" aria-hidden="true">4</span>
+          </div>
+        </figure>
+        <ol class="answers" start="3">
         <li><strong>The table.</strong> The same 50 repositories ranked by stars, with last push date, language and activity group. Each name links to the repository on GitHub.</li>
         <li><strong>Download CSV.</strong> The same rows as a file (<code>project-management-software-report.csv</code>) that you can open in a spreadsheet.</li>
-      </ol>
+        </ol>
+      </div>
     </section>
 
     <section class="block wrap" aria-labelledby="try">

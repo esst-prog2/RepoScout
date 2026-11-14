@@ -2,7 +2,7 @@
 
 How each image here was made. This file is not published (`scripts/build_pages.py` leaves it out).
 
-All three images are cut from the 26 October 2026 screenshots in `docs/screenshots/`. Nothing was retaken, and the originals are untouched, so every number matches README §1 and the screenshots. The tool is `ffmpeg`, and every source image is 1440 × 900.
+All four images are cut from the 26 October 2026 screenshots in `docs/screenshots/`. Nothing was retaken, and the originals are untouched, so every number matches README §1 and the screenshots. The tool is `ffmpeg`, and every source image is 1440 × 900.
 
 ## Hero leads: `lead-mcp-server.png`, `lead-angularjs-directive.png`
 
@@ -14,6 +14,14 @@ ffmpeg -i docs/screenshots/2-graveyard-angularjs-directive.png -vf "crop=1036:33
 ```
 
 The verdict sentences above the leads are HTML text in `promo/index.html`, copied from the same screenshots.
+
+## Result: `result-verdict-strip.png`
+
+Screenshot 3, cropped to the verdict, the strip legend, the strip and its printout line (1090 × 565 at x 150, y 315), so it can be read at the page's width:
+
+```
+ffmpeg -i docs/screenshots/3-project-management-software.png -vf "crop=1090:565:150:315" promo/img/result-verdict-strip.png
+```
 
 ## Ranked table: `table-csv.png`
 
@@ -28,6 +36,12 @@ This is screenshot 4 (`4-table-csv-project-management-software.png`) with the ac
 ```
 
 The result was checked by eye at 100 % and at 3× zoom: no account name can be read.
+
+**Cropping.** The blurred full image was then cropped to the table heading, the Download CSV button and the first 8 rows (1130 × 380 at x 150, y 10), so it can be read at the page's width. The boxes below are in the coordinates of the full 1440 × 900 image, before the crop; rows 9–22 are no longer in the published image.
+
+```
+ffmpeg -i <the blurred full image> -vf "crop=1130:380:150:10" promo/img/table-csv.png
+```
 
 | Row | Blurred box (x, y, width, height) |
 |---:|---|
