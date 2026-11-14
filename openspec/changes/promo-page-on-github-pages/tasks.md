@@ -14,6 +14,7 @@
 ## 2. Promo page (first version, from the brief)
 
 - [ ] 2.1 Crop the two hero leads from `docs/screenshots/1-…` and `2-…` with `ffmpeg`, using the same box for both (zone labels down to the axis labels), into `promo/img/`. Record the exact commands in `promo/img/README.md`, and keep that file out of the assembled site. Check the crops by eye.
+- [ ] 2.1b Make `promo/img/table-csv.png` from `docs/screenshots/4-…`, with the `owner/` part of every repository name blurred (`ffmpeg` boxblur per name span). Record the commands in `promo/img/README.md`. Check by eye at 100% that no account name can be read and the rest stays sharp.
 - [ ] 2.2 Write `promo/index.html` with all content from `docs/designs/promo-page.md`, word for word:
   - hero: headline, sub-line, the two actions, the two leads with verdict text and alt text, and the 26 October caption
   - "For people about to build"
