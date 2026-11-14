@@ -15,7 +15,7 @@ The promo page SHALL answer, each in its own visible section, what RepoScout is 
 
 #### Scenario: Command-line block is copyable
 - **WHEN** a visitor selects the command-line block
-- **THEN** it copies as plain text containing the commands to clone the repository, create and activate a virtual environment, `pip install .` and run `reposcout search "project management software"`
+- **THEN** there is one block for Windows (PowerShell) and one for macOS and Linux, and each copies as plain text containing the commands to clone the repository, create a virtual environment, install with `pip install .` and run `reposcout search "project management software"`; the Windows block works without running an activation script, which PowerShell blocks by default
 
 ### Requirement: Links into the app, the code and the manual
 The promo page SHALL show an "Open RepoScout" action that opens the live app, and a "View the code on GitHub" action that opens `https://github.com/esst-prog2/RepoScout`, both in the hero and again in "Try it". It SHALL link to the user manual on GitHub. "Open RepoScout" SHALL be the page's single primary action.
