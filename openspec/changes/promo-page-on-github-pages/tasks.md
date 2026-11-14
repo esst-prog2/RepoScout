@@ -52,4 +52,4 @@
 ## 5. Docs and release
 
 - [x] 5.1 `docs/USER_MANUAL.md`: add the live addresses (promo and app) and the preview command. Update `PRODUCT.md`'s Operating Context line about GitHub Pages.
-- [ ] 5.2 Commit with a `PROCESS.md` row after each homework step. Push `promo-page` and open the PR. After the user merges, watch the workflow run and check the live promo page and app on a laptop and a phone.
+- [x] 5.2 Commit with a `PROCESS.md` row after each homework step. Push `promo-page` and open the PR. After the user merges, watch the workflow run and check the live promo page and app on a laptop and a phone.
