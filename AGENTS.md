@@ -734,3 +734,19 @@ On `website-ui` (same branch, separate OpenSpec change, as agreed). `/opsx:propo
 - Open issues now: #4 lock file (deferred), #7 dated/versioned report files; noted: cache-busting script URLs before GitHub Pages; GitHub Pages permission question asked to the instructor in HW7.
 
 **README §1 last sentence (user decision):** dropped the "five minutes of screenshots" sentence (the assignment's note about the demo format is information, not required content) and replaced it with the command-line sentence for the same search (`reposcout search "project management software"` prints the same verdict sentence and writes the same CSV). Still 6 sentences.
+
+## 2026-10-26 (later) — Merged and HW8 submitted
+
+PR #11 (`website-ui` → `main`) merged by the user, plus a second small PR with the final README sentence (verified: `main` contains `2c4ec39`). HW8 submitted with README §1 as the demo text. Remaining open issues: #4 lock file (deferred), #7 dated/versioned report files; cache-busting script URLs before GitHub Pages; GitHub Pages permission asked to the instructor (HW7 question). Slides due 28 Nov; demo 1/8 Dec (screenshots in `docs/screenshots/`).
+
+## 2026-11-14 — HW7/HW8 feedback from the instructor
+
+- Praise: four review findings closed through four separate OpenSpec changes; the shared test file keeping the website in step with the CLI is "what makes a second interface safe".
+- **GitHub Pages answer:** no fork needed (a fork would split the history). Publish from the course repo itself: Pages source = **"GitHub Actions"**, plus a short workflow that uploads `site/`. If the Pages setting isn't available to us in the course org, tell the instructor and he'll sort it out.
+- **Demo risk:** the numbers in README §1 (14,067 repos, 10 active; 37 of 50 for `mcp server`) come from a live search, and only the 26 October screenshots in `docs/screenshots/` hold them still. **Keep those screenshots for December; don't retake them** (new ones would disagree with §1). Slides should use these same images.
+
+## 2026-11-14 (later) — Promo-page homework begins
+
+GitHub Pages source set to **"GitHub Actions"** by the user (repo is public). New assignment: a promo page on GitHub Pages (what RepoScout is for, who it is for, how to try it; link to the online app). Steps: rule (commit + `PROCESS.md` row after each step) → gstack `/office-hours` for the content → Impeccable `shape`, `generate`, `critique` → publish on Pages → push. Nothing personal on the page.
+
+New branch `promo-page` from the updated `main`. Step 1 done: `PROCESS.md` created (one row per step from now on), rule saved for future sessions. Planned layout: promo page at the site root, the app (`site/`) under `/app/`, published by our own small Actions workflow that uploads only those two folders (not the suggested Jekyll / Static HTML templates). Slides still waiting for the next class.
