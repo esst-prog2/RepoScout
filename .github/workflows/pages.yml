@@ -1,0 +1,63 @@
+# Publishes RepoScout on GitHub Pages: the promo page at the site root and the
+# web app under app/. Only the folder assembled by scripts/build_pages.py is
+# uploaded, never the repository itself. Tests run first; if any fails, nothing
+# is deployed and the previous site stays online.
+# (openspec/changes/promo-page-on-github-pages, design Decision 6)
+
+name: Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - uses: actions/setup-python@v7.1.0
+        with:
+          python-version: "3.12"
+
+      - name: Install RepoScout with its pinned test dependencies
+        run: pip install ".[dev]"
+
+      - name: Python tests
+        run: pytest -q
+
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: "24"
+
+      - name: JavaScript tests (website rules)
+        run: node --test "tests/js/*.test.mjs"
+
+      - name: Assemble the site (cache-busted with the commit)
+        run: python scripts/build_pages.py --out _site --version "${GITHUB_SHA::7}"
+
+      - uses: actions/configure-pages@v6.0.0
+
+      - uses: actions/upload-pages-artifact@v5.0.0
+        with:
+          path: _site/
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5.0.1

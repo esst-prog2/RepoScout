@@ -119,7 +119,14 @@ If GitHub reports more matches than the 50 RepoScout fetches, the verdict says s
 
 RepoScout also has a web page that does the same search in your browser and adds a picture of the results, the **heartbeat strip**.
 
-**Start it** (from the project folder, in PowerShell or any terminal):
+**Online:** the page is published on GitHub Pages, so it needs no installation.
+
+- **https://esst-prog2.github.io/RepoScout/** is the promo page: what RepoScout is for, who it is for, and how to try it.
+- **https://esst-prog2.github.io/RepoScout/app/** is the search page itself.
+
+The site is republished automatically after every change to the `main` branch, once all the tests pass.
+
+**Start it on your own computer** (from the project folder, in PowerShell or any terminal):
 
 ```
 cd site
@@ -137,6 +144,14 @@ Then open **http://localhost:8000** in your browser. Keep the terminal open whil
 **No token needed.** The page never asks for or stores a GitHub token, so it works with GitHub's limit for anonymous searches: 10 per minute. If you reach it, the page tells you the time after which you can search again. Repeating a search within 24 hours is answered from your browser's memory and doesn't count against the limit. (The command-line tool keeps using your token as before.)
 
 **If something goes wrong,** the page says so in plain words instead of going blank: no internet, the rate limit, an error from GitHub (with its error number), or a response it doesn't understand (this can happen on a Wi-Fi with a login page: sign in there first). If the chart can't be drawn, the summary and table still appear.
+
+**Preview the whole published site** (promo page and search page together, exactly as GitHub Pages will show them):
+
+```
+python scripts/build_pages.py --serve
+```
+
+Then open **http://localhost:8000**: the promo page is at the root and the search page under `/app/`. The command assembles the site into a `_site` folder, which is not committed; press `Ctrl+C` to stop it. The promo page's own files are in `promo/`, but serving `promo/` alone doesn't work, because its font comes from the app's folder.
 
 **Running the tests.** The page follows exactly the same rules as the command-line tool, checked by one shared set of test cases. Run both test commands from the project folder, separately; both must pass:
 

@@ -46,10 +46,10 @@
 
 ## 4. Deploy workflow
 
-- [ ] 4.1 Look up the current exact release tags of `actions/checkout`, `actions/setup-python`, `actions/setup-node`, `actions/configure-pages`, `actions/upload-pages-artifact` and `actions/deploy-pages` (GitHub API via PowerShell).
-- [ ] 4.2 Write `.github/workflows/pages.yml` per design Decision 6: triggers, minimal permissions, concurrency, the tests before the build, `--version ${GITHUB_SHA::7}`, upload, deploy.
+- [x] 4.1 Look up the current exact release tags of `actions/checkout`, `actions/setup-python`, `actions/setup-node`, `actions/configure-pages`, `actions/upload-pages-artifact` and `actions/deploy-pages` (GitHub API via PowerShell).
+- [x] 4.2 Write `.github/workflows/pages.yml` per design Decision 6: triggers, minimal permissions, concurrency, the tests before the build, `--version ${GITHUB_SHA::7}`, upload, deploy.
 
 ## 5. Docs and release
 
-- [ ] 5.1 `docs/USER_MANUAL.md`: add the live addresses (promo and app) and the preview command. Update `PRODUCT.md`'s Operating Context line about GitHub Pages.
+- [x] 5.1 `docs/USER_MANUAL.md`: add the live addresses (promo and app) and the preview command. Update `PRODUCT.md`'s Operating Context line about GitHub Pages.
 - [ ] 5.2 Commit with a `PROCESS.md` row after each homework step. Push `promo-page` and open the PR. After the user merges, watch the workflow run and check the live promo page and app on a laptop and a phone.
