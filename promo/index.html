@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#3a0d17">
+  <title>RepoScout: is your idea's corner of GitHub alive?</title>
+  <meta name="description" content="RepoScout searches GitHub for a topic, takes the 50 best-matching repositories and shows how many are still being worked on. No sign-in.">
+  <link rel="preload" href="app/vendor/fonts/archivo-latin-wdth-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="band">
+    <div class="wrap">
+      <nav class="topbar" aria-label="RepoScout">
+        <span class="wordmark">RepoScout</span>
+        <a class="toplink" href="https://github.com/esst-prog2/RepoScout">Code on GitHub</a>
+      </nav>
+
+      <div class="hero">
+        <h1>Is your idea's corner of GitHub alive?</h1>
+        <p class="sub">RepoScout searches GitHub for a topic, takes the 50 best-matching repositories and shows how many are still being worked on: one sentence, one heartbeat chart, one CSV. No sign-in.</p>
+        <p class="actions">
+          <a class="button primary" href="app/">Open RepoScout</a>
+          <a class="button secondary" href="https://github.com/esst-prog2/RepoScout">View the code on GitHub</a>
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="leads wrap" aria-labelledby="leads-title">
+      <h2 id="leads-title" class="visually-hidden">Two real searches</h2>
+
+      <figure class="lead lead-alive">
+        <h3 class="lead-topic">mcp server</h3>
+        <p class="lead-verdict">Showing the 50 best-matching of 177,486 repos, <span class="count">37 active</span> among them <span class="tail">— most recent entrant pushed 3 minutes ago</span></p>
+        <div class="strip"><img src="img/lead-mcp-server.png" width="1036" height="330"
+          alt="Heartbeat strip for mcp server: 4 stale, 9 slowing and 37 active repositories. Most dots sit in the active zone on the right, where the trace beats densely up to now."></div>
+        <p class="strip-hint">The strip opens at “now”. Swipe it for older years.</p>
+        <p class="lead-note">The trace keeps beating.</p>
+      </figure>
+
+      <figure class="lead lead-dead">
+        <h3 class="lead-topic">angularjs directive</h3>
+        <p class="lead-verdict">Showing the 50 best-matching of 3,137 repos, <span class="count zero">0 active</span> among them <span class="tail">— most recent entrant pushed 3 months ago</span></p>
+        <div class="strip"><img src="img/lead-angularjs-directive.png" width="1036" height="330"
+          alt="Heartbeat strip for angularjs directive: 48 stale, 2 slowing and 0 active repositories. The dots pile up at five years and older, and the trace is flat across the whole active zone."></div>
+        <p class="lead-note">The trace flatlines.</p>
+      </figure>
+
+      <p class="printout">Two real searches, 26 October 2026.</p>
+    </section>
+
+    <section class="block wrap" aria-labelledby="who">
+      <h2 id="who">For people about to build</h2>
+      <p class="prose">Before you start a side project, a course project or a new tool, you want to know whether anyone is still working on the idea. Are there active projects you could join or learn from, or is the topic a graveyard of abandoned repositories? RepoScout answers that with one search instead of an afternoon of clicking through GitHub.</p>
+    </section>
+
+    <section class="block wrap" aria-labelledby="read">
+      <h2 id="read">One search, four answers</h2>
+      <p class="prose">A search for <strong>project management software</strong>, on 26 October 2026:</p>
+
+      <div class="shots">
+        <figure class="shot">
+          <div class="shot-frame">
+            <img src="img/result-project-management-software.png" width="1440" height="900" loading="lazy"
+              alt="RepoScout result for project management software: the verdict 'Showing the 50 best-matching of 14,067 repos, 10 active among them' above the heartbeat strip, with 36 stale, 4 slowing and 10 active repositories.">
+            <span class="marker" style="left:11.2%;top:38.6%" aria-hidden="true">1</span>
+            <span class="marker" style="left:11.2%;top:58%" aria-hidden="true">2</span>
+          </div>
+        </figure>
+        <figure class="shot">
+          <div class="shot-frame">
+            <img src="img/table-csv.png" width="1440" height="900" loading="lazy"
+              alt="The same search as a table ranked by stars, with last push date, language and activity group for each repository, and a Download CSV button. Account names are blurred.">
+            <span class="marker" style="left:11.4%;top:5.6%" aria-hidden="true">3</span>
+            <span class="marker" style="left:73.3%;top:5%" aria-hidden="true">4</span>
+          </div>
+        </figure>
+      </div>
+
+      <ol class="answers">
+        <li><strong>The verdict.</strong> One sentence: “Showing the 50 best-matching of 14,067 repos, 10 active among them — most recent entrant pushed 1 minute ago.”</li>
+        <li><strong>The heartbeat strip.</strong> Each dot is a repository. Further right means pushed more recently, bigger means more stars. Three zones: stale (over a year), slowing (3 to 12 months), active (last 3 months). The line along the bottom spikes wherever repositories were pushed, so a dead topic flatlines across the active zone.</li>
+        <li><strong>The table.</strong> The same 50 repositories ranked by stars, with last push date, language and activity group. Each name links to the repository on GitHub.</li>
+        <li><strong>Download CSV.</strong> The same rows as a file (<code>project-management-software-report.csv</code>) that you can open in a spreadsheet.</li>
+      </ol>
+    </section>
+
+    <section class="block wrap" aria-labelledby="try">
+      <h2 id="try">Try it</h2>
+      <div class="ways">
+        <div class="way">
+          <h3>In your browser</h3>
+          <p>Type a topic or click one of the examples. No account, no token. GitHub allows 10 searches a minute without signing in, shared by everyone on the same network: on a busy Wi-Fi, wait a minute and try again (the page says when). Results are kept in your browser for 24 hours, so repeating a search is instant.</p>
+          <p class="actions">
+            <a class="button primary" href="app/">Open RepoScout</a>
+            <a class="button secondary" href="https://github.com/esst-prog2/RepoScout">View the code on GitHub</a>
+          </p>
+        </div>
+        <div class="way">
+          <h3>On the command line</h3>
+          <p>Python 3.10 or newer.</p>
+<pre class="code" tabindex="0" aria-label="Commands to install and run RepoScout"><code>git clone https://github.com/esst-prog2/RepoScout
+cd RepoScout
+python -m venv .venv
+.venv\Scripts\activate        # macOS/Linux: source .venv/bin/activate
+pip install .
+reposcout search "project management software"</code></pre>
+          <p>It applies the same rules, prints the same verdict sentence and writes the same CSV. With a free GitHub token it gets 30 searches a minute. The <a href="https://github.com/esst-prog2/RepoScout/blob/main/docs/USER_MANUAL.md">user manual</a> covers other platforms and the token setup.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="block wrap" aria-labelledby="limits">
+      <h2 id="limits">Honest limits</h2>
+      <ul class="limits">
+        <li><strong>It reads the 50 best matches, not every repository.</strong> When there are more, the verdict says so (“50 best-matching of 14,067”).</li>
+        <li><strong>“Active” means pushed in the last 3 months.</strong> GitHub's push time isn't always the latest commit. When we checked 50 repositories, 5 landed in a different group because of that.</li>
+        <li><strong>It matches words, not meaning.</strong> A search can pick up repositories that use the same words for something else. Put quotes around an exact phrase.</li>
+        <li><strong>It's a snapshot.</strong> The numbers on this page are from 26 October 2026. Run the search yourself for today's.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="band foot">
+    <div class="wrap">
+      <p>RepoScout is a student project for the Advanced Programming course at ELTE, 2026.</p>
+      <p class="footlinks"><a href="https://github.com/esst-prog2/RepoScout">Source code</a> · <a href="https://github.com/esst-prog2/RepoScout/blob/main/docs/USER_MANUAL.md">User manual</a> · <a href="app/">Open RepoScout</a></p>
+    </div>
+  </footer>
+</body>
+</html>

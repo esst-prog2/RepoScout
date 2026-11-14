@@ -1,6 +1,6 @@
 ## 1. Assembly script (tests first)
 
-- [ ] 1.1 Write `tests/test_build_pages.py` covering:
+- [x] 1.1 Write `tests/test_build_pages.py` covering:
   - the allowed layout and the forbidden files
   - every relative CSS/JS reference suffixed, the `./rules.js` import suffixed, fonts not suffixed
   - `site/` and `promo/` unchanged (hashes before and after)
@@ -8,31 +8,31 @@
   - refused output folders
 
   Run it and confirm it fails because the script doesn't exist yet.
-- [ ] 1.2 Write `scripts/build_pages.py` (stdlib only), with `--out` (default `_site`), `--version` (default `dev`) and `--serve [port]`, following design Decisions 1–3. Add `_site/` to `.gitignore`.
-- [ ] 1.3 Run the full pytest and node suites. All must pass, and the existing app tests stay unchanged.
+- [x] 1.2 Write `scripts/build_pages.py` (stdlib only), with `--out` (default `_site`), `--version` (default `dev`) and `--serve [port]`, following design Decisions 1–3. Add `_site/` to `.gitignore`.
+- [x] 1.3 Run the full pytest and node suites. All must pass, and the existing app tests stay unchanged.
 
 ## 2. Promo page (first version, from the brief)
 
-- [ ] 2.1 Crop the two hero leads from `docs/screenshots/1-…` and `2-…` with `ffmpeg`, using the same box for both (zone labels down to the axis labels), into `promo/img/`. Record the exact commands in `promo/img/README.md`, and keep that file out of the assembled site. Check the crops by eye.
-- [ ] 2.1b Make `promo/img/table-csv.png` from `docs/screenshots/4-…`, with the `owner/` part of every repository name blurred (`ffmpeg` boxblur per name span). Record the commands in `promo/img/README.md`. Check by eye at 100% that no account name can be read and the rest stays sharp.
-- [ ] 2.2 Write `promo/index.html` with all content from `docs/designs/promo-page.md`, word for word:
+- [x] 2.1 Crop the two hero leads from `docs/screenshots/1-…` and `2-…` with `ffmpeg`, using the same box for both (zone labels down to the axis labels), into `promo/img/`. Record the exact commands in `promo/img/README.md`, and keep that file out of the assembled site. Check the crops by eye.
+- [x] 2.1b Make `promo/img/table-csv.png` from `docs/screenshots/4-…`, with the `owner/` part of every repository name blurred (`ffmpeg` boxblur per name span). Record the commands in `promo/img/README.md`. Check by eye at 100% that no account name can be read and the rest stays sharp.
+- [x] 2.2 Write `promo/index.html` with all content from `docs/designs/promo-page.md`, word for word:
   - hero: headline, sub-line, the two actions, the two leads with verdict text and alt text, and the 26 October caption
   - "For people about to build"
   - "One search, four answers": screenshots 3 and 4 with numbered markers as HTML
   - "Try it": browser and command line (with the venv steps)
   - "Honest limits"
   - footer
-- [ ] 2.3 Write `promo/style.css` in the app's ECG printout world:
+- [x] 2.3 Write `promo/style.css` in the app's ECG printout world:
   - tokens copied from DESIGN.md, and Archivo from `app/vendor/fonts/`
   - phone layout down to 360 px
   - the one-time left-to-right reveal of lead I, skipped under `prefers-reduced-motion`, with content visible by default
-- [ ] 2.4 Add promo-text tests to `tests/test_build_pages.py`:
+- [x] 2.4 Add promo-text tests to `tests/test_build_pages.py`:
   - the exact verdict sentences and figures
   - the 26 October date
   - links to `app/`, the repo and the manual
   - no exclamation marks
   - no e-mail addresses or local paths in any text file of the assembled folder, and no original `4-table-csv-…png` in it
-- [ ] 2.5 Preview with `python scripts/build_pages.py --serve` and check in a real browser (gstack browse) at 1440 and 360 wide:
+- [x] 2.5 Preview with `python scripts/build_pages.py --serve` and check in a real browser (gstack browse) at 1440 and 360 wide:
   - no sideways scroll
   - focus visible in reading order
   - images-off view still makes sense
