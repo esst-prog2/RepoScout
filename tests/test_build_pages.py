@@ -216,6 +216,9 @@ def test_promo_has_the_three_answers_and_the_limits(real_site):
     for command in ("git clone https://github.com/esst-prog2/RepoScout", "python -m venv .venv",
                     "pip install .", 'reposcout search "project management software"'):
         assert command in text
+    # PowerShell blocks activation scripts by default, so the Windows block
+    # must work without .venv\Scripts\activate (critique round 2).
+    assert "Scripts\\activate" not in text
 
 
 def test_promo_links_to_the_app_the_code_and_the_manual(real_site):
