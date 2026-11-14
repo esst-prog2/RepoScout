@@ -20,4 +20,8 @@ id_ed25519*
 
 # Impeccable: critique snapshots hold local absolute paths; per-machine config
 .impeccable/critique/
+.impeccable/live/
 .impeccable/config.local.json
+
+# GitHub Pages: assembled by scripts/build_pages.py, never committed
+_site/

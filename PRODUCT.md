@@ -23,7 +23,8 @@ A fast GitHub topic search with export: type a topic, get the 50 best matches ra
 
 ## Operating Context
 
-- Run locally: `cd site`, `python -m http.server`, open http://localhost:8000. GitHub Pages is a possible later step, not done yet.
+- Run locally: `cd site`, `python -m http.server`, open http://localhost:8000.
+- Published on GitHub Pages: the promo page (`promo/`) at https://esst-prog2.github.io/RepoScout/ and the app under `/app/`, assembled by `scripts/build_pages.py` and deployed by `.github/workflows/pages.yml` after the tests pass. Preview the same site with `python scripts/build_pages.py --serve`.
 - Calls GitHub's search API directly from the browser, unauthenticated: 10 searches a minute; when the limit is hit the page says when to try again.
 - Results are cached in the browser for 24 hours per normalized keyword.
 - Demo keywords: alive `mcp server`, graveyard `angularjs directive`, table/CSV `project management software`; `expense tracker` is the long-running example in the README and the project history.
