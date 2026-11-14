@@ -17,6 +17,10 @@ The published site SHALL serve the promo page at its root address and the RepoSc
 - **WHEN** the assembled folder is listed
 - **THEN** it contains only the promo page and its assets, the `app/` folder (the contents of `site/`) and the promo images, and no file such as `AGENTS.md`, `PRODUCT.md`, `pyproject.toml` or anything from `tests/`, `openspec/`, `reposcout/` or `.impeccable/`
 
+#### Scenario: No personal data in any published text file
+- **WHEN** every text file in the assembled folder (HTML, CSS, JavaScript, licence files) is searched for e-mail addresses and local paths (`C:\`, `/home/`, `/Users/`)
+- **THEN** nothing is found
+
 ### Requirement: One assembly for preview and publishing
 Assembling the published folder SHALL be done by one script in the repository that runs with Python's standard library only. Running it locally SHALL produce the same folder the deploy uses, and it SHALL offer serving that folder for a local preview. The app's source in `site/` SHALL keep working unchanged when served on its own (`python -m http.server` in `site/`).
 

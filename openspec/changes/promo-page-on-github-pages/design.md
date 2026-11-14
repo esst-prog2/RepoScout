@@ -58,7 +58,9 @@
    - `promo/img/lead-mcp-server.png` and `promo/img/lead-angularjs-directive.png` are cut with `ffmpeg` (already on this machine) from `docs/screenshots/1-…` and `2-…`.
    - The crop runs from the zone labels to the axis labels: the strip only, with the same crop box for both so their time axes line up exactly.
    - The verdicts above them are HTML text, copied character for character from the screenshots.
-   - Screenshots 3 and 4 are used whole, copied by the script from `docs/screenshots/` into `_site/img/`, so git keeps one copy.
+   - Screenshot 3 is used whole and copied by the script from `docs/screenshots/` into `_site/img/`, so git keeps one copy.
+   - **Screenshot 4 is not published as is.** Its table shows GitHub account names such as `brettkromkamp/…`, which can be people's names, and the instructor's rule is no real names. `promo/img/table-csv.png` is a committed copy in which the `owner/` part of every repository name is blurred with `ffmpeg` (boxblur over each name's owner span). Repository names, numbers, buckets and the CSV button stay sharp. The commands and boxes are recorded in `promo/img/README.md`, and the original in `docs/screenshots/` is untouched.
+   - The published site never includes the original screenshot 4. A test checks this.
    - The crop commands and the source file are recorded in `promo/img/README.md`. That file is not copied to the site.
 
 6. **Deploy workflow, `.github/workflows/pages.yml`.**
@@ -81,7 +83,8 @@
    - **Sources untouched:** a hash of `site/` and `promo/` is the same before and after a build.
    - **Check fails** on a deliberately unsuffixed fixture.
    - **Refusals:** the script refuses dangerous output folders.
-   - **Promo text:** the exact verdict sentences and figures, the 26 October date and the three links are present, and there are no e-mail addresses, local paths or exclamation marks.
+   - **Promo text:** the exact verdict sentences and figures, the 26 October date and the three links are present, and there are no exclamation marks.
+   - **Personal data:** no text file anywhere in the assembled folder contains an e-mail address or a local path (`C:\`, `/home/`, `/Users/`), and the original `4-table-csv-…png` is not in it. The blur itself is checked by eye, since a test can't read names in an image.
    - Browser checks (360 px, reduced motion, alt texts, focus order) are done with gstack's browse tool, as for the app.
 
 ## Risks / Trade-offs

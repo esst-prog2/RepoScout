@@ -10,7 +10,7 @@ The course homework asks for a promo page on GitHub Pages: what RepoScout is for
   - **Hero:** the question headline, **Open RepoScout** and **View the code on GitHub**, and two stacked "ECG leads" cut from the 26 October screenshots (`mcp server` beating, `angularjs directive` flatlining), with their verdicts as real text.
   - **Sections:** "For people about to build", "One search, four answers" (screenshots 3 and 4 with numbered markers), "Try it" (browser and command line) and "Honest limits", then a footer.
   - **Look:** the app's existing ECG printout look and vendored Archivo font. No new dependency.
-- New cropped images of screenshots 1 and 2 (strip only) in `promo/img/`. They are cut from the 26 October originals, not retaken; the originals in `docs/screenshots/` stay untouched.
+- New cropped images of screenshots 1 and 2 (strip only) and a copy of screenshot 4 with the GitHub account names blurred (no real names published), in `promo/img/`. They are cut from the 26 October originals, not retaken; the originals in `docs/screenshots/` stay untouched.
 - New assembly script `scripts/build_pages.py`. It copies the promo page to the site root, the app to `app/` and the screenshots the promo page needs into one output folder (`_site/`, gitignored), and adds cache-busting `?v=<version>` suffixes to the copies only.
   - The same script powers a local preview, so localhost shows exactly what GitHub Pages will show.
   - Sources stay plain: the app still runs with `cd site` and `python -m http.server`.

@@ -29,7 +29,8 @@
   - the exact verdict sentences and figures
   - the 26 October date
   - links to `app/`, the repo and the manual
-  - no e-mail addresses, local paths or exclamation marks
+  - no exclamation marks
+  - no e-mail addresses or local paths in any text file of the assembled folder, and no original `4-table-csv-…png` in it
 - [ ] 2.5 Preview with `python scripts/build_pages.py --serve` and check in a real browser (gstack browse) at 1440 and 360 wide:
   - no sideways scroll
   - focus visible in reading order

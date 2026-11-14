@@ -62,8 +62,12 @@ Every image on the promo page SHALL have alternative text that states what it sh
 - **THEN** the page shows its final state with no reveal animation
 
 ### Requirement: Nothing personal published
-The promo page SHALL NOT contain personal data: no personal names, e-mail addresses, local file paths or private context. The footer SHALL name the course (Advanced Programming at ELTE, 2026) and link the public repository.
+The promo page SHALL NOT contain personal data: no real names, photos of faces, e-mail addresses, local file paths or private context, in its text or in its images. GitHub account names that can be people's names (the `owner/` part of a repository name) SHALL NOT be readable in any image on the page; where a screenshot shows them, the promo page SHALL use a copy with that part blurred, leaving the original screenshot untouched. The footer SHALL name the course (Advanced Programming at ELTE, 2026) and link the public repository.
 
 #### Scenario: Personal-data check
 - **WHEN** the published promo page's text and source are searched for e-mail addresses and local paths (`C:\`, `/home/`, `/Users/`)
 - **THEN** nothing is found
+
+#### Scenario: Table image without account names
+- **WHEN** a visitor looks at the ranked-table image in "One search, four answers"
+- **THEN** the repository names, stars, dates, languages, buckets and the Download CSV button are readable, and the account part before each `/` is blurred beyond reading
