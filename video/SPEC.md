@@ -14,7 +14,7 @@ LOOK:    RepoScout's own ECG printout world (DESIGN.md), nothing new.
          body 500 at 100%. Sizes: hero number 260 px, scene lines 56 px, small lines 30-36 px (floor 28 px).
          Chart paper: 5 px minor grid #f1cdd2, 25 px major #e09aa6, both scaled with the sheet (x1.5).
          No shadows, no grain, no vignette: it is printed paper.
-OBJECTS: the 14,067 matches as a field of 4 px marks in 201 columns (one mark per repo, exact count);
+OBJECTS: a two-bar chart from the registry's chart-story component: 14,067 "matching on GitHub" vs 50 "read by RepoScout";
          the ECG sheet from the app, with its four axis labels (5+ years, 1 year, 90 days, now),
          its two zone rules and its trace; the real result and table screens from 26 October 2026
          (table crop with account names blurred, as on the page).
@@ -29,9 +29,11 @@ MOTION:  arrivals expo.out 0.5-0.7 s; recolour power2.inOut 0.4 s; marks drop po
 SHOTS:
   s1  0.0-3.5   oxblood. "14,067" counts up 0 → 14,067 in 1.2 s (tabular figures). 0.5: "repos on GitHub match
                 “project management software”". 1.7: "Which 50 matter?" (3 words: the short opening question).
-  s2  3.5-8.6   paper. Header "14,067 matching repos". The field of 14,067 marks prints row by row (1.0 s).
-                0.6: "GitHub ranks them by how well they match". 2.6: the first 50 marks turn trace red and grow,
-                the rest fall back to 18 %. 2.9: "RepoScout reads the 50 best".
+  s2  3.5-8.6   paper. Header "14,067 matching repos, ranked by GitHub". The chart-story component (mounted in
+                index.html over this scene, themed with RepoScout's colours and Archivo) grows a 14,067 bar and a 50
+                sliver; at about 2.4 s a trace-red callout rolls up to "50". 0.6: "GitHub ranks them by how well they
+                match". 2.9: "RepoScout reads the 50 best". (First a field of 14,067 marks, then a hand-drawn list;
+                both read as odd, so the registry chart replaced them.)
   s3  8.6-15.5  paper. The ECG sheet prints left to right. 0.3: "Each repo is placed by its last push".
                 The 50 dots drop onto their real positions in ink. 2.2: zone rules draw, dots take their bucket
                 colours, zone counts print (36 stale · 4 slowing · 10 active). 3.6: "Size is stars. The trace
