@@ -1,0 +1,30 @@
+<template>
+  <style>
+    @font-face { font-family: "Archivo"; font-weight: 100 900; font-stretch: 62% 125%;
+      src: url("assets/fonts/archivo-latin-wdth-normal.woff2") format("woff2"); }
+    #root { position: absolute; inset: 0; background: #3a0d17; font-family: "Archivo", sans-serif; color: #fbeef0; }
+    .e-big { position: absolute; left: 192px; font-size: 150px; font-weight: 800; font-stretch: 75%; line-height: 1;
+      letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+    #e-in { top: 260px; }
+    #e-out { top: 430px; }
+    #e-rule { position: absolute; left: 196px; top: 610px; width: 520px; height: 6px; background: #b3122e; }
+    #e-try { position: absolute; left: 196px; top: 760px; font-size: 48px; font-weight: 600; color: #e3bfc5; }
+    #e-try b { color: #fbeef0; font-weight: 700; }
+  </style>
+  <div id="root" data-composition-id="end" data-width="1920" data-height="1080">
+    <div id="e-in" class="e-big clip" data-start="0" data-duration="3.8">14,067 repos in.</div>
+    <div id="e-out" class="e-big clip" data-start="0" data-duration="3.8">One sentence out.</div>
+    <div id="e-rule" class="clip" data-start="0" data-duration="3.8"></div>
+    <div id="e-try" class="clip" data-start="0" data-duration="3.8">Try it: <b>esst-prog2.github.io/RepoScout</b></div>
+  </div>
+  <script>
+    (function () {
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo("#e-in", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 0.1);
+      tl.fromTo("#e-out", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 0.55);
+      tl.fromTo("#e-rule", { scaleX: 0, transformOrigin: "0 50%" }, { scaleX: 1, duration: 0.5, ease: "expo.out" }, 0.75);
+      tl.fromTo("#e-try", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }, 1.2);
+      window.__timelines["end"] = tl;
+    })();
+  </script>
+</template>

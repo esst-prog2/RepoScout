@@ -1,0 +1,38 @@
+<template>
+  <style>
+    @font-face { font-family: "Archivo"; font-weight: 100 900; font-stretch: 62% 125%;
+      src: url("assets/fonts/archivo-latin-wdth-normal.woff2") format("woff2"); }
+    #root { position: absolute; inset: 0; background: #3a0d17; font-family: "Archivo", sans-serif; color: #fbeef0; }
+    #q-number { position: absolute; left: 192px; top: 150px; font-size: 260px; font-weight: 800; font-stretch: 75%;
+      line-height: 1; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+    #q-match { position: absolute; left: 196px; top: 440px; font-size: 44px; font-weight: 500; color: #e3bfc5; }
+    #q-ask { position: absolute; left: 192px; top: 610px; font-size: 128px; font-weight: 800; font-stretch: 75%;
+      line-height: 1; letter-spacing: -0.01em; }
+    #q-rule { position: absolute; left: 196px; top: 770px; width: 520px; height: 6px; background: #b3122e; }
+    #q-source { position: absolute; left: 196px; top: 900px; font-size: 30px; color: #e3bfc5; font-stretch: 87%; }
+  </style>
+  <div id="root" data-composition-id="question" data-width="1920" data-height="1080">
+    <div id="q-number" class="clip" data-start="0" data-duration="3.5">14,067</div>
+    <div id="q-match" class="clip" data-start="0" data-duration="3.5">repos on GitHub match “project management software”</div>
+    <div id="q-ask" class="clip" data-start="0" data-duration="3.5">Which 50 matter?</div>
+    <div id="q-rule" class="clip" data-start="0" data-duration="3.5"></div>
+    <div id="q-source" class="clip" data-start="0" data-duration="3.5">GitHub search · 26 October 2026</div>
+  </div>
+  <script>
+    (function () {
+      const tl = gsap.timeline({ paused: true });
+      const n = { v: 0 };
+      const el = document.querySelector("#q-number");
+      const fmt = (v) => Math.round(v).toLocaleString("en-US");
+      el.textContent = fmt(0);
+      tl.fromTo(n, { v: 0 }, { v: window.RS.total, duration: 1.2, ease: "expo.out",
+        onUpdate: () => { el.textContent = fmt(n.v); } }, 0.1);
+      tl.fromTo("#q-match", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 0.5);
+      tl.fromTo("#q-source", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }, 0.6);
+      tl.fromTo("#q-ask", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.18, ease: "power4.out" }, 1.7);
+      tl.fromTo("#q-rule", { scaleX: 0, transformOrigin: "0 50%" }, { scaleX: 1, duration: 0.5, ease: "expo.out" }, 1.85);
+      tl.to("#q-number, #q-match, #q-ask, #q-rule, #q-source", { opacity: 0, filter: "blur(6px)", duration: 0.18, ease: "power3.in" }, 3.3);
+      window.__timelines["question"] = tl;
+    })();
+  </script>
+</template>

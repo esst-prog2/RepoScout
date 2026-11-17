@@ -251,3 +251,14 @@ def test_every_promo_image_exists_and_has_alt_text(real_site):
 
 def test_real_site_app_matches_site_folder(real_site):
     assert {p for p in _files(real_site) if p.startswith("app/")} == {"app/" + p for p in _files(REPO / "site")}
+
+
+def test_promo_explainer_video_is_published_silent_and_small(real_site):
+    html = (real_site / "index.html").read_text(encoding="utf-8")
+    tag = re.search(r"<video\b[^>]*>", html, flags=re.S).group(0)
+    for attr in ("controls", "muted", "playsinline", 'poster="video/poster.jpg"'):
+        assert attr in tag
+    assert 'src="video/reposcout-explainer.mp4"' in html
+    video = real_site / "video" / "reposcout-explainer.mp4"
+    assert video.is_file() and (real_site / "video" / "poster.jpg").is_file()
+    assert video.stat().st_size < 5_000_000  # the page stays light
