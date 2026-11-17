@@ -1,0 +1,30 @@
+<template>
+  <style>
+    @font-face { font-family: "Archivo"; font-weight: 100 900; font-stretch: 62% 125%;
+      src: url("assets/fonts/archivo-latin-wdth-normal.woff2") format("woff2"); }
+    #root { position: absolute; inset: 0; background: #f6eeee; font-family: "Archivo", sans-serif; color: #24161a; }
+    .sc-cap { position: absolute; left: 192px; top: 96px; font-size: 48px; font-weight: 700; font-stretch: 80%; }
+    .sc-frame { position: absolute; left: 192px; top: 190px; background: #fdfafa; border: 2px solid #ecdcdc; border-radius: 10px; overflow: hidden; }
+    #sc-result { width: 1417px; height: 734px; }
+    #sc-table { width: 1536px; height: 517px; top: 250px; }
+    .sc-frame img { display: block; width: 100%; height: 100%; }
+  </style>
+  <div id="root" data-composition-id="screens" data-width="1920" data-height="1080">
+    <div id="sc-cap1" class="sc-cap clip" data-start="0" data-duration="2.0">The real screen, 26 October 2026</div>
+    <div id="sc-result" class="sc-frame clip" data-start="0" data-duration="2.0"><img id="sc-result-img" src="assets/result-verdict-strip.png" alt="" /></div>
+    <div id="sc-cap2" class="sc-cap clip" data-start="2.0" data-duration="2.6">Ranked by stars, with a CSV download</div>
+    <div id="sc-table" class="sc-frame clip" data-start="2.0" data-duration="2.6"><img id="sc-table-img" src="assets/table-csv.png" alt="" /></div>
+  </div>
+  <script>
+    (function () {
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo("#sc-cap1", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 0);
+      tl.fromTo("#sc-result-img", { scale: 1.04, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.6, ease: "expo.out" }, 0.05);
+      tl.to("#sc-cap1, #sc-result", { opacity: 0, filter: "blur(6px)", duration: 0.15, ease: "power3.in" }, 1.83);
+      tl.fromTo("#sc-cap2", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 2.0);
+      tl.fromTo("#sc-table-img", { x: 60, opacity: 0 }, { x: 0, opacity: 1, duration: 0.6, ease: "expo.out" }, 2.05);
+      tl.to("#sc-cap2, #sc-table", { opacity: 0, filter: "blur(6px)", duration: 0.15, ease: "power3.in" }, 4.43);
+      window.__timelines["screens"] = tl;
+    })();
+  </script>
+</template>

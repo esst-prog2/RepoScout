@@ -1,0 +1,98 @@
+<template>
+  <style>
+    @font-face { font-family: "Archivo"; font-weight: 100 900; font-stretch: 62% 125%;
+      src: url("assets/fonts/archivo-latin-wdth-normal.woff2") format("woff2"); }
+    #root { position: absolute; inset: 0; background: #fdfafa; font-family: "Archivo", sans-serif; color: #24161a; }
+    .s-line { position: absolute; left: 192px; top: 130px; font-size: 56px; font-weight: 700; font-stretch: 80%;
+      letter-spacing: -0.01em; }
+    #s-canvas { position: absolute; left: 192px; top: 280px; }
+    .s-zone { position: absolute; top: 270px; font-size: 32px; font-weight: 650; font-stretch: 87%;
+      white-space: nowrap; transform: translateX(-50%); }
+    #s-zone-stale { left: 472px; color: #4f5359; }
+    #s-zone-slowing { left: 963px; color: #8a5000; }
+    #s-zone-active { left: 1451px; color: #a3102a; }
+  </style>
+  <div id="root" data-composition-id="sheet" data-width="1920" data-height="1080">
+    <div id="s-line1" class="s-line clip" data-start="0" data-duration="3.6">Each repo is placed by its last push</div>
+    <div id="s-line2" class="s-line clip" data-start="3.6" data-duration="3.3">Size is stars. The trace spikes at every push.</div>
+    <canvas id="s-canvas" class="clip" data-start="0" data-duration="6.9" width="1536" height="600"></canvas>
+    <div id="s-zone-stale" class="s-zone clip" data-start="0" data-duration="6.9">36 stale · 1 year+</div>
+    <div id="s-zone-slowing" class="s-zone clip" data-start="0" data-duration="6.9">4 slowing · 3–12 months</div>
+    <div id="s-zone-active" class="s-zone clip" data-start="0" data-duration="6.9">10 active · last 3 months</div>
+  </div>
+  <script>
+    (function () {
+      const D = window.RS, S = D.sheet, K = 1.5, OX = 23, OY = 50;   // sheet origin inside the canvas
+      const W = S.w * K, H = S.h * K;
+      const ctx = document.querySelector("#s-canvas").getContext("2d");
+      const X = (sx) => OX + (sx - S.x0) * K, Y = (sy) => OY + (sy - S.y0) * K;
+      const clamp = (v) => Math.max(0, Math.min(1, v));
+      const out3 = (v) => 1 - Math.pow(1 - v, 3);
+      const inout = (v) => (v < 0.5 ? 2 * v * v : 1 - Math.pow(-2 * v + 2, 2) / 2);
+      const INK = [106, 83, 87];
+      const COL = { stale: [154, 158, 165], slowing: [212, 138, 20], active: [200, 25, 58] };
+      const ZONE = { stale: 0, slowing: 1, active: 2 };
+      const dots = D.dots.map((d) => ({ b: d[0], x: d[1], y: d[2], r: d[3] })).sort((a, b) => a.x - b.x || a.y - b.y);
+      const mix = (a, b, p) => `rgb(${a.map((v, i) => Math.round(v + (b[i] - v) * p)).join(",")})`;
+      function draw(t) {
+        ctx.clearRect(0, 0, 1536, 600);
+        // chart paper prints left to right
+        const g = out3(clamp(t / 0.6)) * W;
+        ctx.save(); ctx.beginPath(); ctx.rect(OX, OY, g, H); ctx.clip();
+        ctx.fillStyle = "#ffffff"; ctx.fillRect(OX, OY, W, H);
+        for (let x = 0; x <= W; x += 7.5) {
+          ctx.fillStyle = Math.round(x / 7.5) % 5 === 0 ? "#e09aa6" : "#f1cdd2";
+          ctx.fillRect(OX + x, OY, 1, H);
+        }
+        for (let y = 0; y <= H; y += 7.5) {
+          ctx.fillStyle = Math.round(y / 7.5) % 5 === 0 ? "#e09aa6" : "#f1cdd2";
+          ctx.fillRect(OX, OY + y, W, 1);
+        }
+        ctx.restore();
+        // axis labels
+        ctx.globalAlpha = clamp((t - 0.3) / 0.3);
+        ctx.fillStyle = "#6a5357"; ctx.font = "500 30px Archivo"; ctx.textAlign = "center";
+        S.axis.forEach(([sx, label]) => ctx.fillText(label, X(sx), OY + H + 42));
+        ctx.globalAlpha = 1;
+        // zone rules
+        const zr = out3(clamp((t - 2.2) / 0.4));
+        ctx.fillStyle = "#c98591";
+        S.rules.forEach((sx) => ctx.fillRect(X(sx), OY, 2, H * zr));
+        // the trace: a flat line that spikes at every push, drawn at constant speed
+        const tr = clamp((t - 3.8) / 1.2);
+        if (tr > 0) {
+          const base = Y(S.baseline), xEnd = OX + tr * W;
+          ctx.strokeStyle = "#3a0d17"; ctx.lineWidth = 2.5; ctx.beginPath();
+          ctx.moveTo(OX, base); ctx.lineTo(OX, base - 30); ctx.lineTo(OX + 14, base - 30); ctx.lineTo(OX + 14, base);
+          dots.forEach((d) => {
+            const x = X(d.x), h = 14 + d.r * 4.5;
+            if (x - 6 > xEnd) return;
+            ctx.lineTo(x - 5, base); ctx.lineTo(x - 2, base - h); ctx.lineTo(x + 2, base + h * 0.35); ctx.lineTo(x + 5, base);
+          });
+          ctx.lineTo(xEnd, base); ctx.stroke();
+        }
+        // the 50 dots drop onto their real positions, then take their bucket colours
+        dots.forEach((d, i) => {
+          const p = out3(clamp((t - 0.6 - i * 0.022) / 0.35));
+          if (p <= 0) return;
+          const c = inout(clamp((t - 2.3 - ZONE[d.b] * 0.15) / 0.4));
+          ctx.globalAlpha = 0.9 * p;
+          ctx.fillStyle = mix(INK, COL[d.b], c);
+          ctx.beginPath(); ctx.arc(X(d.x), Y(d.y) - 40 * (1 - p), d.r * K, 0, Math.PI * 2); ctx.fill();
+        });
+        ctx.globalAlpha = 1;
+      }
+      const s = { t: 0 };
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo(s, { t: 0 }, { t: 6.9, duration: 6.9, ease: "none", onUpdate: () => draw(s.t) }, 0);
+      tl.fromTo("#s-line1", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 0.3);
+      tl.to("#s-line1", { opacity: 0, filter: "blur(6px)", duration: 0.15, ease: "power3.in" }, 3.42);
+      tl.fromTo("#s-line2", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 3.6);
+      ["#s-zone-stale", "#s-zone-slowing", "#s-zone-active"].forEach((id, i) =>
+        tl.fromTo(id, { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 2.4 + i * 0.15));
+      tl.to("#s-line2, #s-canvas, .s-zone", { opacity: 0, filter: "blur(6px)", duration: 0.18, ease: "power3.in" }, 6.7);
+      draw(0);
+      window.__timelines["sheet"] = tl;
+    })();
+  </script>
+</template>
