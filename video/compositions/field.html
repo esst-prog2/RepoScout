@@ -3,55 +3,82 @@
     @font-face { font-family: "Archivo"; font-weight: 100 900; font-stretch: 62% 125%;
       src: url("assets/fonts/archivo-latin-wdth-normal.woff2") format("woff2"); }
     #root { position: absolute; inset: 0; background: #fdfafa; font-family: "Archivo", sans-serif; color: #24161a; }
-    #f-head { position: absolute; left: 192px; top: 130px; font-size: 72px; font-weight: 800; font-stretch: 75%;
+    #f-head { position: absolute; left: 192px; top: 120px; font-size: 72px; font-weight: 800; font-stretch: 75%;
       letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
     #f-head span { font-weight: 500; font-stretch: 100%; font-size: 44px; color: #6a5357; letter-spacing: 0; }
-    #f-canvas { position: absolute; left: 192px; top: 270px; }
-    .f-line { position: absolute; left: 192px; top: 830px; font-size: 56px; font-weight: 700; font-stretch: 80%;
+    #f-canvas { position: absolute; left: 292px; top: 250px; }
+    .f-rank { position: absolute; left: 192px; width: 84px; text-align: right; font-size: 28px; font-weight: 650;
+      font-stretch: 87%; color: #6a5357; font-variant-numeric: tabular-nums; }
+    #f-rank1 { top: 238px; }
+    #f-rank50 { top: 659px; }
+    #f-ranklast { top: 758px; }
+    #f-rest { position: absolute; left: 956px; top: 758px; font-size: 30px; font-weight: 500; color: #6a5357; }
+    #f-best { position: absolute; left: 1000px; top: 432px; font-size: 44px; font-weight: 750; font-stretch: 80%; color: #b3122e; }
+    .f-line { position: absolute; left: 192px; top: 860px; font-size: 56px; font-weight: 700; font-stretch: 80%;
       letter-spacing: -0.01em; }
     #f-line2 em { font-style: normal; color: #b3122e; }
   </style>
   <div id="root" data-composition-id="field" data-width="1920" data-height="1080">
-    <div id="f-head" class="clip" data-start="0" data-duration="5.1">14,067 <span>matching repos, one mark each</span></div>
-    <canvas id="f-canvas" class="clip" data-start="0" data-duration="5.1" width="1407" height="490"></canvas>
+    <div id="f-head" class="clip" data-start="0" data-duration="5.1">14,067 <span>matching repos, ranked by GitHub</span></div>
+    <canvas id="f-canvas" class="clip" data-start="0" data-duration="5.1" width="1000" height="560"></canvas>
+    <div id="f-rank1" class="f-rank clip" data-start="0" data-duration="5.1">#1</div>
+    <div id="f-rank50" class="f-rank clip" data-start="0" data-duration="5.1">#50</div>
+    <div id="f-ranklast" class="f-rank clip" data-start="0" data-duration="5.1">#14,067</div>
+    <div id="f-rest" class="clip" data-start="0" data-duration="5.1">14,017 more, not read</div>
+    <div id="f-best" class="clip" data-start="0" data-duration="5.1">the 50 best matches</div>
     <div id="f-line1" class="f-line clip" data-start="0" data-duration="2.9">GitHub ranks them by how well they match</div>
     <div id="f-line2" class="f-line clip" data-start="2.9" data-duration="2.2">RepoScout reads the <em>50 best</em></div>
   </div>
   <script>
     (function () {
-      const N = window.RS.total, COLS = 201, PITCH = 7, MARK = 4, PICK = window.RS.shown;
+      // A ranked list: rows #1-#50 drawn, then a gap, then the last match (#14,067).
+      const PICK = window.RS.shown, PITCH = 8.6, BAR = 6, LEN = 640, LAST_Y = 520;
       const ctx = document.querySelector("#f-canvas").getContext("2d");
-      const s = { t: 0 };
       const clamp = (v) => Math.max(0, Math.min(1, v));
-      const ease = (v) => 1 - Math.pow(1 - v, 3);
+      const out3 = (v) => 1 - Math.pow(1 - v, 3);
+      const GREY = [185, 169, 172], RED = [179, 18, 46];
+      const mix = (p) => `rgb(${GREY.map((v, i) => Math.round(v + (RED[i] - v) * p)).join(",")})`;
       function draw(t) {
-        ctx.clearRect(0, 0, 1407, 490);
-        const rows = Math.ceil(N / COLS);
-        const shown = Math.floor(clamp((t - 0.2) / 1.0) * rows);          // prints row by row
-        const pick = ease(clamp((t - 2.6) / 0.4));                          // the 50 are chosen
-        for (let i = 0; i < N; i++) {
-          const r = Math.floor(i / COLS), c = i % COLS;
-          if (r > shown) break;
-          const x = c * PITCH, y = r * PITCH;
-          if (i < PICK) {
-            const sz = MARK + pick * 2;
-            ctx.fillStyle = pick > 0 ? `rgb(${Math.round(36 + pick * (179 - 36))},${Math.round(22 - pick * 4)},${Math.round(26 + pick * 20)})` : "#24161a";
-            ctx.fillRect(x - (sz - MARK) / 2, y - (sz - MARK) / 2, sz, sz);
-          } else {
-            ctx.globalAlpha = 1 - pick * 0.82;
-            ctx.fillStyle = "#6a5357";
-            ctx.fillRect(x, y, MARK, MARK);
-            ctx.globalAlpha = 1;
-          }
+        ctx.clearRect(0, 0, 1000, 560);
+        for (let i = 0; i < PICK; i++) {
+          const p = out3(clamp((t - 0.25 - i * 0.016) / 0.25));       // rows print top to bottom
+          if (p <= 0) continue;
+          ctx.fillStyle = mix(out3(clamp((t - 2.6 - i * 0.008) / 0.3)));
+          ctx.fillRect(0, i * PITCH, LEN * p, BAR);
+        }
+        const g = clamp((t - 1.2) / 0.3);                                // the gap and the last match
+        if (g > 0) {
+          ctx.globalAlpha = g;
+          ctx.fillStyle = "#b9a9ac";
+          [462, 478, 494].forEach((y) => ctx.fillRect(0, y, 6, 6));
+          ctx.globalAlpha = g * 0.6;
+          ctx.fillRect(0, LAST_Y, LEN, BAR);
+          ctx.globalAlpha = 1;
+        }
+        const b = out3(clamp((t - 2.7) / 0.4));                          // bracket around the 50
+        if (b > 0) {
+          const top = 0, bottom = (PICK - 1) * PITCH + BAR, x = LEN + 28;
+          ctx.strokeStyle = "#b3122e"; ctx.lineWidth = 3; ctx.beginPath();
+          ctx.moveTo(x - 12, top); ctx.lineTo(x, top);
+          ctx.lineTo(x, top + (bottom - top) * b);
+          if (b >= 1) ctx.lineTo(x - 12, bottom);
+          ctx.stroke();
         }
       }
+      const s = { t: 0 };
       const tl = gsap.timeline({ paused: true });
       tl.fromTo(s, { t: 0 }, { t: 5.1, duration: 5.1, ease: "none", onUpdate: () => draw(s.t) }, 0);
-      tl.fromTo("#f-head", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 0);
-      tl.fromTo("#f-line1", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 0.6);
+      const blurIn = (sel, at) => tl.fromTo(sel, { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, at);
+      blurIn("#f-head", 0);
+      blurIn("#f-rank1", 0.25);
+      blurIn("#f-rank50", 1.0);
+      blurIn("#f-line1", 0.6);
+      blurIn("#f-ranklast", 1.3);
+      blurIn("#f-rest", 1.45);
       tl.to("#f-line1", { opacity: 0, filter: "blur(6px)", duration: 0.15, ease: "power3.in" }, 2.72);
-      tl.fromTo("#f-line2", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 2.9);
-      tl.to("#f-head, #f-canvas, #f-line2", { opacity: 0, filter: "blur(6px)", duration: 0.18, ease: "power3.in" }, 4.9);
+      blurIn("#f-best", 2.95);
+      blurIn("#f-line2", 2.9);
+      tl.to("#f-head, #f-canvas, .f-rank, #f-rest, #f-best, #f-line2", { opacity: 0, filter: "blur(6px)", duration: 0.18, ease: "power3.in" }, 4.9);
       draw(0);
       window.__timelines["field"] = tl;
     })();

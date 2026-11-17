@@ -1,7 +1,7 @@
 # REVIEW: "From 14,067 repos to one sentence"
 
-Delivered: `promo/video/reposcout-explainer.mp4` (30.0 s, 1920×1080, 30 fps, H.264, no audio track, 1.5 MB after
-re-encoding the 3.8 MB HyperFrames render at CRF 24 with faststart) and `promo/video/poster.jpg` (the frame at 2.8 s).
+Delivered: `promo/video/reposcout-explainer.mp4` (30.0 s, 1920×1080, 30 fps, H.264, no audio track, 1.07 MB after
+re-encoding the 2.8 MB HyperFrames render at CRF 24 with faststart) and `promo/video/poster.jpg` (the frame at 2.8 s).
 Re-render: `cd video`, `npx hyperframes render -o renders/reposcout-explainer.mp4`, then the ffmpeg line in
 `promo/img/README.md`'s spirit: `ffmpeg -i video/renders/reposcout-explainer.mp4 -c:v libx264 -crf 24 -preset slow
 -pix_fmt yuv420p -movflags +faststart -an promo/video/reposcout-explainer.mp4`.
@@ -22,8 +22,7 @@ Re-render: `cd video`, `npx hyperframes render -o renders/reposcout-explainer.mp
 - The 50 dots are placed where they are in that screenshot's strip (Pillow colour detection). 10 active and 4 slowing
   were found exactly; 29 stale dots were found and the other 7 overlap in the "5+ years" pile, so they are drawn in
   that pile (`assets/data.js`). The trace is redrawn from those dots, so it is close to, not identical with, the app's.
-- The field of 14,067 marks is an illustration of the count (one mark per repo); which 50 are "best" is GitHub's
-  relevance ranking, shown as the first 50 marks.
+- GitHub's relevance ranking is drawn as a list: rows #1-#50 (the 50 RepoScout reads), a gap, and #14,067.
 - Real screens: the result + strip crop and the table crop already on the promo page (account names blurred).
 - Nothing in the film shows a feature RepoScout does not have.
 
@@ -40,7 +39,8 @@ Re-render: `cd video`, `npx hyperframes render -o renders/reposcout-explainer.mp
 
 ## Weakest shot, and next
 
-- The field (3.5-8.6 s): 14,067 marks read as a grey texture, and the 50 chosen marks are a thin red sliver at the
-  top-left. With more time: lift the 50 out of the field and carry them into the next scene's sheet, so the same
-  objects travel through the whole film (now it is a cut between scenes).
+- Fixed after publishing (17 Nov): the first version showed 14,067 tiny marks as a field; the user read it as a
+  glitch in the video. It is now a ranked list (#1-#50, a gap, #14,067) with a bracket on "the 50 best matches".
+- Weakest now: the cut between the list and the sheet. With more time: carry the 50 red rows into the next
+  scene as its 50 dots, so the same objects travel through the whole film.
 - At phone width the small lines (axis labels, zone counts) are too small to read; the scene lines are readable.
