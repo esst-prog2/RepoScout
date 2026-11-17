@@ -6,80 +6,26 @@
     #f-head { position: absolute; left: 192px; top: 120px; font-size: 72px; font-weight: 800; font-stretch: 75%;
       letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
     #f-head span { font-weight: 500; font-stretch: 100%; font-size: 44px; color: #6a5357; letter-spacing: 0; }
-    #f-canvas { position: absolute; left: 292px; top: 250px; }
-    .f-rank { position: absolute; left: 192px; width: 84px; text-align: right; font-size: 28px; font-weight: 650;
-      font-stretch: 87%; color: #6a5357; font-variant-numeric: tabular-nums; }
-    #f-rank1 { top: 238px; }
-    #f-rank50 { top: 659px; }
-    #f-ranklast { top: 758px; }
-    #f-rest { position: absolute; left: 956px; top: 758px; font-size: 30px; font-weight: 500; color: #6a5357; }
-    #f-best { position: absolute; left: 1000px; top: 432px; font-size: 44px; font-weight: 750; font-stretch: 80%; color: #b3122e; }
-    .f-line { position: absolute; left: 192px; top: 860px; font-size: 56px; font-weight: 700; font-stretch: 80%;
+    .f-line { position: absolute; left: 192px; top: 900px; font-size: 56px; font-weight: 700; font-stretch: 80%;
       letter-spacing: -0.01em; }
     #f-line2 em { font-style: normal; color: #b3122e; }
   </style>
   <div id="root" data-composition-id="field" data-width="1920" data-height="1080">
     <div id="f-head" class="clip" data-start="0" data-duration="5.1">14,067 <span>matching repos, ranked by GitHub</span></div>
-    <canvas id="f-canvas" class="clip" data-start="0" data-duration="5.1" width="1000" height="560"></canvas>
-    <div id="f-rank1" class="f-rank clip" data-start="0" data-duration="5.1">#1</div>
-    <div id="f-rank50" class="f-rank clip" data-start="0" data-duration="5.1">#50</div>
-    <div id="f-ranklast" class="f-rank clip" data-start="0" data-duration="5.1">#14,067</div>
-    <div id="f-rest" class="clip" data-start="0" data-duration="5.1">14,017 more, not read</div>
-    <div id="f-best" class="clip" data-start="0" data-duration="5.1">the 50 best matches</div>
     <div id="f-line1" class="f-line clip" data-start="0" data-duration="2.9">GitHub ranks them by how well they match</div>
     <div id="f-line2" class="f-line clip" data-start="2.9" data-duration="2.2">RepoScout reads the <em>50 best</em></div>
   </div>
   <script>
     (function () {
-      // A ranked list: rows #1-#50 drawn, then a gap, then the last match (#14,067).
-      const PICK = window.RS.shown, PITCH = 8.6, BAR = 6, LEN = 640, LAST_Y = 520;
-      const ctx = document.querySelector("#f-canvas").getContext("2d");
-      const clamp = (v) => Math.max(0, Math.min(1, v));
-      const out3 = (v) => 1 - Math.pow(1 - v, 3);
-      const GREY = [185, 169, 172], RED = [179, 18, 46];
-      const mix = (p) => `rgb(${GREY.map((v, i) => Math.round(v + (RED[i] - v) * p)).join(",")})`;
-      function draw(t) {
-        ctx.clearRect(0, 0, 1000, 560);
-        for (let i = 0; i < PICK; i++) {
-          const p = out3(clamp((t - 0.25 - i * 0.016) / 0.25));       // rows print top to bottom
-          if (p <= 0) continue;
-          ctx.fillStyle = mix(out3(clamp((t - 2.6 - i * 0.008) / 0.3)));
-          ctx.fillRect(0, i * PITCH, LEN * p, BAR);
-        }
-        const g = clamp((t - 1.2) / 0.3);                                // the gap and the last match
-        if (g > 0) {
-          ctx.globalAlpha = g;
-          ctx.fillStyle = "#b9a9ac";
-          [462, 478, 494].forEach((y) => ctx.fillRect(0, y, 6, 6));
-          ctx.globalAlpha = g * 0.6;
-          ctx.fillRect(0, LAST_Y, LEN, BAR);
-          ctx.globalAlpha = 1;
-        }
-        const b = out3(clamp((t - 2.7) / 0.4));                          // bracket around the 50
-        if (b > 0) {
-          const top = 0, bottom = (PICK - 1) * PITCH + BAR, x = LEN + 28;
-          ctx.strokeStyle = "#b3122e"; ctx.lineWidth = 3; ctx.beginPath();
-          ctx.moveTo(x - 12, top); ctx.lineTo(x, top);
-          ctx.lineTo(x, top + (bottom - top) * b);
-          if (b >= 1) ctx.lineTo(x - 12, bottom);
-          ctx.stroke();
-        }
-      }
-      const s = { t: 0 };
+      // GitHub's ranking is shown by the chart-story component mounted over this scene
+      // in index.html (14,067 matching vs the 50 RepoScout reads); this scene holds the words.
       const tl = gsap.timeline({ paused: true });
-      tl.fromTo(s, { t: 0 }, { t: 5.1, duration: 5.1, ease: "none", onUpdate: () => draw(s.t) }, 0);
       const blurIn = (sel, at) => tl.fromTo(sel, { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, at);
       blurIn("#f-head", 0);
-      blurIn("#f-rank1", 0.25);
-      blurIn("#f-rank50", 1.0);
       blurIn("#f-line1", 0.6);
-      blurIn("#f-ranklast", 1.3);
-      blurIn("#f-rest", 1.45);
       tl.to("#f-line1", { opacity: 0, filter: "blur(6px)", duration: 0.15, ease: "power3.in" }, 2.72);
-      blurIn("#f-best", 2.95);
       blurIn("#f-line2", 2.9);
-      tl.to("#f-head, #f-canvas, .f-rank, #f-rest, #f-best, #f-line2", { opacity: 0, filter: "blur(6px)", duration: 0.18, ease: "power3.in" }, 4.9);
-      draw(0);
+      tl.to("#f-head, #f-line2", { opacity: 0, filter: "blur(6px)", duration: 0.18, ease: "power3.in" }, 4.9);
       window.__timelines["field"] = tl;
     })();
   </script>
