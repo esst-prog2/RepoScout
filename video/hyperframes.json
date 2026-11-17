@@ -9,12 +9,5 @@
   "media": {
     "autoProxy": true
   },
-  "authoringSkill": "hyperframes",
-  "registryItems": [
-    {
-      "name": "chart-story",
-      "type": "hyperframes:component",
-      "target": "compositions/components/chart-story.html"
-    }
-  ]
+  "authoringSkill": "hyperframes"
 }
