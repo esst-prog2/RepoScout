@@ -1,7 +1,12 @@
 # RepoScout
-For Advanced Programming class
+
+**Try it in your browser: https://esst-prog2.github.io/RepoScout/** (no sign-in, no token). The search page itself is at https://esst-prog2.github.io/RepoScout/app/.
+
+RepoScout searches GitHub for a topic, takes the 50 best-matching repositories and shows how many are still being worked on: one sentence, a heartbeat chart, a ranked table and a CSV. It runs as a web page and as a Python command-line tool (`reposcout search "<keyword>"`).
 
 See [docs/USER_MANUAL.md](docs/USER_MANUAL.md) for installation, GitHub token setup, and usage instructions.
+
+A student project for the Advanced Programming course at ELTE, 2026. Sections 2–5 below are the brief written at the start of the term, kept as written; the dated note under "Not this term" records the biggest change of plan, and [AGENTS.md](AGENTS.md) logs every decision since.
 
 ## 1. The demo
 
@@ -30,7 +35,7 @@ repo by recency of activity; rank and summarize
 
 **Not this term**
 
-- a browser UI — command line only, for now
+- a browser UI — command line only, for now. *Plan changed, 25 October 2026: a static web page was built after all (`site/`, same rules as the command line), and since 14 November 2026 it is published on GitHub Pages with a promo page: https://esst-prog2.github.io/RepoScout/*
 - an AI-generated written summary of the results
 - tracking a saved search over time / alerting on new entrants
 - cross-referencing with other sources (Product Hunt, npm, etc.)
