@@ -815,3 +815,7 @@ The user found the list version odd too and asked (`/hyperframes replace the ran
 ## 2026-11-17 (later) — Explainer video: scene 2 is now the real GitHub search page
 
 The user disliked every drawn version of the "50 out of many" scene (field, list, chart-story) and chose a real GitHub screen. gstack browse screenshot of `github.com/search?q=project+management+software&type=repositories` at 1920×1080 (logged out; "Sort by: Best match"; 14.4k results on 17 Nov). Owner-name boxes (Range up to "/") and avatar boxes measured from the DOM, pixelated with Pillow, cropped to 1160×1000 → `video/assets/github-search.png` (only the blurred copy is in the repo). `field.html` rewritten (screenshot at 0.78 scale on the right, badges #1-#7, sort control circled + 34 px label, dated caption). chart-story component, its host and `hyperframes.lock.json` removed; `hyperframes.json` restored. Check 0 errors; re-rendered; `promo/video/reposcout-explainer.mp4` 1.23 MB. Same branch `fix-video-field`.
+
+## 2026-11-21 — Explainer video: end card points to the app
+
+PR #18 (`fix-video-field`, real GitHub screen) merged. The user noticed the end card's "Try it:" showed the promo page URL. Branch `fix-video-app-link`: `video/compositions/end.html` now shows `esst-prog2.github.io/RepoScout/app`; SPEC updated; check 0 errors; re-rendered; `promo/video/reposcout-explainer.mp4` replaced (1.23 MB).
