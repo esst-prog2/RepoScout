@@ -44,7 +44,7 @@ SHOTS:
                 1.6: "— most recent entrant pushed 1 minute ago".
   s5  21.6-26.2 paper. The real screens, one at a time: result + strip (2.1 s), then the ranked table with
                 Download CSV (2.2 s). Caption: "The real screens, 26 October 2026" / "Ranked by stars · Download CSV".
-  s6  26.2-30.0 oxblood. "14,067 repos in." / "One sentence out." then "Try it: esst-prog2.github.io/RepoScout".
+  s6  26.2-30.0 oxblood. "14,067 repos in." / "One sentence out." then "Try it: esst-prog2.github.io/RepoScout/app".
 
 BANNED:  dark navy void; glow, particles, gradients, glass; everything centred (text is left-aligned on the
          192 px title-safe edge); everything fading and sliding up; text moving while read; corner labels and
