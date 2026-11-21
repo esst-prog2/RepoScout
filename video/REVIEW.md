@@ -1,7 +1,7 @@
 # REVIEW: "From 14,067 repos to one sentence"
 
-Delivered: `promo/video/reposcout-explainer.mp4` (30.0 s, 1920×1080, 30 fps, H.264, no audio track, 1.06 MB after
-re-encoding the 3.0 MB HyperFrames render at CRF 24 with faststart) and `promo/video/poster.jpg` (the frame at 2.8 s).
+Delivered: `promo/video/reposcout-explainer.mp4` (30.0 s, 1920×1080, 30 fps, H.264, no audio track, 1.23 MB after
+re-encoding the 3.3 MB HyperFrames render at CRF 24 with faststart) and `promo/video/poster.jpg` (the frame at 2.8 s).
 Re-render: `cd video`, `npx hyperframes render -o renders/reposcout-explainer.mp4`, then the ffmpeg line in
 `promo/img/README.md`'s spirit: `ffmpeg -i video/renders/reposcout-explainer.mp4 -c:v libx264 -crf 24 -preset slow
 -pix_fmt yuv420p -movflags +faststart -an promo/video/reposcout-explainer.mp4`.
@@ -22,9 +22,11 @@ Re-render: `cd video`, `npx hyperframes render -o renders/reposcout-explainer.mp
 - The 50 dots are placed where they are in that screenshot's strip (Pillow colour detection). 10 active and 4 slowing
   were found exactly; 29 stale dots were found and the other 7 overlap in the "5+ years" pile, so they are drawn in
   that pile (`assets/data.js`). The trace is redrawn from those dots, so it is close to, not identical with, the app's.
-- The selection is a two-bar chart from the HyperFrames registry (`chart-story`, `compositions/components/`):
-  14,067 matching vs 50 read. Two small edits to the component, marked "RepoScout edit": thousands separators on
-  integers, and a see-through stage so the scene's header shows under it.
+- The selection is shown on GitHub's own search page: a 1920×1080 screenshot of
+  github.com/search?q=project+management+software&type=repositories (logged out, 17 Nov 2026, "Sort by: Best
+  match"), cropped to the results (1160×1000 at x 320, y 80). Every owner name (the part before "/") and every
+  avatar was pixelated with Pillow using boxes measured from the page's DOM, and checked at 3× zoom. The page
+  showed 14.4k results that day (14,067 on 26 Oct); the caption dates the screenshot instead of hiding the count.
 - Real screens: the result + strip crop and the table crop already on the promo page (account names blurred).
 - Nothing in the film shows a feature RepoScout does not have.
 
@@ -42,7 +44,7 @@ Re-render: `cd video`, `npx hyperframes render -o renders/reposcout-explainer.mp
 ## Weakest shot, and next
 
 - Fixed after publishing (17 Nov): the first version showed 14,067 tiny marks as a field, which read as a glitch;
-  a hand-drawn list (#1-#50) also looked odd. At the user's request the scene now uses the registry's chart-story.
+  a hand-drawn list and then a two-bar chart (registry `chart-story`) followed; the user chose a real GitHub screen.
 - Weakest now: the cut between the list and the sheet. With more time: carry the 50 red rows into the next
   scene as its 50 dots, so the same objects travel through the whole film.
 - At phone width the small lines (axis labels, zone counts) are too small to read; the scene lines are readable.

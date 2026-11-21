@@ -3,29 +3,56 @@
     @font-face { font-family: "Archivo"; font-weight: 100 900; font-stretch: 62% 125%;
       src: url("assets/fonts/archivo-latin-wdth-normal.woff2") format("woff2"); }
     #root { position: absolute; inset: 0; background: #fdfafa; font-family: "Archivo", sans-serif; color: #24161a; }
-    #f-head { position: absolute; left: 192px; top: 120px; font-size: 72px; font-weight: 800; font-stretch: 75%;
-      letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
-    #f-head span { font-weight: 500; font-stretch: 100%; font-size: 44px; color: #6a5357; letter-spacing: 0; }
-    .f-line { position: absolute; left: 192px; top: 900px; font-size: 56px; font-weight: 700; font-stretch: 80%;
-      letter-spacing: -0.01em; }
-    #f-line2 em { font-style: normal; color: #b3122e; }
+    #f-head { position: absolute; left: 192px; top: 190px; width: 560px; font-size: 64px; font-weight: 800;
+      font-stretch: 75%; line-height: 1.05; letter-spacing: -0.01em; }
+    .f-line { position: absolute; left: 192px; top: 470px; width: 560px; font-size: 56px; font-weight: 700;
+      font-stretch: 80%; line-height: 1.1; letter-spacing: -0.01em; }
+    #f-line2 em { font-style: normal; color: #b3122e; white-space: nowrap; }
+    #f-sortlabel { position: absolute; left: 1303px; top: 104px; width: 400px; text-align: right; font-size: 34px;
+      font-weight: 700; font-stretch: 87%; color: #b3122e; }
+    #f-shot { position: absolute; left: 820px; top: 160px; width: 905px; height: 780px; overflow: hidden;
+      border: 2px solid #ecdcdc; border-radius: 10px; background: #ffffff; }
+    #f-shot img { display: block; width: 905px; height: 780px; }
+    #f-sort { position: absolute; left: 1578px; top: 155px; width: 125px; height: 37px;
+      border: 4px solid #b3122e; border-radius: 8px; }
+    .f-badge { position: absolute; left: 756px; width: 52px; height: 44px; border-radius: 4px; background: #b3122e;
+      color: #ffffff; font-size: 30px; font-weight: 750; font-stretch: 87%; line-height: 44px; text-align: center;
+      font-variant-numeric: tabular-nums; }
+    #f-cap { position: absolute; left: 820px; top: 956px; font-size: 28px; color: #6a5357; font-stretch: 87%; }
   </style>
   <div id="root" data-composition-id="field" data-width="1920" data-height="1080">
-    <div id="f-head" class="clip" data-start="0" data-duration="5.1">14,067 <span>matching repos, ranked by GitHub</span></div>
-    <div id="f-line1" class="f-line clip" data-start="0" data-duration="2.9">GitHub ranks them by how well they match</div>
-    <div id="f-line2" class="f-line clip" data-start="2.9" data-duration="2.2">RepoScout reads the <em>50 best</em></div>
+    <div id="f-head" class="clip" data-start="0" data-duration="5.1">GitHub's own search</div>
+    <div id="f-line1" class="f-line clip" data-start="0" data-duration="2.9">It ranks them by how well they match</div>
+    <div id="f-line2" class="f-line clip" data-start="2.9" data-duration="2.2">RepoScout reads the <em>top 50</em></div>
+    <div id="f-shot" class="clip" data-start="0" data-duration="5.1"><img id="f-shot-img" src="assets/github-search.png" alt="" /></div>
+    <div id="f-sort" class="clip" data-start="0" data-duration="5.1"></div>
+    <div id="f-sortlabel" class="clip" data-start="0" data-duration="5.1">Sort by: Best match</div>
+    <div id="f-b1" class="f-badge clip" data-start="0" data-duration="5.1" style="top: 198px">#1</div>
+    <div id="f-b2" class="f-badge clip" data-start="0" data-duration="5.1" style="top: 321px">#2</div>
+    <div id="f-b3" class="f-badge clip" data-start="0" data-duration="5.1" style="top: 418px">#3</div>
+    <div id="f-b4" class="f-badge clip" data-start="0" data-duration="5.1" style="top: 515px">#4</div>
+    <div id="f-b5" class="f-badge clip" data-start="0" data-duration="5.1" style="top: 638px">#5</div>
+    <div id="f-b6" class="f-badge clip" data-start="0" data-duration="5.1" style="top: 735px">#6</div>
+    <div id="f-b7" class="f-badge clip" data-start="0" data-duration="5.1" style="top: 858px">#7</div>
+    <div id="f-cap" class="clip" data-start="0" data-duration="5.1">github.com, 17 November 2026 · account names and avatars blurred</div>
   </div>
   <script>
     (function () {
-      // GitHub's ranking is shown by the chart-story component mounted over this scene
-      // in index.html (14,067 matching vs the 50 RepoScout reads); this scene holds the words.
+      // The real GitHub search for "project management software", sorted by Best match
+      // (screenshot taken 17 Nov 2026; owner names and avatars blurred, see REVIEW.md).
       const tl = gsap.timeline({ paused: true });
       const blurIn = (sel, at) => tl.fromTo(sel, { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, at);
       blurIn("#f-head", 0);
+      tl.fromTo("#f-shot-img", { opacity: 0, scale: 1.03 }, { opacity: 1, scale: 1, duration: 0.6, ease: "expo.out" }, 0.1);
+      blurIn("#f-cap", 0.5);
       blurIn("#f-line1", 0.6);
+      tl.fromTo("#f-sort", { opacity: 0, scale: 1.25 }, { opacity: 1, scale: 1, duration: 0.35, ease: "expo.out" }, 1.0);
+      blurIn("#f-sortlabel", 1.05);
+      ["#f-b1", "#f-b2", "#f-b3", "#f-b4", "#f-b5", "#f-b6", "#f-b7"].forEach((id, i) =>
+        tl.fromTo(id, { opacity: 0, x: -10 }, { opacity: 1, x: 0, duration: 0.25, ease: "expo.out" }, 1.4 + i * 0.12));
       tl.to("#f-line1", { opacity: 0, filter: "blur(6px)", duration: 0.15, ease: "power3.in" }, 2.72);
       blurIn("#f-line2", 2.9);
-      tl.to("#f-head, #f-line2", { opacity: 0, filter: "blur(6px)", duration: 0.18, ease: "power3.in" }, 4.9);
+      tl.to("#f-head, #f-line2, #f-shot, #f-sort, #f-sortlabel, .f-badge, #f-cap", { opacity: 0, filter: "blur(6px)", duration: 0.18, ease: "power3.in" }, 4.9);
       window.__timelines["field"] = tl;
     })();
   </script>
